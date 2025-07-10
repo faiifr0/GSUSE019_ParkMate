@@ -1,0 +1,29 @@
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG          # Hiển thị câu SQL với dấu '?'
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Hiển thị giá trị tham số
+#
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  datasource:
+    url: jdbc:postgresql://localhost:5432/park_management
+    username: postgres
+#    password: postgres
+    password: 123456
+jwt:
+  secret: DHiuqwbV^j@oaIUmqlHUK@_QW12dnash987234n
+  expireTime: 60
+server:
+  port: 8081
+
