@@ -1,18 +1,23 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React from 'react'; // @ts-ignore
+import { NavigationContainer } from '@react-navigation/native';// @ts-ignore
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { RootStackParamList } from './types';
 import LoginScreen from '../screens/Auth/LoginScreen';
-import BottomTabNavigator from './BottomTabNavigator';
+import RegisterScreen from '../screens/Auth/RegisterScreen'; // Import đúng
+import BottomTabNavigator from './BottomTabNavigator'; // Tab chính
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+// Tạo stack
+const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+            <Stack.Navigator
+                initialRouteName="Login"
+                screenOptions={{ headerShown: false }}
+            >
                 <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="Home" component={BottomTabNavigator} />
+                <Stack.Screen name="Register" component={RegisterScreen} />
+                <Stack.Screen name="MainApp" component={BottomTabNavigator} />
             </Stack.Navigator>
         </NavigationContainer>
     );

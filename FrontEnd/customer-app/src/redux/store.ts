@@ -6,7 +6,7 @@ import userReducer from './userSlice';
 
 const persistConfig = {
     key: 'root',
-    storage: AsyncStorage,
+    storage: AsyncStorage as any,
 };
 
 const rootReducer = combineReducers({

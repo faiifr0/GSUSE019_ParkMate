@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { store } from '../redux/store';
+import { store } from '../redux/store.js';
 
 const axiosClient = axios.create({
     baseURL: 'https://your-api-url.com/api', // Thay bằng API thật của bạn
