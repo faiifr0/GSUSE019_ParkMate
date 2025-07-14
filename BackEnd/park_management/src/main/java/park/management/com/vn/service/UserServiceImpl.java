@@ -5,7 +5,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import park.management.com.vn.entity.User;
+import park.management.com.vn.entity.Users;
 import park.management.com.vn.mapper.UserMapper;
 import park.management.com.vn.model.request.LoginRequest;
 import park.management.com.vn.model.request.RegisterUserRequest;
@@ -24,12 +24,12 @@ public class UserServiceImpl implements UserService {
   private final JWTTokenUtils jwtTokenUtils;
 
   @Override
-  public List<User> getAllUsers() {
+  public List<Users> getAllUsers() {
     return userRepository.findAll();
   }
 
   @Override
-  public Optional<User> getUserById(Long id) {
+  public Optional<Users> getUserById(Long id) {
     return userRepository.findById(id);
   }
 
@@ -38,18 +38,18 @@ public class UserServiceImpl implements UserService {
     if (userRepository.existsByEmail(request.getEmail())) {
       throw new RuntimeException("Email is exists in system");
     }
-    User user = userMapper.toEntity(request);
-    user.setUsername(request.getEmail());
-    user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
-    return userMapper.toResponse(userRepository.save(user));
+    Users users = userMapper.toEntity(request);
+    users.setUsername(request.getEmail());
+    users.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+    return userMapper.toResponse(userRepository.save(users));
   }
 
   @Override
-  public User updateUser(Long id, User updatedUser) {
+  public Users updateUser(Long id, Users updatedUsers) {
     return userRepository.findById(id).map(user -> {
-      user.setUsername(updatedUser.getUsername());
-      user.setEmail(updatedUser.getEmail());
-      user.setPassword(updatedUser.getPassword());
+      user.setUsername(updatedUsers.getUsername());
+      user.setEmail(updatedUsers.getEmail());
+      user.setPassword(updatedUsers.getPassword());
       return userRepository.save(user);
     }).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
   }
@@ -61,9 +61,9 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public LoginResponse login(LoginRequest request) {
-    User user = userRepository.findByUsername(request.getUsername())
+    Users users = userRepository.findByUsername(request.getUsername())
         .orElseThrow(() -> new RuntimeException("User not found"));
-    if (bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
+    if (bCryptPasswordEncoder.matches(request.getPassword(), users.getPassword())) {
       return LoginResponse.builder()
           .accessToken(jwtTokenUtils.generateAccessToken(request.getUsername()))
           .build();

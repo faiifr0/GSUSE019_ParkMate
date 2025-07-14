@@ -2,9 +2,6 @@ package park.management.com.vn.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -17,13 +14,12 @@ import lombok.Setter;
 import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
-@Table(name = "promotions")
+@Table(name = "promotion")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Promotion extends BaseEntity {
-
 
   @ManyToOne
   @JoinColumn(name = "branch_id")
@@ -35,18 +31,19 @@ public class Promotion extends BaseEntity {
   @Column(name = "description")
   private String description;
 
-  @Column(name = "discount_percentage")
-  private BigDecimal discountPercentage;
+  @Column(name = "discount")
+  private BigDecimal discount;
 
-  @Column(name = "valid_from", nullable = false)
-  private LocalDateTime validFrom;
+  private Integer dayOfWeek; // Thứ trong tuần
+  private Integer day; // Ngày trong tháng
+  private Integer month; // Tháng
 
-  @Column(name = "valid_until", nullable = false)
-  private LocalDateTime validUntil;
+  @Column(name = "valid_from", nullable = false) // 20/05/2025
+  private LocalDateTime from;
 
-  @Column(name = "created_at")
-  private LocalDateTime createdAt;
+  @Column(name = "valid_until", nullable = false) // 26/05/2025
+  private LocalDateTime to;
 
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+  @Column(name = "is_active")
+  private Integer isActive;
 }

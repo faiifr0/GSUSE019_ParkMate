@@ -34,7 +34,8 @@ public class ParkBranchServiceImpl implements ParkBranchService {
         return parkBranchRepository.findById(id).map(branch -> {
             branch.setName(updatedBranch.getName());
             branch.setAddress(updatedBranch.getAddress());
-            branch.setOpeningHours(updatedBranch.getOpeningHours());
+            branch.setOpen(updatedBranch.getOpen());
+            branch.setClose(updatedBranch.getClose());
             branch.setCreatedBy(updatedBranch.getCreatedBy());
             return parkBranchRepository.save(branch);
         }).orElseThrow(() -> new RuntimeException("ParkBranch not found with id: " + id));

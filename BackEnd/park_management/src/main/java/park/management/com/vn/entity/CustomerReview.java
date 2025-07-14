@@ -16,7 +16,7 @@ import lombok.Setter;
 import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
-@Table(name = "customer_reviews")
+@Table(name = "customer_review")
 @Setter
 @Getter
 @NoArgsConstructor
@@ -37,9 +37,6 @@ public class CustomerReview extends BaseEntity {
 
   @Column(name = "comment")
   private String comment;
-
-  @Column(name = "created_at")
-  private LocalDateTime createdAt;
 
   @Column(name = "approved")
   private Boolean approved;

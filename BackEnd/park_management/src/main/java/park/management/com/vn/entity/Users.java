@@ -2,15 +2,10 @@ package park.management.com.vn.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,8 +17,7 @@ import park.management.com.vn.entity.base.BaseEntity;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User extends BaseEntity {
-
+public class Users extends BaseEntity {
 
   @Column(nullable = false, unique = true)
   private String username;
@@ -33,4 +27,7 @@ public class User extends BaseEntity {
 
   @Column(nullable = false)
   private String password;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private ParkBranch parkBranch;
 }
