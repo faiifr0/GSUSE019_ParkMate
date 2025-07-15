@@ -1,14 +1,7 @@
 package park.management.com.vn.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -16,6 +9,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import park.management.com.vn.constaint.EventStatus;
+import park.management.com.vn.constaint.TicketStatus;
 import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
@@ -32,4 +27,7 @@ public class Ticket extends BaseEntity {
   @ManyToOne
   @JoinColumn(name = "park_branch_id")
   private ParkBranch parkBranch;
+
+  @Enumerated(EnumType.STRING)
+  private TicketStatus status;
 }
