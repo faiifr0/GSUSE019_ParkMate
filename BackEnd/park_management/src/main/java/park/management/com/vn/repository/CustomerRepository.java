@@ -1,4 +1,13 @@
 package park.management.com.vn.repository;
 
-public interface CustomerRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import park.management.com.vn.entity.Customer;
+
+import java.util.Optional;
+
+@Repository
+public interface CustomerRepository extends JpaRepository<Customer, Long> {
+
+    Optional<Customer> findById(Long id);
 }

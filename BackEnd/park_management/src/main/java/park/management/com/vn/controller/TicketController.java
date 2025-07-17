@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import park.management.com.vn.entity.Ticket;
+import park.management.com.vn.model.request.TicketRequest;
+import park.management.com.vn.model.response.TicketResponse;
 import park.management.com.vn.service.TicketService;
 
 @RestController
@@ -54,5 +56,12 @@ public class TicketController {
   @GetMapping("/branch/{branchId}")
   public ResponseEntity<List<Ticket>> getTicketsByBranch(@PathVariable Long branchId) {
     return ResponseEntity.ok(ticketService.getTicketsByBranchId(branchId));
+  }
+
+  //tungnd
+  @PostMapping("/buy")
+  public ResponseEntity<Ticket> buyTicket(@RequestBody TicketRequest request) {
+    TicketResponse response = ticketService.createTicketFromRequest(request);
+    return ResponseEntity.ok(response);
   }
 }

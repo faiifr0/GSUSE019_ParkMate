@@ -28,9 +28,13 @@ public class ParkBranchController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ParkBranch> getBranchById(@PathVariable Long id) {
+        /*
         return parkBranchService.getBranchById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+        */
+        return ResponseEntity.ok(parkBranchService.getBranchById(id));
+
     }
 
     @PostMapping

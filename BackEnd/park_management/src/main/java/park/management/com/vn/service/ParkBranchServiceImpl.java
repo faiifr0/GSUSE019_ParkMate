@@ -1,10 +1,10 @@
 package park.management.com.vn.service;
 
-import java.sql.Timestamp;
 import java.util.List;
-import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import park.management.com.vn.entity.ParkBranch;
+import park.management.com.vn.exception.parkbranch.ParkBranchNotFoundException;
 import park.management.com.vn.repository.ParkBranchRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +19,21 @@ public class ParkBranchServiceImpl implements ParkBranchService {
         return parkBranchRepository.findAll();
     }
 
+    /*
     @Override
     public Optional<ParkBranch> getBranchById(Long id) {
         return parkBranchRepository.findById(id);
+    }
+    */
+    @Override
+    public ParkBranch getBranchById(Long id) {
+        return parkBranchRepository.findById(id)
+                .orElseThrow(() -> new ParkBranchNotFoundException(id));
+    }
+
+    @Override
+    public ParkBranch findBranchById(Long id) {
+        return parkBranchRepository.findById(id).orElse(null);
     }
 
     @Override

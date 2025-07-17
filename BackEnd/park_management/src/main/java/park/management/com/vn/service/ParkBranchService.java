@@ -8,7 +8,9 @@ public interface ParkBranchService {
 
   List<ParkBranch> getAllBranches();
 
-  Optional<ParkBranch> getBranchById(Long id);
+  ParkBranch getBranchById(Long id);
+
+  ParkBranch findBranchById(Long id);
 
   ParkBranch createBranch(ParkBranch branch);
 
