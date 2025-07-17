@@ -29,6 +29,9 @@ public class BaseEntity implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  // WARNING: This ID is an Integer, but all repos expect Long?!
+  // It will work, until it doesn’t. Type mismatch risks ahead.
+  // Ideally switch to Long.
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   protected Integer id;
