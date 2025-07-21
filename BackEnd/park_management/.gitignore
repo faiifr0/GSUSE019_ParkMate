@@ -42,4 +42,4 @@ build/
 dataSources.xml
 
 # Spring Boot config
-**/application.properties
+**/application.yml
