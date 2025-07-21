@@ -11,7 +11,7 @@ public class PromotionSpecification {
 
         return (root, criteriaQuery, cb) ->
                 cb.and(
-                        cb.equal(root.get("branchId"), branchId),
+                        cb.equal(root.get("branch").get("id"), branchId),
                         cb.equal(root.get("isActive"), 1),
                         cb.lessThanOrEqualTo(root.get("from"), atTime),
                         cb.greaterThanOrEqualTo(root.get("to"), atTime)

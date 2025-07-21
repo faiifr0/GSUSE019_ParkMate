@@ -105,5 +105,13 @@
       <version>${commons-lang3}</version>
     </dependency>
     <!-- End -->
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+
   </dependencies>
 </project>
