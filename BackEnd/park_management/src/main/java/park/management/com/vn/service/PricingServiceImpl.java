@@ -19,7 +19,7 @@ public class PricingServiceImpl implements PricingService {
     public PriceInfo getCurrentTicketPriceInfo() {
         return ticketPriceRepository
                 .findOne(PriceInfoSpecification.isCurrentTicketPrice())
-                .orElseThrow(() -> new PriceNotFoundException("No valid ticket found"));
+                .orElseThrow(() -> new PriceNotFoundException("No valid listed price found"));
     }
 
     @Override
