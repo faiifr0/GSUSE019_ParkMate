@@ -36,3 +36,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Ignore IDE config files
+.idea/
+dataSources.xml
+
+# Spring Boot config
+**/application.properties
