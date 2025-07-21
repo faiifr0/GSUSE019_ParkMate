@@ -14,7 +14,6 @@ public class TicketRequest {
 
     private Long parkBranchId;
 
-    @Valid
-    private List<TicketItemRequest> items;
+    private List<TicketItemRequest>  ticketItemRequests;
 
 }

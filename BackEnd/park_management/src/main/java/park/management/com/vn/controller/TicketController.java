@@ -60,7 +60,7 @@ public class TicketController {
 
   //tungnd
   @PostMapping("/buy")
-  public ResponseEntity<Ticket> buyTicket(@RequestBody TicketRequest request) {
+  public ResponseEntity<TicketResponse> buyTicket(@RequestBody TicketRequest request) {
     TicketResponse response = ticketService.createTicketFromRequest(request);
     return ResponseEntity.ok(response);
   }

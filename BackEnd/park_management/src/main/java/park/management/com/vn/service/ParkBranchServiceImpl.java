@@ -1,6 +1,7 @@
 package park.management.com.vn.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import park.management.com.vn.entity.ParkBranch;
@@ -32,8 +33,8 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     }
 
     @Override
-    public ParkBranch findBranchById(Long id) {
-        return parkBranchRepository.findById(id).orElse(null);
+    public Optional<ParkBranch> findBranchById(Long id) {
+        return parkBranchRepository.findById(id);
     }
 
     @Override

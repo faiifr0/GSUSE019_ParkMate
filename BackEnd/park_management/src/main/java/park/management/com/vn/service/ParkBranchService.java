@@ -10,7 +10,7 @@ public interface ParkBranchService {
 
   ParkBranch getBranchById(Long id);
 
-  ParkBranch findBranchById(Long id);
+  Optional<ParkBranch> findBranchById(Long id);
 
   ParkBranch createBranch(ParkBranch branch);
 
