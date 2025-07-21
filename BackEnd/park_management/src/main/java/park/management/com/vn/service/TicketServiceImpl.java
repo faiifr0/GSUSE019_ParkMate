@@ -4,16 +4,18 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import park.management.com.vn.entity.Customer;
-import park.management.com.vn.entity.ParkBranch;
-import park.management.com.vn.entity.Ticket;
+import park.management.com.vn.constaint.TicketStatus;
+import park.management.com.vn.entity.*;
 import park.management.com.vn.exception.customer.CustomerNotFoundException;
+import park.management.com.vn.mapper.TicketMapper;
 import park.management.com.vn.model.request.TicketRequest;
 import park.management.com.vn.model.response.TicketResponse;
 import park.management.com.vn.repository.ParkBranchRepository;
+import park.management.com.vn.repository.TicketDetailRepository;
 import park.management.com.vn.repository.TicketRepository;
 
 @Service
@@ -21,13 +23,12 @@ import park.management.com.vn.repository.TicketRepository;
 public class TicketServiceImpl implements TicketService {
 
     private final CustomerService customerService;
-
     private final ParkBranchService parkBranchService;
-
     private final PricingService pricingService;
-
+    private final PromotionService promotionService;
     private final TicketRepository ticketRepository;
-
+    private final TicketDetailRepository ticketDetailRepository;
+    private final TicketMapper ticketMapper;
 
     @Override
     public List<Ticket> getAllTickets() {
@@ -74,38 +75,41 @@ public class TicketServiceImpl implements TicketService {
         //Get branch
         ParkBranch parkBranch = parkBranchService.getBranchById(request.getParkBranchId());
 
+        //Get listed price
         BigDecimal listedPrice = pricingService.getCurrentTicketPrice();
 
+        //Get promotion for discount
+        Promotion promotion = promotionService
+                .findValidPromotionForBranch(Long.valueOf(parkBranch.getId()), LocalDateTime.now())
+                .orElse(null);
 
-        /*
-        TicketDetails
-        @ManyToOne
-        @JoinColumn(name = "ticket_id")
-        private Ticket ticket;
+        //Extract discount from promotion
+        BigDecimal discount = promotionService.getDiscountFromPromotion(promotion);
 
-        @Column(name = "quantity")
-        private Integer quantity;
+        // 1. create ticket
+        Ticket ticket = Ticket.builder()
+                .customer(customer)
+                .parkBranch(parkBranch)
+                .status(TicketStatus.REQUEST_TIME)
+                .build();
 
-        @Column(name = "price")
-        private BigDecimal price;
+        ticket =  ticketRepository.save(ticket);
+        final Ticket savedTicket = ticket;
 
-        private Integer discount;
+        // 2. create ticket details
+        List<TicketDetail> ticketDetails = request.getTicketItemRequests().stream()
+                .map(item -> TicketDetail.builder()
+                        .ticket(savedTicket)
+                        .price(listedPrice)
+                        .quantity(item.getQuantity())
+                        .discount(discount)
+                        .build())
+                .toList();
 
-        Ticket:
-        @ManyToOne(fetch = FetchType.LAZY)
-        private Customer customer;
+        ticketDetailRepository.saveAll(ticketDetails);
 
-        @ManyToOne
-        @JoinColumn(name = "park_branch_id")
-        private ParkBranch parkBranch;
-
-        @Enumerated(EnumType.STRING)
-        private TicketStatus status;
-        */
-
-        //TODO: service for promotion and then getDiscount from promotion
-
-        return null;
+        //3. response
+        return ticketMapper.toResponse(ticket, ticketDetails);
 
     }
 }

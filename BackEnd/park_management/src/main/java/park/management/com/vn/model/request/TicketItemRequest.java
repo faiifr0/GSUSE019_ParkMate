@@ -7,10 +7,10 @@ import java.math.BigDecimal;
 @Data
 public class TicketItemRequest {
 
-    //Unit price at time of purchase
-    private BigDecimal price;
     //How many
     private Integer quantity;
-    private Integer discount;
+
+    //ticket type (e.g., ADULT, CHILD, SENIOR) — for future support
+    private String ticketType; // TODO: Implement logic when category support is approved
 
 }

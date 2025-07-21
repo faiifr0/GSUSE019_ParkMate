@@ -7,10 +7,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
@@ -19,8 +17,8 @@ import park.management.com.vn.entity.base.BaseEntity;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TicketDetail extends BaseEntity {
-
 
   @ManyToOne
   @JoinColumn(name = "ticket_id")
@@ -32,5 +30,6 @@ public class TicketDetail extends BaseEntity {
   @Column(name = "price")
   private BigDecimal price;
 
-  private Integer discount;
+  @Column(name = "discount")
+  private BigDecimal discount;
 }

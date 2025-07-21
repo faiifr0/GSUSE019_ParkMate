@@ -10,6 +10,6 @@ public class TicketDetailsResponse {
     // Echoed from DB
     private BigDecimal price;
     private Integer quantity;
-    private Integer discount;
+    private BigDecimal discount; // updated from Integer
 
 }
