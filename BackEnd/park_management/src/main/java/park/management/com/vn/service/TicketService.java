@@ -2,24 +2,34 @@ package park.management.com.vn.service;
 
 import java.util.List;
 import java.util.Optional;
+
 import park.management.com.vn.entity.Ticket;
+import park.management.com.vn.entity.TicketDetail;
 import park.management.com.vn.model.request.TicketRequest;
 import park.management.com.vn.model.response.TicketResponse;
 
 public interface TicketService {
 
-  List<Ticket> getAllTickets();
+    List<Ticket> getAllTickets();
 
-  Optional<Ticket> getTicketById(Long id);
+    Ticket getTicketById(Long id);
 
-  Ticket createTicket(Ticket ticket);
+    TicketResponse getTicketResponseByID(Long id);
 
-  Ticket updateTicket(Long id, Ticket ticket);
+    Optional<Ticket> findTicketById(Long id);
 
-  void deleteTicket(Long id);
+    Ticket createTicket(Ticket ticket);
 
-  List<Ticket> getTicketsByBranchId(Long branchId);
+    Ticket updateTicket(Long id, Ticket ticket);
 
-  //tungnd
-  TicketResponse createTicketFromRequest(TicketRequest request);
+    void deleteTicket(Long id);
+
+    List<Ticket> getTicketsByBranchId(Long branchId);
+
+    List<TicketDetail> getTicketDetailsByTicketId(Long ticketId);
+
+    //tungnd
+    TicketResponse createTicketFromRequest(TicketRequest request);
+
+    TicketResponse approveTicket(Long id);
 }
