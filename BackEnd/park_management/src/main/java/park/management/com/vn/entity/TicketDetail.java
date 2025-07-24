@@ -1,15 +1,10 @@
 package park.management.com.vn.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
+import jakarta.persistence.*;
 import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "ticket_detail")

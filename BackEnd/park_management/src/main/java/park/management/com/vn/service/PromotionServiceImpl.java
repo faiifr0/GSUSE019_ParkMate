@@ -1,11 +1,9 @@
 package park.management.com.vn.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.entity.Promotion;
 import park.management.com.vn.exception.price.PriceNotFoundException;
-import park.management.com.vn.exception.promotion.PromotionNotFoundException;
 import park.management.com.vn.repository.PromotionRepository;
 import park.management.com.vn.specification.PromotionSpecification;
 

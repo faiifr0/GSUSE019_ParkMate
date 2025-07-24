@@ -2,8 +2,6 @@ package park.management.com.vn.model.request;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
 public class TicketItemRequest {
 

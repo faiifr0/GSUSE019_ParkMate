@@ -3,7 +3,6 @@ package park.management.com.vn.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 import park.management.com.vn.entity.Ticket;
 import park.management.com.vn.entity.TicketDetail;
 import park.management.com.vn.model.response.TicketDetailsResponse;
