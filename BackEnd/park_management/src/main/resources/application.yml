@@ -17,9 +17,10 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
   datasource:
-    url: jdbc:postgresql://localhost:5432/park_manage
+    #url: jdbc:postgresql://localhost:5432/park_manage
+    url: jdbc:postgresql://db.ohirfhduirkhhvueejdm.supabase.co:5432/postgres
     username: postgres
-    password: tungnd1101
+    password: tungnd1101@@
 jwt:
   secret: DHiuqwbV^j@oaIUmqlHUK@_QW12dnash987234n
   expireTime: 60
