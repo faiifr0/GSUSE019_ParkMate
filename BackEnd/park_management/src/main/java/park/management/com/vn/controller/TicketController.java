@@ -31,10 +31,9 @@ public class TicketController {
 
   @GetMapping("/{id}")
   // @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<Ticket> getTicketById(@PathVariable Long id) {
-    return ticketService.getTicketById(id)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+  public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
+    TicketResponse response = ticketService.getTicketResponseByID(id);
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping
@@ -64,4 +63,13 @@ public class TicketController {
     TicketResponse response = ticketService.createTicketFromRequest(request);
     return ResponseEntity.ok(response);
   }
+
+  @PutMapping("/{id}/approve")
+  //@PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<TicketResponse> approveTicket(@PathVariable Long id) {
+    TicketResponse response = ticketService.approveTicket(id);
+    return ResponseEntity.ok(response);
+  }
+
+
 }

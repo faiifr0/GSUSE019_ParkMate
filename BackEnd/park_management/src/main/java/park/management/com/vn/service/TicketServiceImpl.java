@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import park.management.com.vn.constaint.TicketStatus;
 import park.management.com.vn.entity.*;
 import park.management.com.vn.exception.customer.CustomerNotFoundException;
+import park.management.com.vn.exception.ticket.TicketNotFoundException;
+import park.management.com.vn.exception.ticket.TicketStatusInvalidException;
 import park.management.com.vn.mapper.TicketMapper;
 import park.management.com.vn.model.request.TicketRequest;
 import park.management.com.vn.model.response.TicketResponse;
@@ -30,15 +32,30 @@ public class TicketServiceImpl implements TicketService {
     private final TicketDetailRepository ticketDetailRepository;
     private final TicketMapper ticketMapper;
 
+
     @Override
     public List<Ticket> getAllTickets() {
         return ticketRepository.findAll();
     }
 
     @Override
-    public Optional<Ticket> getTicketById(Long id) {
+    public Ticket getTicketById(Long id) {
+        return ticketRepository.findById(id).orElseThrow(
+                () -> new TicketNotFoundException("Ticket with id: " + id + " does not exist"));
+    }
+
+    @Override
+    public TicketResponse getTicketResponseByID(Long id) {
+        Ticket ticket = getTicketById(id);
+        List<TicketDetail> ticketDetails = this.getTicketDetailsByTicketId(id);
+        return ticketMapper.toResponse(ticket, ticketDetails);
+    }
+
+    @Override
+    public Optional<Ticket> findTicketById(Long id) {
         return ticketRepository.findById(id);
     }
+
 
     @Override
     public Ticket createTicket(Ticket ticket) {
@@ -67,6 +84,11 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    public List<TicketDetail> getTicketDetailsByTicketId(Long ticketId) {
+        return ticketDetailRepository.findByTicket_Id(ticketId);
+    }
+
+    @Override
     public TicketResponse createTicketFromRequest(TicketRequest request) {
 
         //Get customer
@@ -80,7 +102,7 @@ public class TicketServiceImpl implements TicketService {
 
         //Get promotion for discount
         Promotion promotion = promotionService
-                .findValidPromotionForBranch(Long.valueOf(parkBranch.getId()), LocalDateTime.now())
+                .findValidPromotionForBranch(parkBranch.getId(), LocalDateTime.now())
                 .orElse(null);
 
         //Extract discount from promotion
@@ -111,5 +133,26 @@ public class TicketServiceImpl implements TicketService {
         //3. response
         return ticketMapper.toResponse(ticket, ticketDetails);
 
+    }
+
+    @Override
+    public TicketResponse approveTicket(Long id) {
+        // Validate the ticket
+        Ticket ticket = this.getTicketById(id);
+
+        if (ticket.getStatus() != TicketStatus.REQUEST_TIME)
+            throw new TicketStatusInvalidException("Only tickets in REQUEST_TIME status can be approved.");
+
+        // Validation done, now update the ticket
+        ticket.setStatus(TicketStatus.APPROVED);
+        ticket.setUpdatedAt(LocalDateTime.now());
+
+        final Ticket updatedTicket = ticketRepository.save(ticket);
+
+        List<TicketDetail> ticketDetails =
+                this.getTicketDetailsByTicketId(updatedTicket.getId());
+
+        // build response and return
+        return ticketMapper.toResponse(updatedTicket,ticketDetails);
     }
 }
