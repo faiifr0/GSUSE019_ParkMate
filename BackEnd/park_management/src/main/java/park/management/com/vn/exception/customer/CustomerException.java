@@ -1,7 +1,6 @@
 package park.management.com.vn.exception.customer;
 
 import park.management.com.vn.exception.BaseException;
-import org.springframework.http.HttpStatus;
 import park.management.com.vn.exception.ErrorCode;
 
 public abstract class CustomerException extends BaseException {

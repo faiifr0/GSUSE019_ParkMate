@@ -1,16 +1,12 @@
 package park.management.com.vn.entity;
 
 import jakarta.persistence.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.*;
-import park.management.com.vn.constaint.EventStatus;
 import park.management.com.vn.constaint.TicketStatus;
 import park.management.com.vn.entity.base.BaseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "ticket")

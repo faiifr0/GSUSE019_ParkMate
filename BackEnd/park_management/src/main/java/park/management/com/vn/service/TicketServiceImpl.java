@@ -1,24 +1,21 @@
 package park.management.com.vn.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.constaint.TicketStatus;
 import park.management.com.vn.entity.*;
-import park.management.com.vn.exception.customer.CustomerNotFoundException;
 import park.management.com.vn.exception.ticket.TicketNotFoundException;
 import park.management.com.vn.exception.ticket.TicketStatusInvalidException;
 import park.management.com.vn.mapper.TicketMapper;
 import park.management.com.vn.model.request.TicketRequest;
 import park.management.com.vn.model.response.TicketResponse;
-import park.management.com.vn.repository.ParkBranchRepository;
 import park.management.com.vn.repository.TicketDetailRepository;
 import park.management.com.vn.repository.TicketRepository;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
