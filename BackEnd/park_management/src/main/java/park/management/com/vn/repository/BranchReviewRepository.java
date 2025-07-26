@@ -1,4 +1,4 @@
 package park.management.com.vn.repository;
 
-public interface CustomerReviewRepository {
+public interface BranchReviewRepository {
 }

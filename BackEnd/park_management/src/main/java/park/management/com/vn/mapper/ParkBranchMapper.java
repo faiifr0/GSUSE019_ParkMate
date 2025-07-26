@@ -8,5 +8,6 @@ import park.management.com.vn.model.response.ParkBranchResponse;
 @Mapper(componentModel = "spring")
 public interface ParkBranchMapper {
     ParkBranch toEntity(ParkBranchRequest request);
+
     ParkBranchResponse toResponse(ParkBranch entity);
 }
