@@ -2,11 +2,9 @@ package park.management.com.vn.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,20 +12,28 @@ import lombok.Setter;
 import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
-@Table(name = "amenity")
+@Table(name = "branch_review")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Amenity extends BaseEntity {
+public class BranchReview extends BaseEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "park_branch_id")
-  private ParkBranch parkBranch;
 
-  @Column(name = "name", nullable = false, unique = true)
-  private String name;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private Users user;
 
-  @Column(name = "description")
-  private String description;
+  @ManyToOne
+  @JoinColumn(name = "branch_id")
+  private ParkBranch branch;
+
+  @Column(name = "rating")
+  private Integer rating;
+
+  @Column(name = "comment")
+  private String comment;
+
+  @Column(name = "approved")
+  private Boolean approved;
 }

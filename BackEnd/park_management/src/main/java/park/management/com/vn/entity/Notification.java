@@ -20,10 +20,9 @@ import park.management.com.vn.entity.base.BaseEntity;
 @AllArgsConstructor
 public class Notification extends BaseEntity {
 
-
   @ManyToOne
-  @JoinColumn(name = "customer_id")
-  private Customer customer;
+  @JoinColumn(name = "user_id")
+  private Users user;
 
   @Column(name = "message", nullable = false)
   private String message;

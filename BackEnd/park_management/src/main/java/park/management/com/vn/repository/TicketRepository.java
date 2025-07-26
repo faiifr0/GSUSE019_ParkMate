@@ -8,5 +8,4 @@ import park.management.com.vn.entity.Ticket;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-  List<Ticket> findByParkBranchId(Long branchId);
 }

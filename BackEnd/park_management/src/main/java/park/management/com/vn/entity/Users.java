@@ -1,10 +1,6 @@
 package park.management.com.vn.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,4 +26,10 @@ public class Users extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   private ParkBranch parkBranch;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Role role;
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+  private Wallet wallet;
 }

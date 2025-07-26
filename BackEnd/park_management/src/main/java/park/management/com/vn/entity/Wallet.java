@@ -8,19 +8,16 @@ import lombok.Setter;
 import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
-@Table(name = "product")
+@Table(name = "wallet")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product extends BaseEntity {
+public class Wallet extends BaseEntity {
+    @Column(name = "balance")
+    private double balance;
 
-  @Column(nullable = false, unique = true)
-  private String name;
-  @Column(name = "description")
-  private String description;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "amenity_id")
-  private BranchAmenity amenity;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private Users user;
 }

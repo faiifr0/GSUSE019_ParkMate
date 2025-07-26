@@ -1,8 +1,8 @@
 package park.management.com.vn.entity;
 
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -12,18 +12,15 @@ import lombok.Setter;
 import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
-@Table(name = "user_role")
+@Table(name ="ai_chat_log")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRole extends BaseEntity {
+public class AIChatLog extends BaseEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
-  private Users users;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "role_id")
-  private Role role;
+    @Column(name = "content")
+    private String content;
+    @ManyToOne
+    private Users user;
 }
