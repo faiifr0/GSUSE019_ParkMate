@@ -12,40 +12,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import park.management.com.vn.entity.ParkBranch;
+import park.management.com.vn.model.request.ParkBranchRequest;
+import park.management.com.vn.model.response.ParkBranchResponse;
 import park.management.com.vn.service.ParkBranchService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/branches")
+@RequestMapping("/api/park-branch")
 public class ParkBranchController {
 
-    private final ParkBranchService parkBranchService;
+    private final ParkBranchService service;
 
     @GetMapping
-    public ResponseEntity<List<ParkBranch>> getAllBranches() {
-        return ResponseEntity.ok(parkBranchService.getAllBranches());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ParkBranch> getBranchById(@PathVariable Long id) {
-        return parkBranchService.getBranchById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<List<ParkBranchResponse>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @PostMapping
-    public ResponseEntity<ParkBranch> createBranch(@RequestBody ParkBranch branch) {
-        return ResponseEntity.ok(parkBranchService.createBranch(branch));
+    public ResponseEntity<ParkBranchResponse> create(@RequestBody ParkBranchRequest request) {
+        return ResponseEntity.ok(service.create(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ParkBranch> updateBranch(@PathVariable Long id, @RequestBody ParkBranch branch) {
-        return ResponseEntity.ok(parkBranchService.updateBranch(id, branch));
+    public ResponseEntity<ParkBranchResponse> update(
+            @PathVariable Integer id,
+            @RequestBody ParkBranchRequest request) {
+        return ResponseEntity.ok(service.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBranch(@PathVariable Long id) {
-        parkBranchService.deleteBranch(id);
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

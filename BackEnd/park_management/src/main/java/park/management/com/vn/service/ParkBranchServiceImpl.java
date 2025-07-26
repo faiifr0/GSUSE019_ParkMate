@@ -3,8 +3,13 @@ package park.management.com.vn.service;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import park.management.com.vn.entity.ParkBranch;
+import park.management.com.vn.mapper.ParkBranchMapper;
+import park.management.com.vn.model.request.ParkBranchRequest;
+import park.management.com.vn.model.response.ParkBranchResponse;
 import park.management.com.vn.repository.ParkBranchRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,37 +17,41 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ParkBranchServiceImpl implements ParkBranchService {
 
-    private final ParkBranchRepository parkBranchRepository;
+    private final ParkBranchRepository repository;
+    private final ParkBranchMapper mapper;
 
     @Override
-    public List<ParkBranch> getAllBranches() {
-        return parkBranchRepository.findAll();
+    public List<ParkBranchResponse> getAll() {
+        return repository.findAll()
+                .stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<ParkBranch> getBranchById(Long id) {
-        return parkBranchRepository.findById(id);
+    public ParkBranchResponse create(ParkBranchRequest request) {
+        ParkBranch entity = mapper.toEntity(request);
+        ParkBranch saved = repository.save(entity);
+        return mapper.toResponse(saved);
     }
 
     @Override
-    public ParkBranch createBranch(ParkBranch branch) {
-        return parkBranchRepository.save(branch);
+    public ParkBranchResponse update(Integer id, ParkBranchRequest request) {
+        ParkBranch updated = repository.findById(id)
+                .map(branch -> {
+                    branch.setName(request.getName());
+                    branch.setAddress(request.getAddress());
+                    branch.setLocation(request.getLocation());
+                    branch.setOpen(request.getOpen());
+                    branch.setClose(request.getClose());
+                    return repository.save(branch);
+                })
+                .orElseThrow(() -> new RuntimeException("Branch not found with id: " + id));
+        return mapper.toResponse(updated);
     }
 
     @Override
-    public ParkBranch updateBranch(Long id, ParkBranch updatedBranch) {
-        return parkBranchRepository.findById(id).map(branch -> {
-            branch.setName(updatedBranch.getName());
-            branch.setAddress(updatedBranch.getAddress());
-            branch.setOpen(updatedBranch.getOpen());
-            branch.setClose(updatedBranch.getClose());
-            branch.setCreatedBy(updatedBranch.getCreatedBy());
-            return parkBranchRepository.save(branch);
-        }).orElseThrow(() -> new RuntimeException("ParkBranch not found with id: " + id));
-    }
-
-    @Override
-    public void deleteBranch(Long id) {
-        parkBranchRepository.deleteById(id);
+    public void delete(Integer id) {
+        repository.deleteById(id);
     }
 }

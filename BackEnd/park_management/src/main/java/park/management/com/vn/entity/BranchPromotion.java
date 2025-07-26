@@ -20,7 +20,7 @@ public class BranchPromotion extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "branch_id")
-  private ParkBranch branch;
+  private ParkBranch parkBranch;
 
   @Column(name = "description")
   private String description;

@@ -26,7 +26,7 @@ public class BranchReview extends BaseEntity {
 
   @ManyToOne
   @JoinColumn(name = "branch_id")
-  private ParkBranch branch;
+  private ParkBranch parkBranch;
 
   @Column(name = "rating")
   private Integer rating;
