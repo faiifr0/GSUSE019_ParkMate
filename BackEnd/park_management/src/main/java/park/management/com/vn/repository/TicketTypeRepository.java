@@ -1,4 +1,4 @@
 package park.management.com.vn.repository;
 
-public interface PromotionRepository {
+public interface TicketTypeRepository {
 }
