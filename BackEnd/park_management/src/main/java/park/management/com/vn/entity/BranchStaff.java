@@ -1,10 +1,8 @@
 package park.management.com.vn.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
@@ -13,6 +11,7 @@ import park.management.com.vn.entity.base.BaseEntity;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class BranchStaff extends BaseEntity {
 
     @Column(name = "role")
@@ -23,5 +22,9 @@ public class BranchStaff extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ParkBranch parkBranch;
+
+    public BranchStaff(Integer id) {
+        this.id = id;
+    }
 }
 

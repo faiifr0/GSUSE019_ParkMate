@@ -3,10 +3,7 @@ package park.management.com.vn.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
 
 import java.time.LocalTime;
@@ -17,6 +14,7 @@ import java.time.LocalTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class Shift extends BaseEntity {
 
     @Column(name = "start_time", nullable = false)
@@ -26,4 +24,7 @@ public class Shift extends BaseEntity {
     @Column(name = "description")
     private String description;
 
+    public Shift(Integer id) {
+        this.id = id;
+    }
 }

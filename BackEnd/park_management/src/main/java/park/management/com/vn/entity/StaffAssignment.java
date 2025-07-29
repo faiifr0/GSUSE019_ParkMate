@@ -1,10 +1,7 @@
 package park.management.com.vn.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
 
 import java.time.LocalDate;
@@ -15,6 +12,7 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class StaffAssignment extends BaseEntity {
 
     @Column(name = "assigned_date", nullable = false)
