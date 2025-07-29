@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.entity.Users;
+import park.management.com.vn.exception.user.UserNotFoundException;
 import park.management.com.vn.mapper.UserMapper;
 import park.management.com.vn.model.request.LoginRequest;
 import park.management.com.vn.model.request.RegisterUserRequest;
@@ -30,8 +31,14 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Optional<Users> getUserById(Long id) {
+  public Optional<Users> findUserById(Long id) {
     return userRepository.findById(id);
+  }
+
+  @Override
+  public Users getUserById(Long id) {
+    return userRepository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException(id));
   }
 
   @Override

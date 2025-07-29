@@ -2,6 +2,8 @@ package park.management.com.vn.service;
 
 import java.util.List;
 import java.util.Optional;
+
+import park.management.com.vn.entity.BranchPromotion;
 import park.management.com.vn.entity.ParkBranch;
 import park.management.com.vn.model.request.ParkBranchRequest;
 import park.management.com.vn.model.response.ParkBranchResponse;
@@ -15,4 +17,8 @@ public interface ParkBranchService {
   ParkBranchResponse update(Integer id, ParkBranchRequest request);
 
   void delete(Integer id);
+
+  Optional<BranchPromotion> findBranchPromotionById(Long id);
+
+  BranchPromotion getBranchPromotionById(Long id);
 }

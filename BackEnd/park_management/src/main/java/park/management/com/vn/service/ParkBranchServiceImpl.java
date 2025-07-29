@@ -1,15 +1,17 @@
 package park.management.com.vn.service;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import park.management.com.vn.entity.BranchPromotion;
 import park.management.com.vn.entity.ParkBranch;
+import park.management.com.vn.exception.promotion.PromotionNotFoundException;
 import park.management.com.vn.mapper.ParkBranchMapper;
 import park.management.com.vn.model.request.ParkBranchRequest;
 import park.management.com.vn.model.response.ParkBranchResponse;
+import park.management.com.vn.repository.BranchPromotionRepository;
 import park.management.com.vn.repository.ParkBranchRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class ParkBranchServiceImpl implements ParkBranchService {
 
     private final ParkBranchRepository repository;
+    private final BranchPromotionRepository branchPromotionRepository;
     private final ParkBranchMapper mapper;
 
     @Override
@@ -53,5 +56,17 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     @Override
     public void delete(Integer id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Optional<BranchPromotion> findBranchPromotionById(Long id) {
+        return branchPromotionRepository.findById(id);
+    }
+
+    @Override
+    public BranchPromotion getBranchPromotionById(Long id) {
+        return this.findBranchPromotionById(id).orElseThrow(
+                () -> new PromotionNotFoundException("Branch Promotion not found with id: " + id)
+        );
     }
 }
