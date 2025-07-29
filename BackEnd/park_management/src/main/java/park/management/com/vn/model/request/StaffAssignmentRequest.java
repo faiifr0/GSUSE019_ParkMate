@@ -15,8 +15,8 @@ public class StaffAssignmentRequest {
     private LocalDate assignedDate;
 
     @NotNull
-    private Integer staffId;
+    private Long staffId;
 
     @NotNull
-    private Integer shiftId;
+    private Long shiftId;
 }

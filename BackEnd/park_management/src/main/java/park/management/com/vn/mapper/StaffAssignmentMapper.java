@@ -10,9 +10,9 @@ import park.management.com.vn.model.response.StaffAssignmentResponse;
 public interface StaffAssignmentMapper {
 
     @Mapping(target = "staffId", source = "staff.id")
-    @Mapping(target = "staffName", source = "staff.name")
+    @Mapping(target = "staffName", source = "staff.role") //staff.name???
     @Mapping(target = "shiftId", source = "shift.id")
-    @Mapping(target = "shiftName", source = "shift.name")
+    @Mapping(target = "shiftName", source = "shift.id") //there is no shift.name
     StaffAssignmentResponse toResponse(StaffAssignment entity);
 
     @Mapping(target = "staff", expression = "java(new BranchStaff(request.getStaffId()))")

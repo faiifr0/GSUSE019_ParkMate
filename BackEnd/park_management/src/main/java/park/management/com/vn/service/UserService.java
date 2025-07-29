@@ -13,7 +13,9 @@ public interface UserService {
 
   List<Users> getAllUsers();
 
-  Optional<Users> getUserById(Long id);
+  Optional<Users> findUserById(Long id);
+
+  Users getUserById(Long id);
 
   RegisterUserResponse createUser(RegisterUserRequest request);
 
