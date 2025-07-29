@@ -1,5 +1,6 @@
 package park.management.com.vn.exception.user;
 
+import lombok.NoArgsConstructor;
 import park.management.com.vn.exception.BaseException;
 import park.management.com.vn.exception.ErrorCode;
 

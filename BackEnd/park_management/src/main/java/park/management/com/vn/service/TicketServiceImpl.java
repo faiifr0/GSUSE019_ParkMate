@@ -1,26 +1,33 @@
 package park.management.com.vn.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import park.management.com.vn.constaint.TicketStatus;
 import park.management.com.vn.entity.*;
+import park.management.com.vn.exception.promotion.PromotionExpiredException;
+import park.management.com.vn.exception.promotion.PromotionNotActiveException;
+import park.management.com.vn.exception.ticket.DailyTicketInventoryExceedException;
+import park.management.com.vn.exception.ticket.DailyTicketInventoryNotFoundException;
 import park.management.com.vn.exception.ticket.TicketNotFoundException;
+import park.management.com.vn.exception.ticket.TicketTypeNotFoundException;
 import park.management.com.vn.mapper.TicketMapper;
 import park.management.com.vn.model.request.TicketRequest;
 import park.management.com.vn.model.response.TicketResponse;
+import park.management.com.vn.repository.DailyTicketInventoryRepository;
 import park.management.com.vn.repository.TicketDetailRepository;
 import park.management.com.vn.repository.TicketRepository;
+import park.management.com.vn.repository.TicketTypeRepository;
 
 @Service
 @RequiredArgsConstructor
 public class TicketServiceImpl implements TicketService {
 
     private final TicketRepository ticketRepository;
+    private final TicketTypeRepository ticketTypeRepository;
     private final TicketDetailRepository ticketDetailRepository;
+    private final DailyTicketInventoryRepository dailyTicketInventoryRepository;
 
     private final ParkBranchService parkBranchService;
     private final UserService userService;
@@ -29,71 +36,111 @@ public class TicketServiceImpl implements TicketService {
 
 
     @Override
-    public Ticket getTicketById(Long id) {
+    public TicketOrder getTicketOrderById(Long id) {
         return ticketRepository.findById(id).orElseThrow(
                 () -> new TicketNotFoundException("Ticket with id: " + id + " does not exist"));
     }
 
+    @Override
+    public Optional<TicketOrder> findTicketOrderById(Long id) {
+        return ticketRepository.findById(id);
+    }
+
+    @Override
+    public Optional<TicketType> findTicketTypeById(Long id) {
+        return ticketTypeRepository.findById(id);
+    }
+
+    @Override
+    public TicketType getTicketTypeById(Long id) {
+        return this.findTicketTypeById(id)
+                .orElseThrow(() -> new TicketTypeNotFoundException(id));
+    }
+
+    @Override
+    public DailyTicketInventory getDailyTicketInventory
+            (Long ticketTypeId, LocalDate ticketDate) {
+        return dailyTicketInventoryRepository.getDailyTicketInventoriesByTicketType_IdAndDate(ticketTypeId, ticketDate)
+                .orElseThrow(() -> new DailyTicketInventoryNotFoundException(ticketTypeId, ticketDate));
+    }
+
+
+
     /*@Override
     public TicketResponse getTicketResponseByID(Long id) {
         Ticket ticket = getTicketById(id);
-        List<TicketDetail> ticketDetails = this.getTicketDetailsByTicketId(id);
+        List<TicketDetail> ticketDetails = this.(id);
         return ticketMapper.toResponse(ticket, ticketDetails);
-    }*/
-
+    }
+*/
     /*@Override
     public List<TicketDetail> getTicketDetailsByTicketId(Long ticketId) {
         return ticketDetailRepository.findByTicket_Id(ticketId);
     }*/
 
-    /*@Override
-    public TicketResponse createTicketFromRequest(TicketRequest ticketRequest) {
+    @Override
+    public TicketResponse createTicketOrder(TicketRequest ticketRequest, Long userId) {
 
         //Get customer
         //Customer customer = customerService.getCustomerById(request.getCustomerId());
-        Users customer = userService.getUserById(ticketRequest.getCustomerId());
+        Users customer = userService.getUserById(userId);
 
-        //Get branch
-        //ParkBranch parkBranch = parkBranchService.getBranchById(request.getParkBranchId());
+        //TODO logic to handle ticket purchase
 
-        //Get listed price
-        //BigDecimal listedPrice = pricingService.getCurrentTicketPrice();
+        for (TicketRequest.TicketDetailRequest detailRequest : ticketRequest.getDetails()) {
+            /*1. Validate each ticket detail
+            Check if each ticketTypeId exists
+            Check ticketDate is valid (not in the past)
+            Optional: Validate promotionId (exists, valid for ticket type)
+            */
+            LocalDate ticketDate = detailRequest.getTicketDate();
 
-        //Get promotion for discount
-        BranchPromotion promotion = parkBranchService
-                .findValidPromotionForBranch(parkBranch.getId(), LocalDateTime.now())
-                .orElse(null);
+            TicketType ticketType = this.getTicketTypeById(detailRequest.getTicketTypeId());
 
-        //Extract discount from promotion
-        BigDecimal discount = promotionService.getDiscountFromPromotion(promotion);
+            Optional<BranchPromotion> promotion = parkBranchService
+                    .findBranchPromotionById(detailRequest.getPromotionId());
 
-        // 1. create ticket
-        Ticket ticket = Ticket.builder()
-                .customer(customer)
-                .parkBranch(parkBranch)
-                .status(TicketStatus.REQUEST_TIME)
-                .build();
+            if (promotion.isPresent()) {
+                BranchPromotion promo = promotion.get();
+                if (!Boolean.TRUE.equals(promotion.get().getIsActive())) {
+                    throw new PromotionNotActiveException(promo.getId());
+                }
 
-        ticket = ticketRepository.save(ticket);
-        final Ticket savedTicket = ticket;
+                if (ticketDate.isBefore(promo.getValidFrom().toLocalDate()) ||
+                        ticketDate.isAfter(promo.getValidUntil().toLocalDate())) {
+                    throw new PromotionExpiredException(promo.getId());
+                }
+            }
+            /*
+             2. Validate Inventory for (ticketType, ticketDate)
+            Check if the system allows selling that quantity on the given day.
+            You’ll want to:
+            Query DailyTicketInventory for (ticketType.id, ticketDate)
+            If not found → create one with default totalAvailable = 100 (or whatever you define)
+            Check if:
+            inventory.getSold() + quantity > inventory.getTotalAvailable()
+            → throw TicketInventoryExceededException
+             */
 
-        // 2. create ticket details
-        List<TicketDetail> ticketDetails = request.getTicketItemRequests().stream()
-                .map(item -> TicketDetail.builder()
-                        .ticket(savedTicket)
-                        .price(listedPrice)
-                        .quantity(item.getQuantity())
-                        .discount(discount)
-                        .build())
-                .toList();
+            // Find the inventory for the ordering day of the ticket
+            DailyTicketInventory dailyTicketInventory = this
+                    .getDailyTicketInventory(ticketType.getId(), ticketDate);
 
-        ticketDetailRepository.saveAll(ticketDetails);
+            //Validate quantity available
 
-        //3. response
-        return ticketMapper.toResponse(ticket, ticketDetails);
+            if (dailyTicketInventory.getSold() + detailRequest.getQuantity()
+                    > dailyTicketInventory.getTotalAvailable())
+                throw new DailyTicketInventoryExceedException(ticketDate); // there is a problem here, we only check per ticket detail, but not the whole ticket detail list
+
+
+        }
+
+
+        //return ticketMapper.toResponse(ticketOrder, ticketDetails);
+        return null;
 
     }
-*/
+
     /*@Override
     public TicketResponse approveTicket(Long id) {
         // Validate the ticket

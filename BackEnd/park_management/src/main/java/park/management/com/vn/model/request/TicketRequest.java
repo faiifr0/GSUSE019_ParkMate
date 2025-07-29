@@ -1,16 +1,36 @@
 package park.management.com.vn.model.request;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
 public class TicketRequest {
 
-    private Long customerId;
+    @Valid
+    @NotEmpty
+    private List<TicketDetailRequest> details;
 
-    private Long parkBranchId;
+    // inner static class
+    @Data
+    public static class TicketDetailRequest {
+        @NotNull
+        private Long ticketTypeId;
 
-    private List<TicketItemRequest>  ticketItemRequests;
+        @NotNull
+        @Min(1)
+        private Integer quantity;
 
+        @NotNull
+        @FutureOrPresent
+        private LocalDate ticketDate;
+
+        private Long promotionId; // optional
+    }
 }

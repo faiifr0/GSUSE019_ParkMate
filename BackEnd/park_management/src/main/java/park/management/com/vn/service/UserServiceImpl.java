@@ -69,13 +69,15 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public LoginResponse login(LoginRequest request) {
-    Users users = userRepository.findByUsername(request.getUsername())
-        .orElseThrow(() -> new RuntimeException("User not found"));
-    if (bCryptPasswordEncoder.matches(request.getPassword(), users.getPassword())) {
+    Users user = userRepository.findByUsername(request.getUsername())
+        .orElseThrow(() -> new UserNotFoundException(request.getUsername()));
+
+    if (bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
       return LoginResponse.builder()
-          .accessToken(jwtTokenUtils.generateAccessToken(request.getUsername()))
+          .accessToken(jwtTokenUtils.generateAccessToken(user))
           .build();
     }
+
     throw new RuntimeException("Password incorrect");
   }
 }

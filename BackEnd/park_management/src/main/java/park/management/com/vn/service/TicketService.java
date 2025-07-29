@@ -1,13 +1,29 @@
 package park.management.com.vn.service;
 
-import java.util.List;
+import java.time.LocalDate;
 import java.util.Optional;
-import park.management.com.vn.entity.Ticket;
+
+import jakarta.validation.Valid;
+import park.management.com.vn.entity.DailyTicketInventory;
+import park.management.com.vn.entity.TicketOrder;
+import park.management.com.vn.entity.TicketType;
+import park.management.com.vn.model.request.TicketRequest;
 import park.management.com.vn.model.response.TicketResponse;
 
 public interface TicketService {
 
-    Ticket getTicketById(Long id);
+    TicketOrder getTicketOrderById(Long id);
+
+    Optional<TicketOrder> findTicketOrderById(Long id);
+
+    Optional<TicketType> findTicketTypeById(Long id);
+
+    TicketType getTicketTypeById(Long id);
+
+    DailyTicketInventory getDailyTicketInventory
+            (Long ticketTypeId, LocalDate ticketDate);
+
+    TicketResponse createTicketOrder(@Valid TicketRequest ticketRequest, Long userId);
 
     //TicketResponse getTicketResponseByID(Long id);
 }

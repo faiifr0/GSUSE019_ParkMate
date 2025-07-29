@@ -20,7 +20,6 @@ public interface ParkBranchService {
 
   /// / COMMENT
 
-
   Optional<BranchPromotion> findBranchPromotionById(Long id);
 
   BranchPromotion getBranchPromotionById(Long id);

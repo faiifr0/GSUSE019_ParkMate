@@ -3,6 +3,7 @@ package park.management.com.vn.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,23 +19,29 @@ import park.management.com.vn.entity.base.BaseEntity;
 @AllArgsConstructor
 public class TicketDetail extends BaseEntity {
 
-  @Column(name = "quantity")
-  private Integer quantity;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "ticket_order_id", nullable = false)
+    private TicketOrder ticketOrder;
 
-  @Column(name = "price")
-  private BigDecimal price;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "ticket_type_id", nullable = false)
+    private TicketType ticketType;
 
-  @Column(name = "discount")
-  private Integer discount;
+    @ManyToOne
+    @JoinColumn(name = "promotion_id")
+    private BranchPromotion promotion;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Users user;
+    @Column(nullable = false)
+    private LocalDate ticketDate;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "promotion_id")
-  private BranchPromotion promotion;
+    @Column(nullable = false)
+    private Integer quantity;
 
-  @OneToOne(mappedBy = "ticketOrder", cascade = CascadeType.ALL)
-  private OrderRefund refund;
+    @Column(nullable = false)
+    private BigDecimal unitPrice;
 
+    private Integer discountPercent;
+
+    @Column(nullable = false)
+    private BigDecimal finalPrice; // (unit * quantity) - discount
 }
