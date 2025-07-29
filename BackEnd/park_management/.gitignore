@@ -36,3 +36,12 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Ignore entire .idea folder
+.idea/
+
+# Ignore application.yml
+application.yml
+
+# Ignore this .gitignore file itself
+.gitignore
