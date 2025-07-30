@@ -6,4 +6,5 @@ import park.management.com.vn.entity.Ticket;
 
 public interface TicketService {
 
+
 }
