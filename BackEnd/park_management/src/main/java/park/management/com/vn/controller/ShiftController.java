@@ -28,17 +28,17 @@ public class ShiftController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ShiftResponse> getById(@PathVariable Integer id) {
+    public ResponseEntity<ShiftResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ShiftResponse> update(@PathVariable Integer id, @RequestBody @Valid ShiftRequest request) {
+    public ResponseEntity<ShiftResponse> update(@PathVariable Long id, @RequestBody @Valid ShiftRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

@@ -11,7 +11,7 @@ import java.time.LocalTime;
 @Setter
 @Getter
 public class ShiftResponse {
-    private Integer id;
+    private Long id;
     private LocalTime startTime;
     private LocalTime endTime;
     private String description;

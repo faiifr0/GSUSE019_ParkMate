@@ -19,7 +19,7 @@ public class BranchStaffController {
     private final BranchStaffService branchStaffService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<BranchStaffResponse> getById(@PathVariable Integer id) {
+    public ResponseEntity<BranchStaffResponse> getById(@PathVariable Long id) {
         BranchStaffResponse response = branchStaffService.getBranchStaffById(id);
         return ResponseEntity.ok(response);
     }
@@ -37,7 +37,7 @@ public class BranchStaffController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         branchStaffService.deleteBranchStaff(id);
         return ResponseEntity.noContent().build();
     }

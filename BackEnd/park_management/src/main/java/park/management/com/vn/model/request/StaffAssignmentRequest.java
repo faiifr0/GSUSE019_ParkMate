@@ -12,10 +12,10 @@ import java.time.LocalDate;
 @Getter
 public class StaffAssignmentRequest {
     @NotNull
-    private Integer staffId;
+    private Long staffId;
 
     @NotNull
-    private Integer shiftId;
+    private Long shiftId;
 
     @NotNull
     private LocalDate assignedDate;

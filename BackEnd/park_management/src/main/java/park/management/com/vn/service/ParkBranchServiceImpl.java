@@ -36,7 +36,7 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     }
 
     @Override
-    public ParkBranchResponse update(Integer id, ParkBranchRequest request) {
+    public ParkBranchResponse update(Long id, ParkBranchRequest request) {
         ParkBranch updated = repository.findById(id)
                 .map(branch -> {
                     branch.setName(request.getName());
@@ -51,7 +51,7 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(Long id) {
         repository.deleteById(id);
     }
 }

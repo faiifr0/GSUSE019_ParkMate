@@ -8,6 +8,6 @@ import park.management.com.vn.entity.BranchStaff;
 import java.util.List;
 
 @Repository
-public interface BranchStaffRepository extends JpaRepository<BranchStaff, Integer> {
-    List<BranchStaff> findByParkBranch_Id(Integer branchId);
+public interface BranchStaffRepository extends JpaRepository<BranchStaff, Long> {
+    List<BranchStaff> findByParkBranch_Id(Long branchId);
 }

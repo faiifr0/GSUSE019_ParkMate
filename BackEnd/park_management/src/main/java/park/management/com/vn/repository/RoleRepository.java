@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import park.management.com.vn.entity.Role;
 
 @Repository
-public interface RoleRepository extends JpaRepository<Role,Integer> {
+public interface RoleRepository extends JpaRepository<Role,Long> {
 }

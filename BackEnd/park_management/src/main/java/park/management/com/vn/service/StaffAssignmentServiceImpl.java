@@ -20,44 +20,65 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StaffAssignmentServiceImpl implements StaffAssignmentService{
 
-    private final StaffAssignmentRepository assignmentRepository;
-    private final BranchStaffRepository staffRepository;
+    private final StaffAssignmentRepository repository;
+    private final BranchStaffRepository branchStaffRepository;
     private final ShiftRepository shiftRepository;
     private final StaffAssignmentMapper mapper;
 
     @Override
-    public StaffAssignmentResponse createAssignment(StaffAssignmentRequest request) {
-        BranchStaff staff = staffRepository.findById(request.getStaffId())
-                .orElseThrow(() -> new EntityNotFoundException("Staff ID " + request.getStaffId() + " not found"));
+    public StaffAssignmentResponse create(StaffAssignmentRequest request) {
+        BranchStaff staff = branchStaffRepository.findById(request.getStaffId())
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy BranchStaff với ID: " + request.getStaffId()));
 
         Shift shift = shiftRepository.findById(request.getShiftId())
-                .orElseThrow(() -> new EntityNotFoundException("Shift ID " + request.getShiftId() + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Shift với ID: " + request.getShiftId()));
 
-        StaffAssignment assignment = new StaffAssignment();
-        assignment.setAssignedDate(request.getAssignedDate());
-        assignment.setStaff(staff);
-        assignment.setShift(shift);
+        StaffAssignment entity = new StaffAssignment();
+        entity.setAssignedDate(request.getAssignedDate());
+        entity.setStaff(staff);
+        entity.setShift(shift);
 
-        StaffAssignment saved = assignmentRepository.save(assignment);
-        return mapper.toResponse(saved);
+        return mapper.toResponse(repository.save(entity));
     }
 
     @Override
-    public StaffAssignmentResponse getAssignmentById(Integer id) {
-        StaffAssignment assignment = assignmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Assignment ID " + id + " not found"));
-        return mapper.toResponse(assignment);
+    public StaffAssignmentResponse getById(Long id) {
+        StaffAssignment entity = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy StaffAssignment với ID: " + id));
+        return mapper.toResponse(entity);
     }
 
     @Override
-    public List<StaffAssignmentResponse> getAllAssignments() {
-        return assignmentRepository.findAll().stream()
+    public List<StaffAssignmentResponse> getAll() {
+        return repository.findAll()
+                .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     @Override
-    public void deleteAssignment(Integer id) {
-        assignmentRepository.deleteById(id);
+    public StaffAssignmentResponse update(Long id, StaffAssignmentRequest request) {
+        StaffAssignment existing = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy StaffAssignment với ID: " + id));
+
+        BranchStaff staff = branchStaffRepository.findById(request.getStaffId())
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy BranchStaff với ID: " + request.getStaffId()));
+
+        Shift shift = shiftRepository.findById(request.getShiftId())
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Shift với ID: " + request.getShiftId()));
+
+        existing.setAssignedDate(request.getAssignedDate());
+        existing.setStaff(staff);
+        existing.setShift(shift);
+
+        return mapper.toResponse(repository.save(existing));
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("Không tìm thấy StaffAssignment với ID: " + id);
+        }
+        repository.deleteById(id);
     }
 }

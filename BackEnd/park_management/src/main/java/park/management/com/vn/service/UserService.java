@@ -13,13 +13,13 @@ public interface UserService {
 
   List<Users> getAllUsers();
 
-  Optional<Users> getUserById(Integer id);
+  Optional<Users> getUserById(Long id);
 
   RegisterUserResponse createUser(RegisterUserRequest request);
 
-  Users updateUser(Integer id, Users users);
+  Users updateUser(Long id, Users users);
 
-  void deleteUser(Integer id);
+  void deleteUser(Long id);
 
   LoginResponse login(@Valid LoginRequest request);
 }

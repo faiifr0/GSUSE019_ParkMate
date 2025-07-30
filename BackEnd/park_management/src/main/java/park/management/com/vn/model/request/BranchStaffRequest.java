@@ -14,8 +14,9 @@ public class BranchStaffRequest {
     private String role;
 
     @NotNull
-    private Integer userId;
+    private Long userId;
 
     @NotNull
-    private Integer parkBranchId;
+    private Long parkBranchId;
+
 }

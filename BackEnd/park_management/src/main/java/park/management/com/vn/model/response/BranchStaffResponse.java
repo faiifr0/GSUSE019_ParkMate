@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 public class BranchStaffResponse {
-    private Integer id;
+    private Long id;
     private String role;
     private String userFullName;
     private String parkBranchName;

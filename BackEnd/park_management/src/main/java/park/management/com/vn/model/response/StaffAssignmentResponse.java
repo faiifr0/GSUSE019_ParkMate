@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 public class StaffAssignmentResponse {
-    private Integer id;
+    private Long id;
     private String staffName;
     private String shiftCode;
     private LocalDate assignedDate;

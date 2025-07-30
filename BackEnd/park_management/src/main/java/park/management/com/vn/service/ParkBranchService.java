@@ -12,7 +12,7 @@ public interface ParkBranchService {
 
   ParkBranchResponse create(ParkBranchRequest request);
 
-  ParkBranchResponse update(Integer id, ParkBranchRequest request);
+  ParkBranchResponse update(Long id, ParkBranchRequest request);
 
-  void delete(Integer id);
+  void delete(Long id);
 }

@@ -8,6 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface StaffAssignmentRepository extends JpaRepository<StaffAssignment, Integer> {
-    List<StaffAssignment> findByStaff_Id(Integer staffId);
+public interface StaffAssignmentRepository extends JpaRepository<StaffAssignment, Long> {
+    List<StaffAssignment> findByStaff_Id(Long staffId);
 }

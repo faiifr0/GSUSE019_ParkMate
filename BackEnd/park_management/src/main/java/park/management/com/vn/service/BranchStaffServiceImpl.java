@@ -42,7 +42,7 @@ public class BranchStaffServiceImpl implements BranchStaffService {
     }
 
     @Override
-    public BranchStaffResponse getBranchStaffById(Integer id) {
+    public BranchStaffResponse getBranchStaffById(Long id) {
         BranchStaff branchStaff = branchStaffRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("BranchStaff ID " + id + " not found"));
         return mapper.toResponse(branchStaff);
@@ -56,7 +56,7 @@ public class BranchStaffServiceImpl implements BranchStaffService {
     }
 
     @Override
-    public void deleteBranchStaff(Integer id) {
+    public void deleteBranchStaff(Long id) {
         if (!branchStaffRepository.existsById(id)) {
             throw new EntityNotFoundException("BranchStaff ID " + id + " not found");
         }
