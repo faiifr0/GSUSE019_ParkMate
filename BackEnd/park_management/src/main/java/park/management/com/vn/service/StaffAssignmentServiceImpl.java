@@ -1,5 +1,6 @@
 package park.management.com.vn.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.entity.BranchStaff;
@@ -19,43 +20,44 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StaffAssignmentServiceImpl implements StaffAssignmentService{
 
-    private final StaffAssignmentRepository repository;
+    private final StaffAssignmentRepository assignmentRepository;
+    private final BranchStaffRepository staffRepository;
+    private final ShiftRepository shiftRepository;
     private final StaffAssignmentMapper mapper;
 
     @Override
-    public List<StaffAssignmentResponse> getAll() {
-        return repository.findAll().stream()
+    public StaffAssignmentResponse createAssignment(StaffAssignmentRequest request) {
+        BranchStaff staff = staffRepository.findById(request.getStaffId())
+                .orElseThrow(() -> new EntityNotFoundException("Staff ID " + request.getStaffId() + " not found"));
+
+        Shift shift = shiftRepository.findById(request.getShiftId())
+                .orElseThrow(() -> new EntityNotFoundException("Shift ID " + request.getShiftId() + " not found"));
+
+        StaffAssignment assignment = new StaffAssignment();
+        assignment.setAssignedDate(request.getAssignedDate());
+        assignment.setStaff(staff);
+        assignment.setShift(shift);
+
+        StaffAssignment saved = assignmentRepository.save(assignment);
+        return mapper.toResponse(saved);
+    }
+
+    @Override
+    public StaffAssignmentResponse getAssignmentById(Integer id) {
+        StaffAssignment assignment = assignmentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Assignment ID " + id + " not found"));
+        return mapper.toResponse(assignment);
+    }
+
+    @Override
+    public List<StaffAssignmentResponse> getAllAssignments() {
+        return assignmentRepository.findAll().stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     @Override
-    public StaffAssignmentResponse getById(Integer id) {
-        StaffAssignment entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy assignment"));
-        return mapper.toResponse(entity);
-    }
-
-    @Override
-    public StaffAssignmentResponse create(StaffAssignmentRequest request) {
-        StaffAssignment entity = mapper.toEntity(request);
-        return mapper.toResponse(repository.save(entity));
-    }
-
-    @Override
-    public StaffAssignmentResponse update(Integer id, StaffAssignmentRequest request) {
-        StaffAssignment existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy assignment"));
-
-        existing.setAssignedDate(request.getAssignedDate());
-        existing.setStaff(new BranchStaff(request.getStaffId()));
-        existing.setShift(new Shift(request.getShiftId()));
-
-        return mapper.toResponse(repository.save(existing));
-    }
-
-    @Override
-    public void deleteById(Integer id) {
-        repository.deleteById(id);
+    public void deleteAssignment(Integer id) {
+        assignmentRepository.deleteById(id);
     }
 }

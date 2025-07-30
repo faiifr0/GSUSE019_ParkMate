@@ -8,14 +8,7 @@ import park.management.com.vn.model.response.StaffAssignmentResponse;
 
 @Mapper(componentModel = "spring")
 public interface StaffAssignmentMapper {
-
-    @Mapping(target = "staffId", source = "staff.id")
-    @Mapping(target = "staffName", source = "staff.name")
-    @Mapping(target = "shiftId", source = "shift.id")
-    @Mapping(target = "shiftName", source = "shift.name")
-    StaffAssignmentResponse toResponse(StaffAssignment entity);
-
-    @Mapping(target = "staff", expression = "java(new BranchStaff(request.getStaffId()))")
-    @Mapping(target = "shift", expression = "java(new Shift(request.getShiftId()))")
     StaffAssignment toEntity(StaffAssignmentRequest request);
+
+    StaffAssignmentResponse toResponse(StaffAssignment entity);
 }

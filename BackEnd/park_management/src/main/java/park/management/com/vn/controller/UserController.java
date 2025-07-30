@@ -44,19 +44,19 @@ public class UserController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Users> getUserById(@PathVariable Long id) {
+  public ResponseEntity<Users> getUserById(@PathVariable Integer id) {
     return userService.getUserById(id)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Users> updateUser(@PathVariable Long id, @RequestBody Users users) {
+  public ResponseEntity<Users> updateUser(@PathVariable Integer id, @RequestBody Users users) {
     return ResponseEntity.ok(userService.updateUser(id, users));
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+  public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
     userService.deleteUser(id);
     return ResponseEntity.noContent().build();
   }

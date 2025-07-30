@@ -2,10 +2,12 @@ package park.management.com.vn.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import park.management.com.vn.model.request.StaffAssignmentRequest;
 import park.management.com.vn.model.response.StaffAssignmentResponse;
+import park.management.com.vn.service.StaffAssignmentService;
 
 import java.util.List;
 
@@ -14,26 +16,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StaffAssignmentController {
 
-    private final StaffAssignmentController service;
+    private final StaffAssignmentService assignmentService;
 
-    @PostMapping
-    public ResponseEntity<StaffAssignmentResponse> create(@RequestBody @Valid StaffAssignmentRequest request) {
-        return ResponseEntity.ok(service.create(request).getBody());
+    @GetMapping("/{id}")
+    public ResponseEntity<StaffAssignmentResponse> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(assignmentService.getAssignmentById(id));
     }
 
     @GetMapping
     public ResponseEntity<List<StaffAssignmentResponse>> getAll() {
-        return ResponseEntity.ok(service.getAll().getBody());
+        return ResponseEntity.ok(assignmentService.getAllAssignments());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<StaffAssignmentResponse> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(service.getById(id).getBody());
+    @PostMapping
+    public ResponseEntity<StaffAssignmentResponse> create(@RequestBody @Valid StaffAssignmentRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(assignmentService.createAssignment(request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-    //    service.deleteById(id);
-        return ResponseEntity.ok().build();
+        assignmentService.deleteAssignment(id);
+        return ResponseEntity.noContent().build();
     }
 }

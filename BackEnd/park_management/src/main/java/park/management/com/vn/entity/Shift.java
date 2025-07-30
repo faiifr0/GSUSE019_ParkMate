@@ -24,7 +24,4 @@ public class Shift extends BaseEntity {
     @Column(name = "description")
     private String description;
 
-    public Shift(Integer id) {
-        this.id = id;
-    }
 }

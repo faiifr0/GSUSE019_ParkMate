@@ -9,6 +9,5 @@ import java.util.List;
 
 @Repository
 public interface BranchStaffRepository extends JpaRepository<BranchStaff, Integer> {
-    List<BranchStaff> findByUser_Id(Integer userId);
     List<BranchStaff> findByParkBranch_Id(Integer branchId);
 }

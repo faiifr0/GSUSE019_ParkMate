@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Optional<Users> getUserById(Long id) {
+  public Optional<Users> getUserById(Integer id) {
     return userRepository.findById(id);
   }
 
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Users updateUser(Long id, Users updatedUsers) {
+  public Users updateUser(Integer id, Users updatedUsers) {
     return userRepository.findById(id).map(user -> {
       user.setUsername(updatedUsers.getUsername());
       user.setEmail(updatedUsers.getEmail());
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void deleteUser(Long id) {
+  public void deleteUser(Integer id) {
     userRepository.deleteById(id);
   }
 

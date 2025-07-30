@@ -9,6 +9,5 @@ import java.util.List;
 
 @Repository
 public interface StaffAssignmentRepository extends JpaRepository<StaffAssignment, Integer> {
-    List<StaffAssignment> findByAssignedDate(LocalDate assignedDate);
-    List<StaffAssignment> findByStaffId(Integer staffId);
+    List<StaffAssignment> findByStaff_Id(Integer staffId);
 }

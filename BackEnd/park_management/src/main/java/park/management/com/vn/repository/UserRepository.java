@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import park.management.com.vn.entity.Users;
 
 @Repository
-public interface UserRepository extends JpaRepository<Users, Long> {
+public interface UserRepository extends JpaRepository<Users, Integer> {
 
   Optional<Users> findByUsername(String username);
 
