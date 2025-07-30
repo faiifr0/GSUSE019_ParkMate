@@ -16,8 +16,10 @@ public class ParkBranchRequest {
     @NotBlank
     private String name;
 
+    @NotNull
     private String address;
 
+    @NotNull
     private String location;
 
     @NotNull

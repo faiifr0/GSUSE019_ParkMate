@@ -18,5 +18,6 @@ public class ShiftRequest {
     @NotNull
     private LocalTime endTime;
 
+    @NotNull
     private String description;
 }
