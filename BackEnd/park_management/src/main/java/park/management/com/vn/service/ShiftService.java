@@ -11,9 +11,9 @@ public interface ShiftService {
 
     ShiftResponse create(ShiftRequest request);
 
-    ShiftResponse getById(Integer id);
+    ShiftResponse getById(Long id);
 
-    ShiftResponse update(Integer id, ShiftRequest request);
+    ShiftResponse update(Long id, ShiftRequest request);
 
-    void delete(Integer id);
+    void delete(Long id);
 }

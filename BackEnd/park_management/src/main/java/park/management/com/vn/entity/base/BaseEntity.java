@@ -16,9 +16,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * Created by Admin on 6/30/2022.
- */
 
 @Setter
 @Getter

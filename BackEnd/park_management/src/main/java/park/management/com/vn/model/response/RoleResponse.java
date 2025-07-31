@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 public class RoleResponse {
-    private Integer id;
+    private Long id;
     private String name;
     private String description;
     private LocalDateTime createdAt;

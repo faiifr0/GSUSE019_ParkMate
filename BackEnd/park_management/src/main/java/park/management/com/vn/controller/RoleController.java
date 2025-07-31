@@ -27,13 +27,13 @@ public class RoleController {
 
     @PutMapping("/{id}")
     public ResponseEntity<RoleResponse> updateRole(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestBody RoleRequest request) {
         return ResponseEntity.ok(service.updateRole(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRole(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
         service.deleteRole(id);
         return ResponseEntity.noContent().build();
     }

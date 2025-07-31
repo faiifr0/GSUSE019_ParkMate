@@ -10,7 +10,7 @@ public interface RoleService {
 
     RoleResponse createRole(RoleRequest request);
 
-    RoleResponse updateRole(Integer id, RoleRequest request);
+    RoleResponse updateRole(Long id, RoleRequest request);
 
-    void deleteRole(Integer id);
+    void deleteRole(Long id);
 }

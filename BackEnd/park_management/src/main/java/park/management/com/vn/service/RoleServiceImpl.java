@@ -34,7 +34,7 @@ public class RoleServiceImpl implements RoleService{
     }
 
     @Override
-    public RoleResponse updateRole(Integer id, RoleRequest request) {
+    public RoleResponse updateRole(Long id, RoleRequest request) {
         Role updated = roleRepository.findById(id)
                 .map(role -> {
                     role.setName(request.getName());
@@ -46,7 +46,7 @@ public class RoleServiceImpl implements RoleService{
     }
 
     @Override
-    public void deleteRole(Integer id) {
+    public void deleteRole(Long id) {
         roleRepository.deleteById(id);
     }
 }

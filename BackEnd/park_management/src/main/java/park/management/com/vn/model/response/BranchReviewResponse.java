@@ -5,18 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Builder
 @Setter
 @Getter
-public class ShiftResponse {
+public class BranchReviewResponse {
     private Long id;
-    private LocalTime startTime;
-    private LocalTime endTime;
-    private String description;
+    private Long userId;
+    private Long branchId;
+    private Integer rating;
+    private String comment;
+    private Boolean approved;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String createdBy;
-    private String updatedBy;
 }

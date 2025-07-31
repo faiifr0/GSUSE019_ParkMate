@@ -14,7 +14,7 @@ public interface ParkBranchService {
 
   ParkBranchResponse create(ParkBranchRequest request);
 
-  ParkBranchResponse update(Integer id, ParkBranchRequest request);
+  ParkBranchResponse update(Long id, ParkBranchRequest request);
 
   void delete(Integer id);
 
@@ -23,4 +23,5 @@ public interface ParkBranchService {
   Optional<BranchPromotion> findBranchPromotionById(Long id);
 
   BranchPromotion getBranchPromotionById(Long id);
+  void delete(Long id);
 }

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 public class ParkBranchResponse {
 
-    private Integer id;
+    private Long id;
     private String name;
     private String address;
     private String location;

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ParkBranchRepository extends JpaRepository<ParkBranch,Integer> {
+public interface ParkBranchRepository extends JpaRepository<ParkBranch,Long> {
 
 }

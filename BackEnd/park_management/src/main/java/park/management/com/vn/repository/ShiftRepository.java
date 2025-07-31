@@ -8,5 +8,5 @@ import park.management.com.vn.entity.Shift;
 import java.util.Optional;
 
 @Repository
-public interface ShiftRepository extends JpaRepository<Shift, Integer> {
+public interface ShiftRepository extends JpaRepository<Shift, Long> {
 }

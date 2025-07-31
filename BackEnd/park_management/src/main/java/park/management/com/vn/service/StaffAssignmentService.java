@@ -7,13 +7,9 @@ import java.util.List;
 
 public interface StaffAssignmentService {
 
-    List<StaffAssignmentResponse> getAll();
-
-    StaffAssignmentResponse getById(Integer id);
-
     StaffAssignmentResponse create(StaffAssignmentRequest request);
-
-    StaffAssignmentResponse update(Integer id, StaffAssignmentRequest request);
-
-    void deleteById(Integer id);
+    StaffAssignmentResponse getById(Long id);
+    List<StaffAssignmentResponse> getAll();
+    StaffAssignmentResponse update(Long id, StaffAssignmentRequest request);
+    void deleteById(Long id);
 }

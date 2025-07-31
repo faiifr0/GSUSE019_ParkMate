@@ -3,6 +3,7 @@ package park.management.com.vn.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
 
@@ -27,4 +28,5 @@ public class Shift extends BaseEntity {
     public Shift(Long id) {
         this.id = id;
     }
+
 }

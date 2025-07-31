@@ -19,7 +19,6 @@ import park.management.com.vn.entity.base.BaseEntity;
 @AllArgsConstructor
 public class BranchReview extends BaseEntity {
 
-
   @ManyToOne
   @JoinColumn(name = "user_id")
   private Users user;

@@ -1,7 +1,6 @@
 package park.management.com.vn.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,7 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     }
 
     @Override
-    public ParkBranchResponse update(Integer id, ParkBranchRequest request) {
+    public ParkBranchResponse update(Long id, ParkBranchRequest request) {
         ParkBranch updated = repository.findById(id)
                 .map(branch -> {
                     branch.setName(request.getName());
@@ -54,7 +53,7 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(Long id) {
         repository.deleteById(id);
     }
 

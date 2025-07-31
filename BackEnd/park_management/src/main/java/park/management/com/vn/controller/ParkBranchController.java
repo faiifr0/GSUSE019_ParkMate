@@ -35,13 +35,13 @@ public class ParkBranchController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ParkBranchResponse> update(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestBody ParkBranchRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

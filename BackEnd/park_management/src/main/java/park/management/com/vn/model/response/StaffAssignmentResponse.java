@@ -11,15 +11,10 @@ import java.time.LocalDateTime;
 @Builder
 @Data
 public class StaffAssignmentResponse {
-    private Integer id;
-    private LocalDate assignedDate;
-
-    private Integer staffId;
+    private Long id;
     private String staffName;
-
-    private Integer shiftId;
-    private String shiftName;
-
+    private String shiftCode;
+    private LocalDate assignedDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

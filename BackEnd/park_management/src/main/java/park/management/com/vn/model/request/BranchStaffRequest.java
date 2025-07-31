@@ -1,23 +1,22 @@
 package park.management.com.vn.model.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalTime;
-
 @Builder
 @Setter
 @Getter
-public class ShiftRequest {
+public class BranchStaffRequest {
+    @NotBlank
+    private String role;
 
     @NotNull
-    private LocalTime startTime;
+    private Long userId;
 
     @NotNull
-    private LocalTime endTime;
+    private Long parkBranchId;
 
-    @NotNull
-    private String description;
 }
