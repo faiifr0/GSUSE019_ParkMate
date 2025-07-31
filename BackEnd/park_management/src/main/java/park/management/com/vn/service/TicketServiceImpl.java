@@ -1,9 +1,14 @@
 package park.management.com.vn.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.entity.*;
 import park.management.com.vn.exception.promotion.PromotionExpiredException;
@@ -15,10 +20,7 @@ import park.management.com.vn.exception.ticket.TicketTypeNotFoundException;
 import park.management.com.vn.mapper.TicketMapper;
 import park.management.com.vn.model.request.TicketRequest;
 import park.management.com.vn.model.response.TicketResponse;
-import park.management.com.vn.repository.DailyTicketInventoryRepository;
-import park.management.com.vn.repository.TicketDetailRepository;
-import park.management.com.vn.repository.TicketRepository;
-import park.management.com.vn.repository.TicketTypeRepository;
+import park.management.com.vn.repository.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketTypeRepository ticketTypeRepository;
     private final TicketDetailRepository ticketDetailRepository;
     private final DailyTicketInventoryRepository dailyTicketInventoryRepository;
+    private final BulkPricingRuleRepository bulkPricingRuleRepository;
 
     private final ParkBranchService parkBranchService;
     private final UserService userService;
@@ -87,58 +90,99 @@ public class TicketServiceImpl implements TicketService {
 
         //TODO logic to handle ticket purchase
 
+        //Prepare a map to check inventory available quantity for each detail request
+        Map<Pair<Long, LocalDate>, Integer> remainingCapacityMap = new HashMap<>();
+        //This map is for pricing
+        Map<TicketType, Integer> ticketTypeQuantityMap = new HashMap<>();
+        //
+        Map<TicketType, BigDecimal> ticketTypePriceMap = new HashMap<>();
+
         for (TicketRequest.TicketDetailRequest detailRequest : ticketRequest.getDetails()) {
-            /*1. Validate each ticket detail
-            Check if each ticketTypeId exists
-            Check ticketDate is valid (not in the past)
-            Optional: Validate promotionId (exists, valid for ticket type)
-            */
+            //🔹#1. Validate each ticket detail
             LocalDate ticketDate = detailRequest.getTicketDate();
 
             TicketType ticketType = this.getTicketTypeById(detailRequest.getTicketTypeId());
+
+            Integer quantityRequested = detailRequest.getQuantity();
 
             Optional<BranchPromotion> promotion = parkBranchService
                     .findBranchPromotionById(detailRequest.getPromotionId());
 
             if (promotion.isPresent()) {
                 BranchPromotion promo = promotion.get();
-                if (!Boolean.TRUE.equals(promotion.get().getIsActive())) {
+                if (!Boolean.TRUE.equals(promotion.get().getIsActive()))
                     throw new PromotionNotActiveException(promo.getId());
-                }
+
 
                 if (ticketDate.isBefore(promo.getValidFrom().toLocalDate()) ||
-                        ticketDate.isAfter(promo.getValidUntil().toLocalDate())) {
+                        ticketDate.isAfter(promo.getValidUntil().toLocalDate()))
                     throw new PromotionExpiredException(promo.getId());
-                }
             }
-            /*
-             2. Validate Inventory for (ticketType, ticketDate)
-            Check if the system allows selling that quantity on the given day.
-            You’ll want to:
-            Query DailyTicketInventory for (ticketType.id, ticketDate)
-            If not found → create one with default totalAvailable = 100 (or whatever you define)
-            Check if:
-            inventory.getSold() + quantity > inventory.getTotalAvailable()
-            → throw TicketInventoryExceededException
-             */
 
-            // Find the inventory for the ordering day of the ticket
-            DailyTicketInventory dailyTicketInventory = this
-                    .getDailyTicketInventory(ticketType.getId(), ticketDate);
+            //🔹#2. Validate Inventory for (ticketType, ticketDate)
+            DailyTicketInventory inventory = this.getDailyTicketInventory(ticketType.getId(), ticketDate);
+            Pair<Long, LocalDate> typeAndLocalDateKeyPair = Pair.of(ticketType.getId(), ticketDate);
 
-            //Validate quantity available
+            //if key for referring is not present
+            remainingCapacityMap.putIfAbsent(
+                    typeAndLocalDateKeyPair,
+                    inventory.getTotalAvailable() - quantityRequested
+            );
 
-            if (dailyTicketInventory.getSold() + detailRequest.getQuantity()
-                    > dailyTicketInventory.getTotalAvailable())
-                throw new DailyTicketInventoryExceedException(ticketDate); // there is a problem here, we only check per ticket detail, but not the whole ticket detail list
+            int available = remainingCapacityMap.get(typeAndLocalDateKeyPair);
+
+            if (quantityRequested > available)
+                throw new DailyTicketInventoryExceedException(ticketDate);
+
+            //either way, put key and value to the map
+            remainingCapacityMap.put(typeAndLocalDateKeyPair, available - quantityRequested);
+
+            ticketTypeQuantityMap.put(
+                    ticketType,
+                    ticketTypeQuantityMap.getOrDefault(ticketType, 0) + quantityRequested
+            );
 
 
+        } // end loop
+
+        //🔹 #3. Calculate price per line
+        //iterate the hashmap ticketTypeQuantityMap
+        for (Map.Entry<TicketType, Integer> entry : ticketTypeQuantityMap.entrySet()) {
+            TicketType ticketType = entry.getKey();
+            BigDecimal basePrice = ticketType.getBasePrice();
+            int quantity = entry.getValue();
+
+            // Discount by bulk
+            BulkPricingRule bulkPricingRule = this.findBulkPricingRuleByTicketTypeId(ticketType.getId())
+                    .orElse(null);
+            int discountPercent = bulkPricingRule != null ?
+                    bulkPricingRule.getDiscountPercent() : 0;
+
+            BigDecimal priceForType = basePrice
+                    .multiply(BigDecimal.valueOf(quantity))
+                    .multiply(BigDecimal.valueOf(100 - discountPercent)) // 100 - discountRate
+                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN);
+            // Discount by Promotion
+
+
+
+            ticketTypePriceMap.put(entry.getKey(), priceForType);
         }
+        BigDecimal total = BigDecimal.ZERO;
+        for (Map.Entry<TicketType, BigDecimal> entry : ticketTypePriceMap.entrySet()) {
+            total = total.add(entry.getValue());
+        }
+
+        // now we got the total
 
 
         //return ticketMapper.toResponse(ticketOrder, ticketDetails);
         return null;
 
+    }
+
+    private Optional<BulkPricingRule> findBulkPricingRuleByTicketTypeId(Long id) {
+        return bulkPricingRuleRepository.findByTicketType_Id(id);
     }
 
     /*@Override
