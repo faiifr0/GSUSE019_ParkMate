@@ -14,24 +14,21 @@ const localApi = {
 };
 // src/api/localApi.ts
 export const login = async (email: string, password: string) => {
-    if (email === 'test@gmail.com' && password === '123456') {
-        return {
-            data: {
-                token: 'mock_token_123',
-                user: {
-                    id: 'u123',
-                    name: 'Khách hàng demo',
-                    email: 'test@gmail.com',
-                },
-            },
-        };
-    } else {
-        throw {
-            response: {
-                data: { message: 'Tài khoản hoặc mật khẩu không đúng' },
-            },
-        };
-    }
+    return new Promise<{ data: { token: string; user: any } }>((resolve, reject) => {
+        setTimeout(() => {
+            if (email === 'user@example.com' && password === '123456') {
+                resolve({
+                    data: {
+                        token: 'demo-token',
+                        user: { name: 'Người dùng demo', email },
+                    },
+                });
+            } else {
+                reject({ response: { data: { message: 'Invalid credentials' } } });
+            }
+        }, 1000);
+    });
 };
+
   
 export default localApi;
