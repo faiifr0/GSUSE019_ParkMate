@@ -35,7 +35,6 @@ public class BranchPromotion extends BaseEntity {
   private LocalDateTime to;
 
   @Column(name = "is_active")
-  private Integer isActive;
-
+  private Long isActive;
 
 }
