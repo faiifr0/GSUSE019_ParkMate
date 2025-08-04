@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 public class BranchPromotionResponse {
+
     private Long id;
     private Long parkBranchId;
     private String description;
@@ -20,4 +21,5 @@ public class BranchPromotionResponse {
     private Long isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
 }
