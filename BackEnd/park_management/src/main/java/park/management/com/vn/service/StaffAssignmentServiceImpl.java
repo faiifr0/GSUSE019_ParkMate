@@ -25,7 +25,7 @@ public class StaffAssignmentServiceImpl implements StaffAssignmentService{
     private final StaffAssignmentMapper mapper;
 
     @Override
-    public StaffAssignmentResponse create(StaffAssignmentRequest request) {
+    public StaffAssignmentResponse createStaffAssignment(StaffAssignmentRequest request) {
         BranchStaff staff = branchStaffRepository.findById(request.getStaffId())
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy BranchStaff với ID: " + request.getStaffId()));
 
@@ -41,14 +41,14 @@ public class StaffAssignmentServiceImpl implements StaffAssignmentService{
     }
 
     @Override
-    public StaffAssignmentResponse getById(Long id) {
+    public StaffAssignmentResponse getStaffAssignmentById(Long id) {
         StaffAssignment entity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy StaffAssignment với ID: " + id));
         return mapper.toResponse(entity);
     }
 
     @Override
-    public List<StaffAssignmentResponse> getAll() {
+    public List<StaffAssignmentResponse> getAllStaffAssignment() {
         return repository.findAll()
                 .stream()
                 .map(mapper::toResponse)
@@ -56,7 +56,7 @@ public class StaffAssignmentServiceImpl implements StaffAssignmentService{
     }
 
     @Override
-    public StaffAssignmentResponse update(Long id, StaffAssignmentRequest request) {
+    public StaffAssignmentResponse updateStaffAssignment(Long id, StaffAssignmentRequest request) {
         StaffAssignment existing = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy StaffAssignment với ID: " + id));
 
@@ -74,7 +74,7 @@ public class StaffAssignmentServiceImpl implements StaffAssignmentService{
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteStaffAssignmentById(Long id) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("Không tìm thấy StaffAssignment với ID: " + id);
         }

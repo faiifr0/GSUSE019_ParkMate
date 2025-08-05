@@ -8,11 +8,11 @@ import park.management.com.vn.model.response.ParkBranchResponse;
 
 public interface ParkBranchService {
 
-  List<ParkBranchResponse> getAll();
+  List<ParkBranchResponse> getAllBranchPark();
 
-  ParkBranchResponse create(ParkBranchRequest request);
+  ParkBranchResponse createBranchPark(ParkBranchRequest request);
 
-  ParkBranchResponse update(Long id, ParkBranchRequest request);
+  ParkBranchResponse updateBranchPark(Long id, ParkBranchRequest request);
 
-  void delete(Long id);
+  void deleteBranchPark(Long id);
 }

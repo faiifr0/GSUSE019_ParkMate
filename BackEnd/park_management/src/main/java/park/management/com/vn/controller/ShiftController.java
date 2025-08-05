@@ -18,28 +18,28 @@ public class ShiftController {
     private final ShiftService service;
 
     @PostMapping
-    public ResponseEntity<ShiftResponse> create(@RequestBody @Valid ShiftRequest request) {
-        return ResponseEntity.ok(service.create(request));
+    public ResponseEntity<ShiftResponse> createShift(@RequestBody @Valid ShiftRequest request) {
+        return ResponseEntity.ok(service.createShift(request));
     }
 
     @GetMapping
-    public ResponseEntity<List<ShiftResponse>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<List<ShiftResponse>> getAllShift() {
+        return ResponseEntity.ok(service.getAllShift());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ShiftResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
+    public ResponseEntity<ShiftResponse> getShiftById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getShiftById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ShiftResponse> update(@PathVariable Long id, @RequestBody @Valid ShiftRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
+    public ResponseEntity<ShiftResponse> updateShift(@PathVariable Long id, @RequestBody @Valid ShiftRequest request) {
+        return ResponseEntity.ok(service.updateShift(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> deleteShift(@PathVariable Long id) {
+        service.deleteShift(id);
         return ResponseEntity.noContent().build();
     }
 }

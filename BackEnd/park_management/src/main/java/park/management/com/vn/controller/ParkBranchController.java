@@ -24,25 +24,25 @@ public class ParkBranchController {
     private final ParkBranchService service;
 
     @GetMapping
-    public ResponseEntity<List<ParkBranchResponse>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<List<ParkBranchResponse>> getAllBranchPark() {
+        return ResponseEntity.ok(service.getAllBranchPark());
     }
 
     @PostMapping
-    public ResponseEntity<ParkBranchResponse> create(@RequestBody ParkBranchRequest request) {
-        return ResponseEntity.ok(service.create(request));
+    public ResponseEntity<ParkBranchResponse> createBranchPark(@RequestBody ParkBranchRequest request) {
+        return ResponseEntity.ok(service.createBranchPark(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ParkBranchResponse> update(
+    public ResponseEntity<ParkBranchResponse> updateBranchPark(
             @PathVariable Long id,
             @RequestBody ParkBranchRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
+        return ResponseEntity.ok(service.updateBranchPark(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> deleteBranchPark(@PathVariable Long id) {
+        service.deleteBranchPark(id);
         return ResponseEntity.noContent().build();
     }
 }

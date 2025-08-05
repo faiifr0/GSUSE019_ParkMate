@@ -19,31 +19,31 @@ public class StaffAssignmentController {
     private final StaffAssignmentService staffAssignmentService;
 
     @GetMapping
-    public ResponseEntity<List<StaffAssignmentResponse>> getAll() {
-        return ResponseEntity.ok(staffAssignmentService.getAll());
+    public ResponseEntity<List<StaffAssignmentResponse>> getAllStaffAssignment() {
+        return ResponseEntity.ok(staffAssignmentService.getAllStaffAssignment());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StaffAssignmentResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(staffAssignmentService.getById(id));
+    public ResponseEntity<StaffAssignmentResponse> getStaffAssignmentById(@PathVariable Long id) {
+        return ResponseEntity.ok(staffAssignmentService.getStaffAssignmentById(id));
     }
 
     @PostMapping
-    public ResponseEntity<StaffAssignmentResponse> create(@Valid @RequestBody StaffAssignmentRequest request) {
-        StaffAssignmentResponse response = staffAssignmentService.create(request);
+    public ResponseEntity<StaffAssignmentResponse> createStaffAssignment(@Valid @RequestBody StaffAssignmentRequest request) {
+        StaffAssignmentResponse response = staffAssignmentService.createStaffAssignment(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StaffAssignmentResponse> update(@PathVariable Long id,
+    public ResponseEntity<StaffAssignmentResponse> updateStaffAssignment(@PathVariable Long id,
                                                           @Valid @RequestBody StaffAssignmentRequest request) {
-        StaffAssignmentResponse response = staffAssignmentService.update(id, request);
+        StaffAssignmentResponse response = staffAssignmentService.updateStaffAssignment(id, request);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        staffAssignmentService.deleteById(id);
+    public ResponseEntity<Void> deleteStaffAssignment(@PathVariable Long id) {
+        staffAssignmentService.deleteStaffAssignmentById(id);
         return ResponseEntity.noContent().build();
     }
 }

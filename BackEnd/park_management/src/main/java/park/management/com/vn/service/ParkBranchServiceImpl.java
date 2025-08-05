@@ -19,7 +19,7 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     private final ParkBranchMapper mapper;
 
     @Override
-    public List<ParkBranchResponse> getAll() {
+    public List<ParkBranchResponse> getAllBranchPark() {
         return repository.findAll()
                 .stream()
                 .map(mapper::toResponse)
@@ -27,14 +27,14 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     }
 
     @Override
-    public ParkBranchResponse create(ParkBranchRequest request) {
+    public ParkBranchResponse createBranchPark(ParkBranchRequest request) {
         ParkBranch entity = mapper.toEntity(request);
         ParkBranch saved = repository.save(entity);
         return mapper.toResponse(saved);
     }
 
     @Override
-    public ParkBranchResponse update(Long id, ParkBranchRequest request) {
+    public ParkBranchResponse updateBranchPark(Long id, ParkBranchRequest request) {
         ParkBranch updated = repository.findById(id)
                 .map(branch -> {
                     branch.setName(request.getName());
@@ -49,7 +49,7 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteBranchPark(Long id) {
         repository.deleteById(id);
     }
 }

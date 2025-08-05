@@ -6,13 +6,13 @@ import park.management.com.vn.model.response.BranchPromotionResponse;
 import java.util.List;
 
 public interface BranchPromotionService {
-    BranchPromotionResponse getById(Long id);
+    BranchPromotionResponse getBranchPromotionById(Long id);
 
-    List<BranchPromotionResponse> getAll();
+    List<BranchPromotionResponse> getAllBranchPromotion();
 
-    BranchPromotionResponse create(BranchPromotionRequest request);
+    BranchPromotionResponse createBranchPromotion(BranchPromotionRequest request);
 
-    BranchPromotionResponse update(Long id, BranchPromotionRequest request);
+    BranchPromotionResponse updateBranchPromotion(Long id, BranchPromotionRequest request);
 
-    void delete(Long id);
+    void deleteBranchPromotion(Long id);
 }

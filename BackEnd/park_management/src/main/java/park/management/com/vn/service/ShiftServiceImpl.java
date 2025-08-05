@@ -19,28 +19,28 @@ public class ShiftServiceImpl implements ShiftService {
     private final ShiftMapper mapper;
 
     @Override
-    public ShiftResponse create(ShiftRequest request) {
+    public ShiftResponse createShift(ShiftRequest request) {
         Shift shift = mapper.toEntity(request);
         Shift saved = repository.save(shift);
         return mapper.toResponse(saved);
     }
 
     @Override
-    public List<ShiftResponse> getAll() {
+    public List<ShiftResponse> getAllShift() {
         return repository.findAll().stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public ShiftResponse getById(Long id) {
+    public ShiftResponse getShiftById(Long id) {
         Shift shift = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Shift not found"));
         return mapper.toResponse(shift);
     }
 
     @Override
-    public ShiftResponse update(Long id, ShiftRequest request) {
+    public ShiftResponse updateShift(Long id, ShiftRequest request) {
         Shift shift = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Shift not found"));
 
@@ -53,7 +53,7 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteShift(Long id) {
         repository.deleteById(id);
     }
 }

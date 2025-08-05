@@ -19,27 +19,27 @@ public class BranchPromotionServiceImpl implements BranchPromotionService{
     private final BranchPromotionMapper mapper;
 
     @Override
-    public BranchPromotionResponse create(BranchPromotionRequest request) {
+    public BranchPromotionResponse createBranchPromotion(BranchPromotionRequest request) {
         BranchPromotion entity = mapper.toEntity(request);
         return mapper.toResponse(repository.save(entity));
     }
 
     @Override
-    public BranchPromotionResponse getById(Long id) {
+    public BranchPromotionResponse getBranchPromotionById(Long id) {
         BranchPromotion entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Promotion not found"));
         return mapper.toResponse(entity);
     }
 
     @Override
-    public List<BranchPromotionResponse> getAll() {
+    public List<BranchPromotionResponse> getAllBranchPromotion() {
         return repository.findAll().stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public BranchPromotionResponse update(Long id, BranchPromotionRequest request) {
+    public BranchPromotionResponse updateBranchPromotion(Long id, BranchPromotionRequest request) {
         BranchPromotion entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Promotion not found"));
         BranchPromotion updated = mapper.toEntity(request);
@@ -50,7 +50,7 @@ public class BranchPromotionServiceImpl implements BranchPromotionService{
     }
 
     @Override
-    public void delete(Long id) {
+    public void deleteBranchPromotion(Long id) {
         repository.deleteById(id);
     }
 

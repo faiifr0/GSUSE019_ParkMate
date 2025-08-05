@@ -17,29 +17,29 @@ public class BranchPromotionController {
     private final BranchPromotionService service;
 
     @GetMapping("/{id}")
-    public ResponseEntity<BranchPromotionResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
+    public ResponseEntity<BranchPromotionResponse> getBranchPromotionById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getBranchPromotionById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<BranchPromotionResponse>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<List<BranchPromotionResponse>> getAllBranchPromotion() {
+        return ResponseEntity.ok(service.getAllBranchPromotion());
     }
 
     @PostMapping
-    public ResponseEntity<BranchPromotionResponse> create(@RequestBody BranchPromotionRequest request) {
-        return ResponseEntity.ok(service.create(request));
+    public ResponseEntity<BranchPromotionResponse> createBranchPromotion(@RequestBody BranchPromotionRequest request) {
+        return ResponseEntity.ok(service.createBranchPromotion(request));
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<BranchPromotionResponse> update(@PathVariable Long id, @RequestBody BranchPromotionRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
+    public ResponseEntity<BranchPromotionResponse> updateBranchPromotion(@PathVariable Long id, @RequestBody BranchPromotionRequest request) {
+        return ResponseEntity.ok(service.updateBranchPromotion(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> deleteBranchPromotion(@PathVariable Long id) {
+        service.deleteBranchPromotion(id);
         return ResponseEntity.noContent().build();
     }
 }
