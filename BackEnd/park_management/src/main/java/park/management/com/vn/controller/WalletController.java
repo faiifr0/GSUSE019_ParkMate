@@ -15,31 +15,31 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WalletController {
 
-    private final WalletService service;
+    private final WalletService walletService;
 
     @PostMapping
     public ResponseEntity<WalletResponse> createWallet(@Valid @RequestBody WalletRequest request) {
-        return ResponseEntity.ok(service.createWallet(request));
+        return ResponseEntity.ok(walletService.createWallet(request));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<WalletResponse> getWalletById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getWalletById(id));
+        return ResponseEntity.ok(walletService.getWalletById(id));
     }
 
     @GetMapping
     public ResponseEntity<List<WalletResponse>> getAllWallets() {
-        return ResponseEntity.ok(service.getAllWallets());
+        return ResponseEntity.ok(walletService.getAllWallets());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<WalletResponse> updateWallet(@PathVariable Long id, @Valid @RequestBody WalletRequest request) {
-        return ResponseEntity.ok(service.updateWallet(id, request));
+        return ResponseEntity.ok(walletService.updateWallet(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWallet(@PathVariable Long id) {
-        service.deleteWalletById(id);
+        walletService.deleteWalletById(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -15,43 +15,43 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BranchPromotionServiceImpl implements BranchPromotionService{
 
-    private final BranchPromotionRepository repository;
+    private final BranchPromotionRepository branchPromotionRepository;
     private final BranchPromotionMapper mapper;
 
     @Override
     public BranchPromotionResponse createBranchPromotion(BranchPromotionRequest request) {
         BranchPromotion entity = mapper.toEntity(request);
-        return mapper.toResponse(repository.save(entity));
+        return mapper.toResponse(branchPromotionRepository.save(entity));
     }
 
     @Override
     public BranchPromotionResponse getBranchPromotionById(Long id) {
-        BranchPromotion entity = repository.findById(id)
+        BranchPromotion entity = branchPromotionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Promotion not found"));
         return mapper.toResponse(entity);
     }
 
     @Override
     public List<BranchPromotionResponse> getAllBranchPromotion() {
-        return repository.findAll().stream()
+        return branchPromotionRepository.findAll().stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public BranchPromotionResponse updateBranchPromotion(Long id, BranchPromotionRequest request) {
-        BranchPromotion entity = repository.findById(id)
+        BranchPromotion entity = branchPromotionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Promotion not found"));
         BranchPromotion updated = mapper.toEntity(request);
         updated.setId(id);
         updated.setCreatedAt(entity.getCreatedAt());
         updated.setCreatedBy(entity.getCreatedBy());
-        return mapper.toResponse(repository.save(updated));
+        return mapper.toResponse(branchPromotionRepository.save(updated));
     }
 
     @Override
     public void deleteBranchPromotion(Long id) {
-        repository.deleteById(id);
+        branchPromotionRepository.deleteById(id);
     }
 
 }

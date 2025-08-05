@@ -6,10 +6,13 @@ import java.util.Optional;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import park.management.com.vn.entity.ParkBranch;
+import park.management.com.vn.entity.Role;
 import park.management.com.vn.entity.Users;
 import park.management.com.vn.mapper.UserMapper;
 import park.management.com.vn.model.request.LoginRequest;
 import park.management.com.vn.model.request.RegisterUserRequest;
+import park.management.com.vn.model.request.UserRequest;
 import park.management.com.vn.model.response.LoginResponse;
 import park.management.com.vn.model.response.RegisterUserResponse;
 import park.management.com.vn.repository.UserRepository;
@@ -23,6 +26,8 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
   private final JWTTokenUtils jwtTokenUtils;
+  private final RoleService roleService;
+  private final ParkBranchService parkBranchService;
 
   @Override
   public List<Users> getAllUsers() {
@@ -46,11 +51,13 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Users updateUser(Long id, Users updatedUsers) {
+  public Users updateUser(Long id, UserRequest updatedUsers) {
     return userRepository.findById(id).map(user -> {
-      user.setUsername(updatedUsers.getUsername());
-      user.setEmail(updatedUsers.getEmail());
-      user.setPassword(updatedUsers.getPassword());
+      user.setPassword(bCryptPasswordEncoder.encode(updatedUsers.getPassword()));
+      Role role = roleService.findById(updatedUsers.getRoleId()).orElseThrow(() -> new RuntimeException("Role not found!"));
+      user.setRole(role);
+      ParkBranch parkBranch = parkBranchService.findById(updatedUsers.getParkBranchId()).orElseThrow(() -> new RuntimeException("ParkBranch not found!"));
+      user.setParkBranch(parkBranch);
       return userRepository.save(user);
     }).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
   }

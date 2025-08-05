@@ -15,45 +15,45 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ShiftServiceImpl implements ShiftService {
 
-    private final ShiftRepository repository;
+    private final ShiftRepository shiftRepository;
     private final ShiftMapper mapper;
 
     @Override
     public ShiftResponse createShift(ShiftRequest request) {
         Shift shift = mapper.toEntity(request);
-        Shift saved = repository.save(shift);
+        Shift saved = shiftRepository.save(shift);
         return mapper.toResponse(saved);
     }
 
     @Override
     public List<ShiftResponse> getAllShift() {
-        return repository.findAll().stream()
+        return shiftRepository.findAll().stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public ShiftResponse getShiftById(Long id) {
-        Shift shift = repository.findById(id)
+        Shift shift = shiftRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Shift not found"));
         return mapper.toResponse(shift);
     }
 
     @Override
     public ShiftResponse updateShift(Long id, ShiftRequest request) {
-        Shift shift = repository.findById(id)
+        Shift shift = shiftRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Shift not found"));
 
         shift.setStartTime(request.getStartTime());
         shift.setEndTime(request.getEndTime());
         shift.setDescription(request.getDescription());
 
-        Shift updated = repository.save(shift);
+        Shift updated = shiftRepository.save(shift);
         return mapper.toResponse(updated);
     }
 
     @Override
     public void deleteShift(Long id) {
-        repository.deleteById(id);
+        shiftRepository.deleteById(id);
     }
 }

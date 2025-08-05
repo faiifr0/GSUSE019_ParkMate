@@ -13,28 +13,28 @@ import java.util.List;
 @RequestMapping("/api/role")
 @RequiredArgsConstructor
 public class RoleController {
-    private final RoleService service;
+    private final RoleService roleService;
 
     @GetMapping
     public ResponseEntity<List<RoleResponse>> getAllRole() {
-        return ResponseEntity.ok(service.getAllRole());
+        return ResponseEntity.ok(roleService.getAllRole());
     }
 
     @PostMapping
     public ResponseEntity<RoleResponse> createRole(@RequestBody RoleRequest request) {
-        return ResponseEntity.ok(service.createRole(request));
+        return ResponseEntity.ok(roleService.createRole(request));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<RoleResponse> updateRole(
             @PathVariable Long id,
             @RequestBody RoleRequest request) {
-        return ResponseEntity.ok(service.updateRole(id, request));
+        return ResponseEntity.ok(roleService.updateRole(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
-        service.deleteRole(id);
+        roleService.deleteRole(id);
         return ResponseEntity.noContent().build();
     }
 }

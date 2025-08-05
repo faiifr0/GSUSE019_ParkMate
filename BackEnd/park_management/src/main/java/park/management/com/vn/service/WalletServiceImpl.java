@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WalletServiceImpl implements WalletService {
 
-    private final WalletRepository repository;
+    private final WalletRepository walletRepository;
     private final WalletMapper mapper;
     private final UserRepository usersRepository;
 
@@ -25,36 +25,36 @@ public class WalletServiceImpl implements WalletService {
         Wallet wallet = mapper.toEntity(request);
         wallet.setUser(usersRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found")));
-        return mapper.toResponse(repository.save(wallet));
+        return mapper.toResponse(walletRepository.save(wallet));
     }
 
     @Override
     public WalletResponse getWalletById(Long id) {
-        Wallet wallet = repository.findById(id)
+        Wallet wallet = walletRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Wallet not found"));
         return mapper.toResponse(wallet);
     }
 
     @Override
     public List<WalletResponse> getAllWallets() {
-        return repository.findAll().stream()
+        return walletRepository.findAll().stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public WalletResponse updateWallet(Long id, WalletRequest request) {
-        Wallet existing = repository.findById(id)
+        Wallet existing = walletRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Wallet not found"));
         Wallet updated = mapper.toEntity(request);
         updated.setId(id);
         updated.setCreatedAt(existing.getCreatedAt());
         updated.setCreatedBy(existing.getCreatedBy());
-        return mapper.toResponse(repository.save(updated));
+        return mapper.toResponse(walletRepository.save(updated));
     }
 
     @Override
     public void deleteWalletById(Long id) {
-        repository.deleteById(id);
+        walletRepository.deleteById(id);
     }
 }

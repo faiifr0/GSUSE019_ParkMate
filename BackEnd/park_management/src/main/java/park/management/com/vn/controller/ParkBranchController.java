@@ -21,28 +21,28 @@ import park.management.com.vn.service.ParkBranchService;
 @RequestMapping("/api/park-branch")
 public class ParkBranchController {
 
-    private final ParkBranchService service;
+    private final ParkBranchService parkBranchService;
 
     @GetMapping
     public ResponseEntity<List<ParkBranchResponse>> getAllBranchPark() {
-        return ResponseEntity.ok(service.getAllBranchPark());
+        return ResponseEntity.ok(parkBranchService.getAllBranchPark());
     }
 
     @PostMapping
     public ResponseEntity<ParkBranchResponse> createBranchPark(@RequestBody ParkBranchRequest request) {
-        return ResponseEntity.ok(service.createBranchPark(request));
+        return ResponseEntity.ok(parkBranchService.createBranchPark(request));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ParkBranchResponse> updateBranchPark(
             @PathVariable Long id,
             @RequestBody ParkBranchRequest request) {
-        return ResponseEntity.ok(service.updateBranchPark(id, request));
+        return ResponseEntity.ok(parkBranchService.updateBranchPark(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBranchPark(@PathVariable Long id) {
-        service.deleteBranchPark(id);
+        parkBranchService.deleteBranchPark(id);
         return ResponseEntity.noContent().build();
     }
 }

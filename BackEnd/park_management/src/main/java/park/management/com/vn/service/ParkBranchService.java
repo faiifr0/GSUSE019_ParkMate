@@ -2,11 +2,14 @@ package park.management.com.vn.service;
 
 import java.util.List;
 import java.util.Optional;
+
 import park.management.com.vn.entity.ParkBranch;
+import park.management.com.vn.entity.Role;
 import park.management.com.vn.model.request.ParkBranchRequest;
 import park.management.com.vn.model.response.ParkBranchResponse;
 
 public interface ParkBranchService {
+  Optional<ParkBranch> findById(Long id);
 
   List<ParkBranchResponse> getAllBranchPark();
 

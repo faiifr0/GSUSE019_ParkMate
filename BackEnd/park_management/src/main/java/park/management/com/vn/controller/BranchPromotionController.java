@@ -14,32 +14,32 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BranchPromotionController {
 
-    private final BranchPromotionService service;
+    private final BranchPromotionService branchPromotionService;
 
     @GetMapping("/{id}")
     public ResponseEntity<BranchPromotionResponse> getBranchPromotionById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getBranchPromotionById(id));
+        return ResponseEntity.ok(branchPromotionService.getBranchPromotionById(id));
     }
 
     @GetMapping
     public ResponseEntity<List<BranchPromotionResponse>> getAllBranchPromotion() {
-        return ResponseEntity.ok(service.getAllBranchPromotion());
+        return ResponseEntity.ok(branchPromotionService.getAllBranchPromotion());
     }
 
     @PostMapping
     public ResponseEntity<BranchPromotionResponse> createBranchPromotion(@RequestBody BranchPromotionRequest request) {
-        return ResponseEntity.ok(service.createBranchPromotion(request));
+        return ResponseEntity.ok(branchPromotionService.createBranchPromotion(request));
     }
 
 
     @PutMapping("/{id}")
     public ResponseEntity<BranchPromotionResponse> updateBranchPromotion(@PathVariable Long id, @RequestBody BranchPromotionRequest request) {
-        return ResponseEntity.ok(service.updateBranchPromotion(id, request));
+        return ResponseEntity.ok(branchPromotionService.updateBranchPromotion(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBranchPromotion(@PathVariable Long id) {
-        service.deleteBranchPromotion(id);
+        branchPromotionService.deleteBranchPromotion(id);
         return ResponseEntity.noContent().build();
     }
 }

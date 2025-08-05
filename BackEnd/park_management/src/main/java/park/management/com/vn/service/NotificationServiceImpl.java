@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    private final NotificationRepository repository;
+    private final NotificationRepository notificationRepository;
     private final NotificationMapper mapper;
     private final UserRepository usersRepository;
 
@@ -25,36 +25,36 @@ public class NotificationServiceImpl implements NotificationService {
         Notification entity = mapper.toEntity(request);
         entity.setUser(usersRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found")));
-        return mapper.toResponse(repository.save(entity));
+        return mapper.toResponse(notificationRepository.save(entity));
     }
 
     @Override
     public NotificationResponse getNotificationById(Long id) {
-        Notification entity = repository.findById(id)
+        Notification entity = notificationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
         return mapper.toResponse(entity);
     }
 
     @Override
     public List<NotificationResponse> getAllNotifications() {
-        return repository.findAll().stream()
+        return notificationRepository.findAll().stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public NotificationResponse updateNotification(Long id, NotificationRequest request) {
-        Notification existing = repository.findById(id)
+        Notification existing = notificationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
         Notification updated = mapper.toEntity(request);
         updated.setId(id);
         updated.setCreatedAt(existing.getCreatedAt());
         updated.setCreatedBy(existing.getCreatedBy());
-        return mapper.toResponse(repository.save(updated));
+        return mapper.toResponse(notificationRepository.save(updated));
     }
 
     @Override
     public void deleteNotification(Long id) {
-        repository.deleteById(id);
+        notificationRepository.deleteById(id);
     }
 }

@@ -14,31 +14,31 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationController {
 
-    private final NotificationService service;
+    private final NotificationService notificationService;
 
     @PostMapping
     public ResponseEntity<NotificationResponse> createNotification(@RequestBody NotificationRequest request) {
-        return ResponseEntity.ok(service.createNotification(request));
+        return ResponseEntity.ok(notificationService.createNotification(request));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<NotificationResponse> getNotificationById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getNotificationById(id));
+        return ResponseEntity.ok(notificationService.getNotificationById(id));
     }
 
     @GetMapping
     public ResponseEntity<List<NotificationResponse>> getAllNotification() {
-        return ResponseEntity.ok(service.getAllNotifications());
+        return ResponseEntity.ok(notificationService.getAllNotifications());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<NotificationResponse> updateNotification(@PathVariable Long id, @RequestBody NotificationRequest request) {
-        return ResponseEntity.ok(service.updateNotification(id, request));
+        return ResponseEntity.ok(notificationService.updateNotification(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
-        service.deleteNotification(id);
+        notificationService.deleteNotification(id);
         return ResponseEntity.noContent().build();
     }
 }
