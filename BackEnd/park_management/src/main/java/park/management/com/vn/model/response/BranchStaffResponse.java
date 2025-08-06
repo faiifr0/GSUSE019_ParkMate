@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class BranchStaffResponse {
     private Long id;
     private String role;
+    private String description;
     private String userFullName;
     private String parkBranchName;
     private LocalDateTime createdAt;

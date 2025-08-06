@@ -18,4 +18,6 @@ public class BulkPricingRule extends BaseEntity {
 
     @Column(nullable = false)
     private Integer discountPercent;
+
+
 }
