@@ -1,0 +1,44 @@
+package park.management.com.vn.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import park.management.com.vn.model.request.NotificationRequest;
+import park.management.com.vn.model.response.NotificationResponse;
+import park.management.com.vn.service.NotificationService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/notification")
+@RequiredArgsConstructor
+public class NotificationController {
+
+    private final NotificationService notificationService;
+
+    @PostMapping
+    public ResponseEntity<NotificationResponse> createNotification(@RequestBody NotificationRequest request) {
+        return ResponseEntity.ok(notificationService.createNotification(request));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<NotificationResponse> getNotificationById(@PathVariable Long id) {
+        return ResponseEntity.ok(notificationService.getNotificationById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<NotificationResponse>> getAllNotification() {
+        return ResponseEntity.ok(notificationService.getAllNotifications());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<NotificationResponse> updateNotification(@PathVariable Long id, @RequestBody NotificationRequest request) {
+        return ResponseEntity.ok(notificationService.updateNotification(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
+        notificationService.deleteNotification(id);
+        return ResponseEntity.noContent().build();
+    }
+}

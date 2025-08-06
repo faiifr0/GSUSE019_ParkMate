@@ -19,25 +19,25 @@ public class BranchStaffController {
     private final BranchStaffService branchStaffService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<BranchStaffResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<BranchStaffResponse> getBranchStaffById(@PathVariable Long id) {
         BranchStaffResponse response = branchStaffService.getBranchStaffById(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<BranchStaffResponse>> getAll() {
+    public ResponseEntity<List<BranchStaffResponse>> getAllBranchStaff() {
         List<BranchStaffResponse> responseList = branchStaffService.getAllBranchStaff();
         return ResponseEntity.ok(responseList);
     }
 
     @PostMapping
-    public ResponseEntity<BranchStaffResponse> create(@Valid @RequestBody BranchStaffRequest request) {
+    public ResponseEntity<BranchStaffResponse> createBranchStaff(@Valid @RequestBody BranchStaffRequest request) {
         BranchStaffResponse response = branchStaffService.createBranchStaff(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteBranchStaff(@PathVariable Long id) {
         branchStaffService.deleteBranchStaff(id);
         return ResponseEntity.noContent().build();
     }

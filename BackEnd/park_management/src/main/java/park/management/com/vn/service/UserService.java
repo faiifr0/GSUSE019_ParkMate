@@ -6,6 +6,7 @@ import java.util.Optional;
 import park.management.com.vn.entity.Users;
 import park.management.com.vn.model.request.LoginRequest;
 import park.management.com.vn.model.request.RegisterUserRequest;
+import park.management.com.vn.model.request.UserRequest;
 import park.management.com.vn.model.response.LoginResponse;
 import park.management.com.vn.model.response.RegisterUserResponse;
 
@@ -19,7 +20,7 @@ public interface UserService {
 
   RegisterUserResponse createUser(RegisterUserRequest request);
 
-  Users updateUser(Long id, Users users);
+  Users updateUser(Long id, UserRequest userRequest);
 
   void deleteUser(Long id);
 
