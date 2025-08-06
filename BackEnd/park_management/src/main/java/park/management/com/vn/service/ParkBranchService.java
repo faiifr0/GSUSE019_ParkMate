@@ -13,7 +13,9 @@ import park.management.com.vn.model.response.ParkBranchResponse;
 public interface ParkBranchService {
   Optional<ParkBranch> findById(Long id);
 
-  List<ParkBranchResponse> getAllBranchPark();
+    ParkBranch getById(Long id);
+
+    List<ParkBranchResponse> getAllBranchPark();
 
   ParkBranchResponse createBranchPark(ParkBranchRequest request);
 

@@ -5,9 +5,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
-import park.management.com.vn.entity.BranchPromotion;
 import park.management.com.vn.entity.ParkBranch;
-import park.management.com.vn.exception.promotion.PromotionNotFoundException;
+import park.management.com.vn.exception.parkbranch.ParkBranchNotFoundException;
 import park.management.com.vn.mapper.ParkBranchMapper;
 import park.management.com.vn.model.request.ParkBranchRequest;
 import park.management.com.vn.model.response.ParkBranchResponse;
@@ -27,6 +26,12 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     @Override
     public Optional<ParkBranch> findById(Long id) {
         return parkBranchRepository.findById(id);
+    }
+
+    @Override
+    public ParkBranch getById(Long id) {
+        return parkBranchRepository.findById(id)
+                .orElseThrow(() -> new ParkBranchNotFoundException(id));
     }
 
     @Override

@@ -25,9 +25,11 @@ public class TicketController {
                                                  @AuthenticationPrincipal UserPrincipal user) {
         Long userId = user.getId();
 
-        return ResponseEntity.ok(ticketService.createTicketOrder(ticketRequest, userId));
+        return ResponseEntity.ok(
+                ticketService.getTicketResponseById(
+                        ticketService.createTicketOrder(ticketRequest, userId)
+                ));
     }
-
 
 
 }

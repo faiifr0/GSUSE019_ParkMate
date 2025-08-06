@@ -17,6 +17,14 @@ public class TicketRequest {
     @NotEmpty
     private List<TicketDetailRequest> details;
 
+    private Long branchId;
+
+    private Long promotionId;
+
+    @NotNull
+    @FutureOrPresent
+    private LocalDate ticketDate;
+
     // inner static class
     @Data
     public static class TicketDetailRequest {
@@ -27,9 +35,7 @@ public class TicketRequest {
         @Min(1)
         private Integer quantity;
 
-        @NotNull
-        @FutureOrPresent
-        private LocalDate ticketDate;
+
 
         private Long promotionId; // optional
     }

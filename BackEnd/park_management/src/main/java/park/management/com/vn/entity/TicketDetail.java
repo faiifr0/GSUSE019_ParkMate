@@ -5,10 +5,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
@@ -17,6 +14,7 @@ import park.management.com.vn.entity.base.BaseEntity;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TicketDetail extends BaseEntity {
 
     @ManyToOne(optional = false)
@@ -26,13 +24,6 @@ public class TicketDetail extends BaseEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "ticket_type_id", nullable = false)
     private TicketType ticketType;
-
-    @ManyToOne
-    @JoinColumn(name = "promotion_id")
-    private BranchPromotion promotion;
-
-    @Column(nullable = false)
-    private LocalDate ticketDate;
 
     @Column(nullable = false)
     private Integer quantity;

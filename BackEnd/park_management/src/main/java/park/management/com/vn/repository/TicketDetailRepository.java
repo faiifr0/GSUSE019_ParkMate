@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface TicketDetailRepository extends JpaRepository<TicketDetail,Long> {
 
+    List<TicketDetail> findByTicketOrder_Id(Long ticketOrderId);
+
+
 }
