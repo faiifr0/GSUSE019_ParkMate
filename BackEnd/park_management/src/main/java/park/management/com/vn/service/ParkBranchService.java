@@ -20,12 +20,6 @@ public interface ParkBranchService {
   ParkBranchResponse updateBranchPark(Long id, ParkBranchRequest request);
 
   void deleteBranchPark(Long id);
-  void delete(Integer id);
 
-  /// / COMMENT
 
-  Optional<BranchPromotion> findBranchPromotionById(Long id);
-
-  BranchPromotion getBranchPromotionById(Long id);
-  void delete(Long id);
 }

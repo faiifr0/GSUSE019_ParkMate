@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ParkBranchServiceImpl implements ParkBranchService {
 
-    private final ParkBranchRepository repository;
     private final BranchPromotionRepository branchPromotionRepository;
     private final ParkBranchRepository parkBranchRepository;
     private final ParkBranchMapper mapper;
@@ -65,15 +64,6 @@ public class ParkBranchServiceImpl implements ParkBranchService {
         parkBranchRepository.deleteById(id);
     }
 
-    @Override
-    public Optional<BranchPromotion> findBranchPromotionById(Long id) {
-        return branchPromotionRepository.findById(id);
-    }
 
-    @Override
-    public BranchPromotion getBranchPromotionById(Long id) {
-        return this.findBranchPromotionById(id).orElseThrow(
-                () -> new PromotionNotFoundException("Branch Promotion not found with id: " + id)
-        );
-    }
+
 }

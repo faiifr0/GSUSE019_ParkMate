@@ -33,6 +33,7 @@ public class TicketServiceImpl implements TicketService {
     private final BulkPricingRuleRepository bulkPricingRuleRepository;
 
     private final ParkBranchService parkBranchService;
+    private final BranchPromotionService branchPromotionService;
     private final UserService userService;
 
     private final TicketMapper ticketMapper;
@@ -105,7 +106,7 @@ public class TicketServiceImpl implements TicketService {
 
             Integer quantityRequested = detailRequest.getQuantity();
 
-            Optional<BranchPromotion> promotion = parkBranchService
+            Optional<BranchPromotion> promotion = branchPromotionService
                     .findBranchPromotionById(detailRequest.getPromotionId());
 
             if (promotion.isPresent()) {

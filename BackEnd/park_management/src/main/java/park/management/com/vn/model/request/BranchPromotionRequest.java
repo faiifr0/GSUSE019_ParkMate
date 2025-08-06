@@ -27,5 +27,5 @@ public class BranchPromotionRequest {
     @NotNull
     private LocalDateTime to;
 
-    private Long isActive;
+    private Boolean isActive;
 }

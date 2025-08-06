@@ -18,7 +18,7 @@ public class BranchPromotionResponse {
     private BigDecimal discount;
     private LocalDateTime from;
     private LocalDateTime to;
-    private Long isActive;
+    private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

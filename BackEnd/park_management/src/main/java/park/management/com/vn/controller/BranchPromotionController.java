@@ -18,7 +18,7 @@ public class BranchPromotionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BranchPromotionResponse> getBranchPromotionById(@PathVariable Long id) {
-        return ResponseEntity.ok(branchPromotionService.getBranchPromotionById(id));
+        return ResponseEntity.ok(branchPromotionService.getBranchPromotionResponseById(id));
     }
 
     @GetMapping

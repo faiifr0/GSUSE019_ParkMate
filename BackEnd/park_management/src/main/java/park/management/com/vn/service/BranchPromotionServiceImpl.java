@@ -3,12 +3,14 @@ package park.management.com.vn.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.entity.BranchPromotion;
+import park.management.com.vn.exception.promotion.PromotionNotFoundException;
 import park.management.com.vn.mapper.BranchPromotionMapper;
 import park.management.com.vn.model.request.BranchPromotionRequest;
 import park.management.com.vn.model.response.BranchPromotionResponse;
 import park.management.com.vn.repository.BranchPromotionRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,11 +27,25 @@ public class BranchPromotionServiceImpl implements BranchPromotionService{
     }
 
     @Override
-    public BranchPromotionResponse getBranchPromotionById(Long id) {
+    public BranchPromotionResponse getBranchPromotionResponseById(Long id) {
         BranchPromotion entity = branchPromotionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Promotion not found"));
         return mapper.toResponse(entity);
     }
+
+
+    @Override
+    public Optional<BranchPromotion> findBranchPromotionById(Long id) {
+        return branchPromotionRepository.findById(id);
+    }
+
+    @Override
+    public BranchPromotion getBranchPromotionById(Long id) {
+        return this.findBranchPromotionById(id).orElseThrow(
+                () -> new PromotionNotFoundException("Branch Promotion not found with id: " + id)
+        );
+    }
+
 
     @Override
     public List<BranchPromotionResponse> getAllBranchPromotion() {
