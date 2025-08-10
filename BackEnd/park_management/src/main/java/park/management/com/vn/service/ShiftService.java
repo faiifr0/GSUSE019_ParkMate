@@ -7,13 +7,13 @@ import java.util.List;
 
 public interface ShiftService {
 
-    List<ShiftResponse> getAll();
+    List<ShiftResponse> getAllShift();
 
-    ShiftResponse create(ShiftRequest request);
+    ShiftResponse createShift(ShiftRequest request);
 
-    ShiftResponse getById(Long id);
+    ShiftResponse getShiftById(Long id);
 
-    ShiftResponse update(Long id, ShiftRequest request);
+    ShiftResponse updateShift(Long id, ShiftRequest request);
 
-    void delete(Long id);
+    void deleteShift(Long id);
 }

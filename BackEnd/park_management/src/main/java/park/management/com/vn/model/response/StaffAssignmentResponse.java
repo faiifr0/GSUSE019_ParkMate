@@ -1,6 +1,7 @@
 package park.management.com.vn.model.response;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,8 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
-@Setter
-@Getter
+@Data
 public class StaffAssignmentResponse {
     private Long id;
     private String staffName;

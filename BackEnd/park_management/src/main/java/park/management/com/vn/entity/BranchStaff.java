@@ -23,5 +23,8 @@ public class BranchStaff extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private ParkBranch parkBranch;
 
+    @Column(name = "description")
+    private String description;
+
 }
 

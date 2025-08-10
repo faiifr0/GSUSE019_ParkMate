@@ -19,4 +19,7 @@ public class BranchStaffRequest {
     @NotNull
     private Long parkBranchId;
 
+    @NotNull
+    private String description;
+
 }

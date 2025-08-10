@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import park.management.com.vn.entity.Users;
 import park.management.com.vn.model.request.LoginRequest;
 import park.management.com.vn.model.request.RegisterUserRequest;
+import park.management.com.vn.model.request.UserRequest;
 import park.management.com.vn.model.response.LoginResponse;
 import park.management.com.vn.model.response.RegisterUserResponse;
 import park.management.com.vn.service.UserService;
@@ -45,13 +46,13 @@ public class UserController {
 
   @GetMapping("/{id}")
   public ResponseEntity<Users> getUserById(@PathVariable Long id) {
-    return userService.getUserById(id)
+    return userService.findUserById(id)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Users> updateUser(@PathVariable Long id, @RequestBody Users users) {
+  public ResponseEntity<Users> updateUser(@PathVariable Long id, @RequestBody UserRequest users) {
     return ResponseEntity.ok(userService.updateUser(id, users));
   }
 

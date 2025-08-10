@@ -9,6 +9,7 @@ import park.management.com.vn.model.response.RoleResponse;
 import park.management.com.vn.repository.RoleRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,6 +18,11 @@ public class RoleServiceImpl implements RoleService{
 
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
+
+    @Override
+    public Optional<Role> findById(Long id) {
+        return roleRepository.findById(id);
+    }
 
     @Override
     public List<RoleResponse> getAllRole() {

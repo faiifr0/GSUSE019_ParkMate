@@ -1,0 +1,27 @@
+package park.management.com.vn.exception;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@AllArgsConstructor
+@Getter
+public enum ErrorCode {
+
+    PRICE_NOT_FOUND("PRICE_NOT_FOUND", HttpStatus.NOT_FOUND),
+    USER_NOT_FOUND("CUSTOMER_NOT_FOUND", HttpStatus.NOT_FOUND),
+    PARK_BRANCH_NOT_FOUND("PARK_BRANCH_NOT_FOUND", HttpStatus.NOT_FOUND),
+    TICKET_NOT_FOUND("TICKET_NOT_FOUND", HttpStatus.NOT_FOUND),
+    PROMOTION_NOT_FOUND("PROMOTION_NOT_FOUND", HttpStatus.NOT_FOUND),
+    TICKET_STATUS_NOT_VALID("TICKET_STATUS_NOT_VALID", HttpStatus.BAD_REQUEST),
+    USER_PASSWORD_INVALID("USER_PASSWORD_INVALID", HttpStatus.BAD_REQUEST),
+    TICKET_TYPE_NOT_FOUND("TICKET_TYPE_NOT_FOUND", HttpStatus.NOT_FOUND),
+    PROMOTION_NOT_ACTIVE("PROMOTION_NOT_ACTIVE", HttpStatus.BAD_REQUEST ),
+    PROMOTION_EXPIRED("PROMOTION_EXPIRED", HttpStatus.BAD_REQUEST ),
+    TICKET_INVENTORY_NOT_FOUND("TICKET_INVENTORY_NOT_FOUND", HttpStatus.BAD_REQUEST ),
+    TICKET_INVENTORY_EXCEED("TICKET_INVENTORY_EXCEED", HttpStatus.BAD_REQUEST ),
+    PROMOTION_INVALID_BRANCH("PROMOTION_INVALID_BRANCH", HttpStatus.BAD_REQUEST ),;
+
+    private final String code;
+    private final HttpStatus status;
+}

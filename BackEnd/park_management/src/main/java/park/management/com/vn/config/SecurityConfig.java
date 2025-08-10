@@ -21,19 +21,30 @@ public class SecurityConfig {
 
   private final AuthenticationFilter authenticationFilter;
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    log.info("(securityFilterChain) start");
-    http
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(
-            authorize ->
-                authorize.requestMatchers("/public/**", "/api/users/login", "/api/users/register") // Bỏ qua contextPath
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated());
-    http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
-    return http.build();
-  }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        log.info("(securityFilterChain) start");
+
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize ->
+                        authorize
+                                .requestMatchers(
+                                        "/public/**",
+                                        "/api/users/login",
+                                        "/api/users/register",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**"
+                                ).permitAll()
+                                .anyRequest().authenticated()
+                );
+
+        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+
+
 }
 

@@ -2,17 +2,26 @@ package park.management.com.vn.service;
 
 import java.util.List;
 import java.util.Optional;
+
+import park.management.com.vn.entity.BranchPromotion;
+
 import park.management.com.vn.entity.ParkBranch;
+import park.management.com.vn.entity.Role;
 import park.management.com.vn.model.request.ParkBranchRequest;
 import park.management.com.vn.model.response.ParkBranchResponse;
 
 public interface ParkBranchService {
+  Optional<ParkBranch> findById(Long id);
 
-  List<ParkBranchResponse> getAll();
+    ParkBranch getById(Long id);
 
-  ParkBranchResponse create(ParkBranchRequest request);
+    List<ParkBranchResponse> getAllBranchPark();
 
-  ParkBranchResponse update(Long id, ParkBranchRequest request);
+  ParkBranchResponse createBranchPark(ParkBranchRequest request);
 
-  void delete(Long id);
+  ParkBranchResponse updateBranchPark(Long id, ParkBranchRequest request);
+
+  void deleteBranchPark(Long id);
+
+
 }

@@ -18,29 +18,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BranchReviewServiceImpl implements BranchReviewService {
 
-    private final BranchReviewRepository reviewRepo;
-    private final UserRepository userRepo;
-    private final ParkBranchRepository branchRepo;
+    private final BranchReviewRepository reviewRepository;
+    private final UserRepository userRepository;
+    private final ParkBranchRepository branchRepository;
     private final BranchReviewMapper mapper;
 
     @Override
     public BranchReviewResponse createReview(BranchReviewRequest request) {
-        Users user = userRepo.findById(request.getUserId())
+        Users user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        ParkBranch branch = branchRepo.findById(request.getBranchId())
+        ParkBranch branch = branchRepository.findById(request.getBranchId())
                 .orElseThrow(() -> new RuntimeException("Branch not found"));
 
         BranchReview review = mapper.toEntity(request);
         review.setUser(user);
         review.setParkBranch(branch);
 
-        BranchReview saved = reviewRepo.save(review);
+        BranchReview saved = reviewRepository.save(review);
         return mapper.toResponse(saved);
     }
 
     @Override
     public List<BranchReviewResponse> getAllReviews() {
-        return reviewRepo.findAll()
+        return reviewRepository.findAll()
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
@@ -48,7 +48,7 @@ public class BranchReviewServiceImpl implements BranchReviewService {
 
     @Override
     public BranchReviewResponse getReviewById(Long id) {
-        BranchReview review = reviewRepo.findById(id)
+        BranchReview review = reviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
         return mapper.toResponse(review);
     }
