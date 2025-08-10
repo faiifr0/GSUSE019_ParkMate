@@ -16,4 +16,31 @@ export const events = [
     { id: 'e1', title: 'Lễ Hội Mùa Hè', date: '2025-07-10' },
     { id: 'e2', title: 'Đêm Hội Trăng Rằm', date: '2025-08-15' },
 ];
-  
+// api/mockData.ts
+export type Branch = {
+  id: string;
+  name: string;
+  distance: number;
+  games: string[];
+  lat: number; // thêm
+  lon: number; // thêm
+};
+
+export const branches: Branch[] = [
+  {
+    id: "1",
+    name: "Chi nhánh Hà Nội",
+    distance: 0,
+    games: ["Tàu lượn siêu tốc", "Hồ bơi"],
+    lat: 21.028511,
+    lon: 105.804817,
+  },
+  {
+    id: "2",
+    name: "Chi nhánh TP. Hồ Chí Minh",
+    distance: 0,
+    games: ["Trượt nước", "Nhà ma"],
+    lat: 10.762622,
+    lon: 106.660172,
+  },
+];
