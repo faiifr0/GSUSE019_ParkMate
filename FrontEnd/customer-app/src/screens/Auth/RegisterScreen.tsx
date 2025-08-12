@@ -1,36 +1,31 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { userService } from '../../services/userService';
 
 export default function RegisterScreen({ navigation }: any) {
-    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleRegister = () => {
-        // Fake đăng ký - chỉ kiểm tra nhập đủ
-        if (!name || !email || !password) {
+    const handleRegister = async () => {
+        if (!email || !password) {
             Alert.alert('Vui lòng nhập đầy đủ thông tin');
             return;
         }
 
-        // Sau này thay bằng gọi API ở đây
-        console.log('Đăng ký thành công với:', { name, email, password });
-
-        Alert.alert('Đăng ký thành công', 'Bạn có thể đăng nhập ngay');
-        navigation.navigate('Login'); // ✅ Quay về màn Login
+        try {
+            const res = await userService.register(email, password);
+            console.log('Đăng ký thành công:', res.data);
+            Alert.alert('Thành công', 'Bạn có thể đăng nhập ngay.');
+            navigation.navigate('Login');
+        } catch (err: any) {
+            console.error(err);
+            Alert.alert('Lỗi đăng ký', err?.response?.data?.message || 'Có lỗi xảy ra.');
+        }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Đăng ký</Text>
-
-            <TextInput
-                placeholder="Họ tên"
-                value={name}
-                onChangeText={setName}
-                style={styles.input}
-            />
-
             <TextInput
                 placeholder="Email"
                 value={email}
@@ -38,7 +33,6 @@ export default function RegisterScreen({ navigation }: any) {
                 keyboardType="email-address"
                 style={styles.input}
             />
-
             <TextInput
                 placeholder="Mật khẩu"
                 value={password}
@@ -46,7 +40,6 @@ export default function RegisterScreen({ navigation }: any) {
                 secureTextEntry
                 style={styles.input}
             />
-
             <Button title="Đăng ký" onPress={handleRegister} />
             <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
                 Đã có tài khoản? Đăng nhập

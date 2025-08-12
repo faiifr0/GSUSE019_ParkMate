@@ -5,8 +5,7 @@ import {
     Alert,
     KeyboardAvoidingView,
     Platform,
-    TouchableOpacity,
-    Image
+    TouchableOpacity
 } from 'react-native';
 import {
     TextInput,
@@ -16,27 +15,36 @@ import {
 } from 'react-native-paper';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../redux/userSlice';
-import { login } from '../../api/localApi';
+import axiosClient from '../../api/axiosClient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function LoginScreen({ navigation }: any) {
     const dispatch = useDispatch();
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
-        if (!email || !password) {
-            Alert.alert('Thiếu thông tin', 'Vui lòng nhập đầy đủ email và mật khẩu');
+        if (!username || !password) {
+            Alert.alert('Thiếu thông tin', 'Vui lòng nhập đầy đủ tài khoản và mật khẩu');
             return;
         }
 
         try {
             setLoading(true);
-            const response = await login(email, password);
+            const response = await axiosClient.post('/users/login', {
+                username,
+                password
+            });
 
-            const { token, user } = response.data;
+            const token = response.data?.token;
+            const user = response.data?.user;
+
+            if (!token) {
+                throw new Error('Không nhận được token từ API');
+            }
+
             dispatch(setCredentials({ token, userInfo: user }));
 
             Alert.alert('Thành công', 'Đăng nhập thành công');
@@ -63,22 +71,16 @@ export default function LoginScreen({ navigation }: any) {
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 >
                     <View style={styles.form}>
-                        {/* <Image
-                            source={require('../../../assets/logo.png')} // 👉 đặt logo ở đây nếu có
-                            style={styles.logo}
-                            resizeMode="contain"
-                        /> */}
                         <Text variant="headlineMedium" style={styles.title}>
                             🎡 Chào mừng bạn!
                         </Text>
 
                         <TextInput
-                            label="Email"
-                            value={email}
-                            onChangeText={setEmail}
+                            label="Tài khoản"
+                            value={username}
+                            onChangeText={setUsername}
                             style={styles.input}
                             autoCapitalize="none"
-                            keyboardType="email-address"
                             mode="outlined"
                         />
                         <TextInput
@@ -131,12 +133,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 5,
-    },
-    logo: {
-        width: 80,
-        height: 80,
-        alignSelf: 'center',
-        marginBottom: 16,
     },
     title: {
         textAlign: 'center',

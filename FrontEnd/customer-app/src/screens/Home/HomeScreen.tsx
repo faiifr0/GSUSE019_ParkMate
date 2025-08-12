@@ -1,64 +1,138 @@
-// HomeScreen.tsx
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Image, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import * as Location from "expo-location";
 import { getDistance } from "geolib";
-import { branches, promotions } from "../../api/mockData";
+import branchPromotionService, { BranchPromotion } from "../../services/branchPromotionService";
+import branchService, { Branch } from "../../services/branchService";
+import * as Animatable from "react-native-animatable";
 
 export default function HomeScreen() {
-  const [nearestBranch, setNearestBranch] = useState<any>(null);
+  const [nearestBranch, setNearestBranch] = useState<Branch | null>(null);
+  const [promotions, setPromotions] = useState<BranchPromotion[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") return;
-      let location = await Location.getCurrentPositionAsync({});
-      const userCoords = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      };
-
-      let closest = null;
-      let minDistance = Infinity;
-
-      branches.forEach(branch => {
-        const dist = getDistance(userCoords, {
-          latitude: branch.lat,
-          longitude: branch.lon,
-        });
-        if (dist < minDistance) {
-          minDistance = dist;
-          closest = branch;
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          setError("Không có quyền truy cập vị trí.");
+          setLoading(false);
+          return;
         }
-      });
 
-      setNearestBranch(closest);
-    })();
+        const location = await Location.getCurrentPositionAsync({});
+        const userCoords = {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        };
+
+        const branchList = await branchService.getAll();
+
+        let closest: Branch | null = null;
+        let minDistance = Infinity;
+
+        branchList.forEach((b) => {
+          if (typeof b.lat !== "number" || typeof b.lon !== "number") return;
+          const dist = getDistance(userCoords, { latitude: b.lat, longitude: b.lon });
+          if (dist < minDistance) {
+            minDistance = dist;
+            closest = b;
+          }
+        });
+
+        setNearestBranch(closest);
+
+        if (closest) {
+          const promos = await branchPromotionService.getByBranchId((closest as Branch).id);
+          setPromotions(promos);
+        } else {
+          setPromotions([]);
+        }
+      } catch (err: any) {
+        console.error(err);
+        setError(err?.message ?? "Có lỗi khi tải dữ liệu.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  const renderPromoItem = ({ item, index }: { item: BranchPromotion; index: number }) => (
+    <Animatable.View
+      animation="fadeInUp"
+      delay={index * 150}
+      duration={700}
+      style={styles.promoCard}
+    >
+      <Animatable.Image
+        animation="zoomIn"
+        duration={700}
+        source={{ uri: item.image || "https://via.placeholder.com/150" }}
+        style={styles.promoImage}
+      />
+      <Text style={styles.promoText}>{item.description}</Text>
+      <Text style={{ fontSize: 12, color: "green" }}>Giảm {item.discount}%</Text>
+    </Animatable.View>
+  );
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Trang chủ</Text>
-      {nearestBranch && (
-        <View style={styles.branchBox}>
-          <Text style={styles.branchTitle}>Chi nhánh gần nhất</Text>
-          <Text>{nearestBranch.name}</Text>
-        </View>
-      )}
+      <Animatable.Text animation="fadeIn" style={styles.title}>
+        Trang chủ
+      </Animatable.Text>
 
-      <Text style={styles.sectionTitle}>Khuyến mãi nổi bật</Text>
-      <FlatList
-        horizontal
-        data={promotions}
-        renderItem={({ item }) => (
-          <View style={styles.promoCard}>
-            <Image source={{ uri: item.image }} style={styles.promoImage} />
-            <Text style={styles.promoText}>{item.title}</Text>
-          </View>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-        showsHorizontalScrollIndicator={false}
-      />
+      {loading ? (
+        <ActivityIndicator size="large" />
+      ) : error ? (
+        <Text style={{ color: "red" }}>{error}</Text>
+      ) : (
+        <>
+          {nearestBranch ? (
+            <Animatable.View
+              animation="bounceIn"
+              duration={900}
+              style={styles.branchBox}
+            >
+              <Text style={styles.branchTitle}>Chi nhánh gần nhất</Text>
+              <Text>{nearestBranch.name}</Text>
+              <Text>{nearestBranch.address ?? "Chưa có địa chỉ"}</Text>
+              <Text>Giờ mở cửa: {nearestBranch.open ?? "Chưa có"}</Text>
+              <Text>Giờ đóng cửa: {nearestBranch.close ?? "Chưa có"}</Text>
+            </Animatable.View>
+          ) : (
+            <Text>Không tìm thấy chi nhánh gần bạn</Text>
+          )}
+
+          <Animatable.Text animation="fadeIn" style={styles.sectionTitle}>
+            Khuyến mãi nổi bật
+          </Animatable.Text>
+          {promotions.length > 0 ? (
+            <FlatList
+              horizontal
+              data={promotions}
+              renderItem={renderPromoItem}
+              keyExtractor={(item) => item.id.toString()}
+              showsHorizontalScrollIndicator={false}
+            />
+          ) : (
+            <Text>Không có khuyến mãi</Text>
+          )}
+        </>
+      )}
     </ScrollView>
   );
 }

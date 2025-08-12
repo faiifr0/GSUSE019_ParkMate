@@ -1,17 +1,22 @@
-import axios from 'axios';
-import { store } from '../redux/store.js';
+import axios, { InternalAxiosRequestConfig } from "axios";
 
 const axiosClient = axios.create({
-    baseURL: 'https://your-api-url.com/api', // Thay bằng API thật của bạn
-    timeout: 10000,
+  baseURL: "https://parkmate-management.azurewebsites.net/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-axiosClient.interceptors.request.use(async (config) => {
-    const token = store.getState().user.token;
+axiosClient.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    // Lấy token từ AsyncStorage
+    const token = localStorage.getItem("token"); // Nếu dùng React Native thì dùng AsyncStorage
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
-});
+  },
+  (error) => Promise.reject(error)
+);
 
 export default axiosClient;
