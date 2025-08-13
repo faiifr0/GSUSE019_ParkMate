@@ -20,8 +20,6 @@ public interface TicketService {
 
     TicketType getTicketTypeById(Long id);
 
-    DailyTicketInventory getDailyTicketInventory
-            (Long ticketTypeId, LocalDate ticketDate);
 
     Long createTicketOrder(@Valid TicketRequest ticketRequest, Long userId);
 

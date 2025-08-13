@@ -17,19 +17,22 @@ public interface TicketMapper {
 
     @Mapping(target = "ticketId", source = "ticketOrder.id")
     @Mapping(target = "status", source = "ticketOrder.status")
+    @Mapping(target = "totalAmount", source = "ticketOrder.totalAmount")
+    @Mapping(target = "finalAmount", source = "ticketOrder.finalAmount")
+    @Mapping(target = "ticketDate", source = "ticketOrder.ticketDate")
+    @Mapping(target = "branchId", source = "ticketOrder.parkBranch.id")
+    @Mapping(target = "branchPromotionId", source = "ticketOrder.promotion.id")
     @Mapping(target = "details", expression = "java(toDetailResponseList(ticketDetails, ticketOrder.getTicketDate()))")
     TicketResponse toResponse(TicketOrder ticketOrder, List<TicketDetail> ticketDetails);
+
 
     @Named("toDetailResponseListWithDate")
     default List<TicketDetailResponse> toDetailResponseList(List<TicketDetail> details, LocalDate ticketDate) {
         return details.stream()
-                .map(detail -> {
-                    TicketDetailResponse response = toDetailResponse(detail);
-                    response.setTicketDate(ticketDate);
-                    return response;
-                })
+                .map(this::toDetailResponse)
                 .collect(Collectors.toList());
     }
+
 
     @Mapping(target = "ticketTypeId", source = "ticketType.id")
     @Mapping(target = "ticketTypeName", source = "ticketType.name")

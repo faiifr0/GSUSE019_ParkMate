@@ -8,9 +8,10 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
-public interface DailyTicketInventoryRepository extends JpaRepository<DailyTicketInventory,Long> {
+public interface DailyTicketInventoryRepository extends JpaRepository<DailyTicketInventory, Long> {
 
-    Optional<DailyTicketInventory> getDailyTicketInventoriesByTicketType_IdAndDate
+    Optional<DailyTicketInventory> findDailyTicketInventoryByTicketType_IdAndDate
             (Long ticketTypeId, LocalDate ticketDate);
+
 
 }

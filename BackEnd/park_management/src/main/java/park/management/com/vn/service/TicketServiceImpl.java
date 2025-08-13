@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class TicketServiceImpl implements TicketService {
     private final ParkBranchService parkBranchService;
     private final BranchPromotionService branchPromotionService;
     private final UserService userService;
+    private final DailyTicketInventoryService dailyTicketInventoryService;
 
     private final TicketMapper ticketMapper;
 
@@ -64,27 +66,6 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public DailyTicketInventory getDailyTicketInventory
-            (Long ticketTypeId, LocalDate ticketDate) {
-        return dailyTicketInventoryRepository.getDailyTicketInventoriesByTicketType_IdAndDate(ticketTypeId, ticketDate)
-                .orElseThrow(() -> new DailyTicketInventoryNotFoundException(ticketTypeId, ticketDate));
-    }
-
-
-
-    /*@Override
-    public TicketResponse getTicketResponseByID(Long id) {
-        Ticket ticket = getTicketById(id);
-        List<TicketDetail> ticketDetails = this.(id);
-        return ticketMapper.toResponse(ticket, ticketDetails);
-    }
-*/
-    /*@Override
-    public List<TicketDetail> getTicketDetailsByTicketId(Long ticketId) {
-        return ticketDetailRepository.findByTicket_Id(ticketId);
-    }*/
-
-    @Override
     @Transactional(rollbackOn = Exception.class)
     public Long createTicketOrder(TicketRequest ticketRequest, Long userId) {
 
@@ -96,32 +77,28 @@ public class TicketServiceImpl implements TicketService {
         LocalDate ticketDate = ticketRequest.getTicketDate();
 
         //Prepare a map to check inventory available quantity for each detail request
-        Map<Pair<Long, LocalDate>, Integer> remainingCapacityMap = new HashMap<>();
-        //This map is for pricing
-        Map<TicketType, Integer> ticketTypeQuantityMap = new HashMap<>();
-        //
-        Map<TicketType, BigDecimal> ticketTypePriceMap = new HashMap<>();
-
+        //Map<Pair<Long, LocalDate>, Integer> remainingCapacityMap = new HashMap<>();
+         /*
         for (TicketRequest.TicketDetailRequest detailRequest : ticketRequest.getDetails()) {
-            //🔹#1. Validate each ticket detail
+            //#1. Validate each ticket detail
             TicketType ticketType = this.getTicketTypeById(detailRequest.getTicketTypeId());
 
             Integer quantityRequested = detailRequest.getQuantity();
 
-            //🔹#2. Validate Inventory for (ticketType, ticketDate)
-            DailyTicketInventory inventory = this.getDailyTicketInventory(ticketType.getId(), ticketDate);
+            //#2. Validate Inventory for (ticketType, ticketDate)
+            DailyTicketInventory inventory = dailyTicketInventoryService.getDailyTicketInventory(ticketType.getId(), ticketDate);
             Pair<Long, LocalDate> typeAndLocalDateKeyPair = Pair.of(ticketType.getId(), ticketDate);
 
             //if key for referring is not present
             remainingCapacityMap.putIfAbsent(
                     typeAndLocalDateKeyPair,
-                    inventory.getTotalAvailable() - quantityRequested
+                    inventory.getCapacity() - quantityRequested
             );
 
             int available = remainingCapacityMap.get(typeAndLocalDateKeyPair);
 
             if (quantityRequested > available)
-                throw new DailyTicketInventoryExceedException(ticketDate);
+                throw new DailyTicketInventoryExceedException(ticketType.getId(), ticketDate);
 
             //either way, put key and value to the map
             remainingCapacityMap.put(typeAndLocalDateKeyPair, available - quantityRequested);
@@ -131,10 +108,44 @@ public class TicketServiceImpl implements TicketService {
                     ticketTypeQuantityMap.getOrDefault(ticketType, 0) + quantityRequested
             );
 
-
         } // end loop for ticket details
+        */
 
-        //🔹 #3. Calculate price per line
+        // These maps are for pricing & building details
+        Map<TicketType, Integer> ticketTypeQuantityMap = new HashMap<>();
+        Map<TicketType, BigDecimal> ticketTypePriceMap = new HashMap<>();
+
+        // 1) Aggregate requested qty per ticket type (handles duplicates safely)
+        //Quantity map for each type on request, we group types into type group and sum the count for each
+        Map<Long, Integer> requestedByType = new HashMap<>();
+        for (TicketRequest.TicketDetailRequest tdr : ticketRequest.getDetails()) {
+            requestedByType.merge(tdr.getTicketTypeId(), tdr.getQuantity(), Integer::sum);
+        }
+
+        // 2) Concurrency-safe reservation in DB (optimistic lock + retry inside the service)
+        //For each type, we validate and update the sold count
+        for (Map.Entry<Long, Integer> entry : requestedByType.entrySet()) {
+            dailyTicketInventoryService.reserveInventoryOrThrow(entry.getKey(), ticketDate, entry.getValue());
+        }
+
+        // 3) Build the map already used for pricing & TicketDetail creation
+        //We basically copy the requestByType into this ticketTypeQuantityMap
+        List<TicketType> ticketTypes = ticketTypeRepository.findAllById(requestedByType.keySet());
+        Map<Long, TicketType> typeById = ticketTypes.stream()
+                .collect(Collectors.toMap(TicketType::getId, t -> t));
+
+        for (Map.Entry<Long, Integer> entry : requestedByType.entrySet()) {
+            TicketType ticketType = Optional.ofNullable(typeById.get(entry.getKey()))
+                    .orElseThrow(() -> new TicketTypeNotFoundException(entry.getKey()));
+            ticketTypeQuantityMap.put(ticketType, entry.getValue());
+        }
+
+        /*for (Map.Entry<Long, Integer> entry:  requestedByType.entrySet()) {
+            TicketType ticketType = this.getTicketTypeById(entry.getKey());
+            ticketTypeQuantityMap.put(ticketType, entry.getValue());
+        }*/
+
+        //#3. Calculate price per line
         //iterate the hashmap ticketTypeQuantityMap
         for (Map.Entry<TicketType, Integer> entry : ticketTypeQuantityMap.entrySet()) {
             TicketType ticketType = entry.getKey();
@@ -159,8 +170,10 @@ public class TicketServiceImpl implements TicketService {
         // now we got the total
 
         //Discount by promotion code here, we subtract right from the total
-        Optional<BranchPromotion> promotion = branchPromotionService
-                .findBranchPromotionById(ticketRequest.getPromotionId());
+        Optional<BranchPromotion> promotion = Optional.empty();
+        if (ticketRequest.getPromotionId() != null) {
+            promotion = branchPromotionService.findBranchPromotionById(ticketRequest.getPromotionId());
+        }
 
         BigDecimal promotionDiscount = BigDecimal.ZERO;
 
@@ -173,15 +186,17 @@ public class TicketServiceImpl implements TicketService {
                     ticketDate.isAfter(promo.getValidUntil().toLocalDate()))
                 throw new PromotionExpiredException(promo.getId());
 
-            // ✅ Validate promotion belongs to the same branch
+            // Validate promotion belongs to the same branch
             if (promo.getParkBranch() != null && !promo.getParkBranch().getId().equals(branch.getId())) {
                 throw new InvalidPromotionBranchException(promo.getId());
             }
 
-            promotionDiscount = promo.getDiscountType() == DiscountType.FIXED_AMOUNT
-                    ? promo.getDiscountValue()
-                    : total.multiply(promo.getDiscountValue())
-                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN);
+            promotionDiscount =
+                    promo.getDiscountType() == DiscountType.FIXED_AMOUNT ?
+                            promo.getDiscountValue()
+                            :
+                            total.multiply(promo.getDiscountValue())
+                                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN);
         }
 
         BigDecimal net = total.compareTo(promotionDiscount) >= 0 ?
@@ -209,7 +224,11 @@ public class TicketServiceImpl implements TicketService {
 
             BulkPricingRule bulkPricingRule = this.findBulkPricingRuleByTicketTypeId(ticketType.getId())
                     .orElse(null);
-            int discountPercent = bulkPricingRule != null ? bulkPricingRule.getDiscountPercent() : 0;
+
+            int discountPercent = 0;
+            if (bulkPricingRule != null && quantity >= bulkPricingRule.getMinQuantity()) {
+                discountPercent = bulkPricingRule.getDiscountPercent();
+            }
 
             BigDecimal finalPrice = this.calculateDiscountedPrice(
                     unitPrice, quantity, discountPercent
@@ -229,35 +248,12 @@ public class TicketServiceImpl implements TicketService {
         }
         ticketDetailRepository.saveAll(details);
 
-        this.updateDailyInventoryAfterPurchase(ticketTypeQuantityMap, ticketDate);
+        //dailyTicketInventoryService.updateDailyInventoryAfterPurchase(ticketTypeQuantityMap, ticketDate);
 
         return savedOrder.getId();
 
     }
 
-    @Transactional(rollbackOn = Exception.class)
-    void updateDailyInventoryAfterPurchase(Map<TicketType, Integer> ticketTypeQuantityMap, LocalDate ticketDate) {
-        List<DailyTicketInventory> updatedInventories = new ArrayList<>();
-
-        for (Map.Entry<TicketType, Integer> entry : ticketTypeQuantityMap.entrySet()) {
-            TicketType ticketType = entry.getKey();
-            int quantity = entry.getValue();
-
-            DailyTicketInventory inventory = this.getDailyTicketInventory(ticketType.getId(), ticketDate);
-
-            // Update the 'sold' count
-            int updatedSold = inventory.getSold() + quantity;
-
-            if (updatedSold > inventory.getTotalAvailable()) {
-                throw new IllegalStateException("Overselling tickets for " + ticketType.getName());
-            }
-
-            inventory.setSold(updatedSold);
-            updatedInventories.add(inventory);
-        }
-
-        dailyTicketInventoryRepository.saveAll(updatedInventories);
-    }
 
     @Override
     public TicketResponse getTicketResponseById(Long ticketId) {
@@ -278,7 +274,5 @@ public class TicketServiceImpl implements TicketService {
                 .multiply(BigDecimal.valueOf(100 - discountPercent))
                 .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN);
     }
-
-
 
 }

@@ -19,7 +19,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/park_manage
     username: postgres
-    password: 123456
+    password: tungnd1101
 jwt:
   secret: DHiuqwbV^j@oaIUmqlHUK@_QW12dnash987234n
   expireTime: 60

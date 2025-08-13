@@ -10,4 +10,10 @@ public class DailyTicketInventoryNotFoundException extends TicketException {
                         + " and Date: " + ticketDate,
                 ErrorCode.TICKET_INVENTORY_NOT_FOUND);
     }
+
+    public DailyTicketInventoryNotFoundException(Long dailyTicketInventoryId) {
+        super("Daily Inventory with id: " + dailyTicketInventoryId
+                        + " not found",
+                ErrorCode.TICKET_INVENTORY_NOT_FOUND);
+    }
 }
