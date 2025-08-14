@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
 import {
-    View,
-    StyleSheet,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    TouchableOpacity
+    View, StyleSheet, Alert, KeyboardAvoidingView,
+    Platform, TouchableOpacity
 } from 'react-native';
 import {
-    TextInput,
-    Button,
-    Text,
-    ActivityIndicator
+    TextInput, Button, Text, ActivityIndicator
 } from 'react-native-paper';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../redux/userSlice';
 import axiosClient from '../../api/axiosClient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen({ navigation }: any) {
     const dispatch = useDispatch();
@@ -34,22 +28,31 @@ export default function LoginScreen({ navigation }: any) {
         try {
             setLoading(true);
             const response = await axiosClient.post('/users/login', {
-                username,
+                username, // Ở API, username chính là email
                 password
             });
 
-            const token = response.data?.token;
-            const user = response.data?.user;
+            // ✅ Lấy đúng key API trả về
+            const token = response.data?.accessToken;
 
             if (!token) {
+                console.log("Login API response:", response.data);
                 throw new Error('Không nhận được token từ API');
             }
 
+            // Nếu API không trả user info, có thể tự tạo từ username/email
+            const user = { username };
+
+            // Lưu token vào AsyncStorage
+            await AsyncStorage.setItem("token", token);
+
+            // Lưu vào Redux
             dispatch(setCredentials({ token, userInfo: user }));
 
             Alert.alert('Thành công', 'Đăng nhập thành công');
             navigation.replace('MainApp');
         } catch (error: any) {
+            console.log('Login error:', error?.response?.data || error.message);
             const message =
                 error?.response?.data?.message === 'Invalid credentials'
                     ? 'Sai tài khoản hoặc mật khẩu'
@@ -76,7 +79,7 @@ export default function LoginScreen({ navigation }: any) {
                         </Text>
 
                         <TextInput
-                            label="Tài khoản"
+                            label="Tài khoản (Email)"
                             value={username}
                             onChangeText={setUsername}
                             style={styles.input}
@@ -113,42 +116,18 @@ export default function LoginScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-    safe: {
-        flex: 1,
-    },
+    safe: { flex: 1 },
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20,
+        flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20,
     },
     form: {
-        width: '100%',
-        maxWidth: 400,
-        backgroundColor: '#ffffffee',
-        padding: 24,
-        borderRadius: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 5,
+        width: '100%', maxWidth: 400, backgroundColor: '#ffffffee',
+        padding: 24, borderRadius: 16, shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1,
+        shadowRadius: 4, elevation: 5,
     },
-    title: {
-        textAlign: 'center',
-        marginBottom: 24,
-        fontWeight: 'bold',
-    },
-    input: {
-        marginBottom: 16,
-    },
-    button: {
-        borderRadius: 8,
-    },
-    link: {
-        marginTop: 20,
-        textAlign: 'center',
-        color: '#007bff',
-        fontSize: 14,
-    },
+    title: { textAlign: 'center', marginBottom: 24, fontWeight: 'bold' },
+    input: { marginBottom: 16 },
+    button: { borderRadius: 8 },
+    link: { marginTop: 20, textAlign: 'center', color: '#007bff', fontSize: 14 },
 });

@@ -96,7 +96,7 @@ export default function HomeScreen() {
       </Animatable.Text>
 
       {loading ? (
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#000" />
       ) : error ? (
         <Text style={{ color: "red" }}>{error}</Text>
       ) : (
@@ -108,13 +108,13 @@ export default function HomeScreen() {
               style={styles.branchBox}
             >
               <Text style={styles.branchTitle}>Chi nhánh gần nhất</Text>
-              <Text>{nearestBranch.name}</Text>
-              <Text>{nearestBranch.address ?? "Chưa có địa chỉ"}</Text>
-              <Text>Giờ mở cửa: {nearestBranch.open ?? "Chưa có"}</Text>
-              <Text>Giờ đóng cửa: {nearestBranch.close ?? "Chưa có"}</Text>
+              <Text style={styles.text}>{nearestBranch.name}</Text>
+              <Text style={styles.text}>{nearestBranch.address ?? "Chưa có địa chỉ"}</Text>
+              <Text style={styles.text}>Giờ mở cửa: {nearestBranch.open ?? "Chưa có"}</Text>
+              <Text style={styles.text}>Giờ đóng cửa: {nearestBranch.close ?? "Chưa có"}</Text>
             </Animatable.View>
           ) : (
-            <Text>Không tìm thấy chi nhánh gần bạn</Text>
+            <Text style={styles.text}>Không tìm thấy chi nhánh gần bạn</Text>
           )}
 
           <Animatable.Text animation="fadeIn" style={styles.sectionTitle}>
@@ -125,11 +125,11 @@ export default function HomeScreen() {
               horizontal
               data={promotions}
               renderItem={renderPromoItem}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={(item, index) => String((item as any).id ?? (item as any).promotionId ?? index)}
               showsHorizontalScrollIndicator={false}
             />
           ) : (
-            <Text>Không có khuyến mãi</Text>
+            <Text style={styles.text}>Không có khuyến mãi</Text>
           )}
         </>
       )}
@@ -139,16 +139,17 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 10 },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 10, color: "#000" },
   branchBox: {
     backgroundColor: "#f5f5f5",
     padding: 12,
     borderRadius: 8,
     marginBottom: 20,
   },
-  branchTitle: { fontWeight: "bold" },
-  sectionTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 8 },
+  branchTitle: { fontWeight: "bold", color: "#000" },
+  sectionTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 8, color: "#000" },
   promoCard: { marginRight: 12, width: 150 },
   promoImage: { width: "100%", height: 90, borderRadius: 8 },
-  promoText: { marginTop: 5, fontSize: 14 },
+  promoText: { marginTop: 5, fontSize: 14, color: "#000" },
+  text: { color: "#000" },
 });

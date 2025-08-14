@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+
 import HomeScreen from '../screens/Home/HomeScreen';
 import TicketListScreen from '../screens/Ticket/TicketListScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
+import QRCodeScannerScreen from '../screens/QRCode/QRCodeScannerScreen'; // màn hình mới
 
-function QRScreen() { return <View style={{ flex: 1, backgroundColor: '#fff' }} /> }
 function PromoScreen() { return <View style={{ flex: 1, backgroundColor: '#fff' }} /> }
 
 const Tab = createBottomTabNavigator();
@@ -16,22 +17,20 @@ export default function BottomTabNavigator() {
         <Tab.Navigator
             screenOptions={{
                 headerShown: false,
-                tabBarShowLabel: false, // Ẩn label để gọn
-                tabBarStyle: {
-                    height: 55,
-                    backgroundColor: '#fff',
-                    borderTopWidth: 0.5,
-                    borderTopColor: '#ddd',
-                },
-                tabBarActiveTintColor: '#007bff',
-                tabBarInactiveTintColor: '#888',
+                tabBarShowLabel: true,
+                tabBarStyle: styles.tabBar,
+                tabBarActiveTintColor: '#000',
+                tabBarInactiveTintColor: '#555',
+                tabBarHideOnKeyboard: true,
             }}
+            safeAreaInsets={{ bottom: 0 }}
         >
             <Tab.Screen
                 name="Home"
                 component={HomeScreen}
                 options={{
-                    tabBarIcon: ({ color, size }) => (
+                    tabBarLabel: 'Trang chủ',
+                    tabBarIcon: ({ color }) => (
                         <Ionicons name="home-outline" size={22} color={color} />
                     ),
                 }}
@@ -40,29 +39,30 @@ export default function BottomTabNavigator() {
                 name="Tickets"
                 component={TicketListScreen}
                 options={{
-                    tabBarIcon: ({ color, size }) => (
+                    tabBarLabel: 'Vé',
+                    tabBarIcon: ({ color }) => (
                         <Ionicons name="list-outline" size={22} color={color} />
                     ),
                 }}
             />
-
             <Tab.Screen
                 name="ScanQR"
-                component={QRScreen}
+                component={QRCodeScannerScreen}
                 options={{
+                    tabBarLabel: '',
                     tabBarIcon: () => (
                         <TouchableOpacity style={styles.qrButton}>
-                            <Ionicons name="qr-code" size={26} color="#fff" />
+                            <Ionicons name="qr-code" size={28} color="#fff" />
                         </TouchableOpacity>
                     ),
                 }}
             />
-
             <Tab.Screen
                 name="Promo"
                 component={PromoScreen}
                 options={{
-                    tabBarIcon: ({ color, size }) => (
+                    tabBarLabel: 'Khuyến mãi',
+                    tabBarIcon: ({ color }) => (
                         <Ionicons name="pricetags-outline" size={22} color={color} />
                     ),
                 }}
@@ -71,7 +71,8 @@ export default function BottomTabNavigator() {
                 name="Profile"
                 component={ProfileScreen}
                 options={{
-                    tabBarIcon: ({ color, size }) => (
+                    tabBarLabel: 'Tài khoản',
+                    tabBarIcon: ({ color }) => (
                         <Ionicons name="person-outline" size={22} color={color} />
                     ),
                 }}
@@ -81,14 +82,35 @@ export default function BottomTabNavigator() {
 }
 
 const styles = StyleSheet.create({
+    tabBar: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 65,
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 4,
+        borderTopWidth: 0,
+        paddingBottom: Platform.OS === 'android' ? 0 : 5,
+    },
     qrButton: {
-        width: 50,
-        height: 50,
+        width: 65,
+        height: 65,
         backgroundColor: '#007bff',
-        borderRadius: 25,
+        borderRadius: 32.5,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20, // nổi lên
-        elevation: 4,
+        marginBottom: Platform.OS === 'android' ? 0 : 5,
+        shadowColor: '#000',
+        shadowOpacity: 0.15,
+        shadowRadius: 5,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 6,
     },
 });

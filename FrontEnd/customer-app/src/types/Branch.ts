@@ -12,7 +12,7 @@ export interface Branch {
 
 const branchService = {
   getAll: async (): Promise<Branch[]> => {
-    const res = await axiosClient.get('/api/park-branch');
+    const res = await axiosClient.get('/park-branch');
     const parsed = res.data.map((b: any) => {
       const [lat, lon] = b.location.split(',').map(Number);
       return { ...b, lat, lon };

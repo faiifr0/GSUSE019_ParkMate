@@ -17,7 +17,7 @@ interface BranchRaw extends Omit<Branch, 'lat' | 'lon'> {
 
 const branchService = {
   getAll: async (): Promise<Branch[]> => {
-    const res = await axiosClient.get<BranchRaw[]>('/api/park-branch');
+    const res = await axiosClient.get<BranchRaw[]>('/park-branch');
     const parsed: Branch[] = res.data.map((b) => {
       const [lat, lon] = b.location.split(',').map(Number);
       return { ...b, lat, lon };
