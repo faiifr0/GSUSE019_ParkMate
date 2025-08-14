@@ -10,7 +10,7 @@ export interface BranchPromotion {
 
 const branchPromotionService = {
   getByBranchId: async (branchId: number): Promise<BranchPromotion[]> => {
-    const res = await axiosClient.get<BranchPromotion[]>(`/api/branch-promotions/${branchId}`);
+    const res = await axiosClient.get<BranchPromotion[]>(`/branch-promotions/${branchId}`);
     return res.data;
   }
 };

@@ -1,27 +1,17 @@
-// src/services/ticketService.ts
-import axiosClient from '../api/axiosClient';
-
 const ticketService = {
-    createTicket: (
-        details: { ticketTypeId: number; quantity: number; promotionId?: number }[],
-        branchId: number,
-        promotionId?: number | null,
-        ticketDate?: string
-    ) => {
-        const payload: any = {
-            details,
-            branchId,
-            ticketDate: ticketDate || new Date().toISOString().split('T')[0],
-        };
-
-        if (promotionId !== undefined && promotionId !== null) {
-            payload.promotionId = promotionId;
-        }
-
-        return axiosClient.post('/api/tickets', payload);
-    },
-
-    getTickets: () => axiosClient.get('/api/tickets'),
+  getTickets: async () => {
+    // Giả lập API delay 1 giây
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          data: [
+            { id: 1, name: 'Vé tháng', price: 500000, description: 'Sử dụng trong 30 ngày' },
+            { id: 2, name: 'Vé ngày', price: 30000, description: 'Sử dụng trong 24h' },
+          ],
+        });
+      }, 1000);
+    });
+  },
 };
 
 export default ticketService;

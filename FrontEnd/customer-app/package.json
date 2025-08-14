@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web"
@@ -19,10 +19,13 @@
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.10.0",
     "expo": "~53.0.0",
+    "expo-barcode-scanner": "^13.0.1",
+    "expo-camera": "~16.1.11",
     "expo-constants": "~17.1.7",
     "expo-dev-client": "~5.2.4",
     "expo-linear-gradient": "~14.1.5",
     "expo-location": "~18.1.6",
+    "expo-navigation-bar": "~4.2.7",
     "expo-notifications": "~0.31.3",
     "expo-secure-store": "~14.2.3",
     "expo-splash-screen": "~0.30.10",
@@ -41,13 +44,13 @@
     "react-native-paper": "^5.14.5",
     "react-native-qrcode-svg": "^6.3.15",
     "react-native-reanimated": "~3.17.4",
-    "react-native-safe-area-context": "^5.6.0",
+    "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-svg": "15.11.2",
-    "react-native-vector-icons": "^10.3.0",
+    "react-native-vector-icons": "10.3.0",
     "react-native-web": "^0.20.0",
     "react-redux": "^9.2.0",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "6.0.0"
   },
   "resolutions": {
     "@expo/config-plugins": "10.1.1",
@@ -56,6 +59,17 @@
   "overrides": {
     "@expo/config-plugins": "10.1.1",
     "@expo/prebuild-config": "9.0.0"
+  },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "expo-barcode-scanner",
+          "redux-persist",
+          "react-native-vector-icons"
+        ]
+      }
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
