@@ -1,155 +1,176 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   Image,
   ScrollView,
   ActivityIndicator,
-} from "react-native";
-import * as Location from "expo-location";
-import { getDistance } from "geolib";
-import branchPromotionService, { BranchPromotion } from "../../services/branchPromotionService";
-import branchService, { Branch } from "../../services/branchService";
-import * as Animatable from "react-native-animatable";
+  TouchableOpacity,
+} from 'react-native';
+import * as Location from 'expo-location';
+import { getDistance } from 'geolib';
+import * as Animatable from 'react-native-animatable';
+import branchPromotionService from '../../services/branchPromotionService';
+import { BranchPromotion } from '../../types/BranchPromotion';
+import branchService from '../../services/branchService';
+import { Branch } from '../../types/Branch';
+import styles from '../../styles/HomeScreenStyles';
+import colors from '../../constants/colors';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-export default function HomeScreen() {
+type RootStackParamList = {
+  BranchDetail: { branchId: number };
+};
+
+type HomeScreenProps = {
+  navigation: NativeStackNavigationProp<RootStackParamList>;
+};
+
+export default function HomeScreen({ navigation }: HomeScreenProps) {
   const [nearestBranch, setNearestBranch] = useState<Branch | null>(null);
   const [promotions, setPromotions] = useState<BranchPromotion[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchBranches = async () => {
       setLoading(true);
       setError(null);
+
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          setError("Không có quyền truy cập vị trí.");
-          setLoading(false);
-          return;
+        let userCoords: { latitude: number; longitude: number } | null = null;
+
+        if (status === 'granted') {
+          const location = await Location.getCurrentPositionAsync({});
+          userCoords = {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          };
         }
 
-        const location = await Location.getCurrentPositionAsync({});
-        const userCoords = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        };
+        const branchList: Branch[] = await branchService.getAll();
+        setBranches(branchList);
 
-        const branchList = await branchService.getAll();
-
+        // Tìm chi nhánh gần nhất
         let closest: Branch | null = null;
         let minDistance = Infinity;
 
-        branchList.forEach((b) => {
-          if (typeof b.lat !== "number" || typeof b.lon !== "number") return;
-          const dist = getDistance(userCoords, { latitude: b.lat, longitude: b.lon });
-          if (dist < minDistance) {
-            minDistance = dist;
-            closest = b;
-          }
-        });
+        if (userCoords) {
+          branchList.forEach((b: Branch) => {
+            if (typeof b.lat !== 'number' || typeof b.lon !== 'number') return;
+            const dist = getDistance(userCoords!, { latitude: b.lat, longitude: b.lon });
+            if (dist < minDistance) {
+              minDistance = dist;
+              closest = b;
+            }
+          });
+        }
 
         setNearestBranch(closest);
 
-        if (closest) {
+        if (closest && (closest as Branch).id) {
           const promos = await branchPromotionService.getByBranchId((closest as Branch).id);
-          setPromotions(promos);
+          setPromotions(promos || []);
         } else {
           setPromotions([]);
         }
+
+        if (!userCoords) {
+          setError('Vị trí không được cấp phép. Chỉ hiển thị chi nhánh và khuyến mãi.');
+        }
       } catch (err: any) {
-        console.error(err);
-        setError(err?.message ?? "Có lỗi khi tải dữ liệu.");
+        setError(err?.message ?? 'Có lỗi khi tải dữ liệu.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchBranches();
   }, []);
 
   const renderPromoItem = ({ item, index }: { item: BranchPromotion; index: number }) => (
-    <Animatable.View
-      animation="fadeInUp"
-      delay={index * 150}
-      duration={700}
-      style={styles.promoCard}
-    >
-      <Animatable.Image
-        animation="zoomIn"
-        duration={700}
-        source={{ uri: item.image || "https://via.placeholder.com/150" }}
+    <Animatable.View animation="fadeInUp" delay={index * 150} style={styles.promoCard}>
+      <Image
+        source={{ uri: item.image || 'https://via.placeholder.com/150' }}
         style={styles.promoImage}
       />
-      <Text style={styles.promoText}>{item.description}</Text>
-      <Text style={{ fontSize: 12, color: "green" }}>Giảm {item.discount}%</Text>
+      <Text style={styles.promoText} numberOfLines={2}>{item.description}</Text>
+      <Text style={styles.discountText}>🔥 Giảm {item.discount}%</Text>
     </Animatable.View>
   );
 
+  const renderBranchItem = ({ item, index }: { item: Branch; index: number }) => (
+    <TouchableOpacity onPress={() => navigation.navigate('BranchDetail', { branchId: item.id })}>
+      <Animatable.View animation="fadeInUp" delay={index * 100} style={styles.branchCard}>
+        <Image
+          source={{ uri: 'https://via.placeholder.com/150' }}
+          style={styles.branchImage}
+        />
+        <Text style={styles.branchName} numberOfLines={1}>{item.name}</Text>
+        <Text style={styles.branchAddress} numberOfLines={1}>{item.address ?? ''}</Text>
+      </Animatable.View>
+    </TouchableOpacity>
+  );
+
   return (
-    <ScrollView style={styles.container}>
-      <Animatable.Text animation="fadeIn" style={styles.title}>
-        Trang chủ
-      </Animatable.Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Animatable.Text animation="fadeIn" style={styles.title}>
+          🎡 Chào mừng đến với ParkMate
+        </Animatable.Text>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#000" />
-      ) : error ? (
-        <Text style={{ color: "red" }}>{error}</Text>
-      ) : (
-        <>
-          {nearestBranch ? (
-            <Animatable.View
-              animation="bounceIn"
-              duration={900}
-              style={styles.branchBox}
-            >
-              <Text style={styles.branchTitle}>Chi nhánh gần nhất</Text>
-              <Text style={styles.text}>{nearestBranch.name}</Text>
-              <Text style={styles.text}>{nearestBranch.address ?? "Chưa có địa chỉ"}</Text>
-              <Text style={styles.text}>Giờ mở cửa: {nearestBranch.open ?? "Chưa có"}</Text>
-              <Text style={styles.text}>Giờ đóng cửa: {nearestBranch.close ?? "Chưa có"}</Text>
-            </Animatable.View>
-          ) : (
-            <Text style={styles.text}>Không tìm thấy chi nhánh gần bạn</Text>
-          )}
+        {loading ? (
+          <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+        ) : (
+          <>
+            {error && <Text style={styles.errorText}>{error}</Text>}
 
-          <Animatable.Text animation="fadeIn" style={styles.sectionTitle}>
-            Khuyến mãi nổi bật
-          </Animatable.Text>
-          {promotions.length > 0 ? (
-            <FlatList
-              horizontal
-              data={promotions}
-              renderItem={renderPromoItem}
-              keyExtractor={(item, index) => String((item as any).id ?? (item as any).promotionId ?? index)}
-              showsHorizontalScrollIndicator={false}
-            />
-          ) : (
-            <Text style={styles.text}>Không có khuyến mãi</Text>
-          )}
-        </>
-      )}
-    </ScrollView>
+            {nearestBranch && (
+              <Animatable.View animation="bounceIn" duration={900} style={styles.branchBox}>
+                <Text style={styles.branchTitle}>Chi nhánh gần nhất</Text>
+                <Text style={styles.text} numberOfLines={1}>{nearestBranch.name}</Text>
+                <Text style={styles.text} numberOfLines={1}>{nearestBranch.address ?? 'Chưa có địa chỉ'}</Text>
+                <Text style={styles.text}>🕒 {nearestBranch.open ?? '?'} - {nearestBranch.close ?? '?'}</Text>
+              </Animatable.View>
+            )}
+
+            <Animatable.Text animation="fadeIn" style={styles.sectionTitle}>
+              Danh sách chi nhánh
+            </Animatable.Text>
+            {branches.length > 0 ? (
+              <FlatList
+                horizontal
+                data={branches}
+                renderItem={renderBranchItem}
+                keyExtractor={(item) => item.id.toString()}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.flatListContent}
+              />
+            ) : (
+              <Text style={styles.text}>Không có chi nhánh</Text>
+            )}
+
+            <Animatable.Text animation="fadeIn" style={styles.sectionTitle}>
+              Khuyến mãi nổi bật
+            </Animatable.Text>
+            {promotions.length > 0 ? (
+              <FlatList
+                horizontal
+                data={promotions}
+                renderItem={renderPromoItem}
+                keyExtractor={(item) => item.id.toString()}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.flatListContent}
+              />
+            ) : (
+              <Text style={styles.text}>Không có khuyến mãi</Text>
+            )}
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 10, color: "#000" },
-  branchBox: {
-    backgroundColor: "#f5f5f5",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  branchTitle: { fontWeight: "bold", color: "#000" },
-  sectionTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 8, color: "#000" },
-  promoCard: { marginRight: 12, width: 150 },
-  promoImage: { width: "100%", height: 90, borderRadius: 8 },
-  promoText: { marginTop: 5, fontSize: 14, color: "#000" },
-  text: { color: "#000" },
-});

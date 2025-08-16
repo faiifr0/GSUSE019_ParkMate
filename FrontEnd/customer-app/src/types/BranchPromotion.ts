@@ -8,5 +8,5 @@ export interface BranchPromotion {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  image?: string;
+  image?: string; // nếu sau này backend thêm ảnh
 }

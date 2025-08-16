@@ -14,6 +14,28 @@ export default function BottomTabNavigator() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: '#FF6B00', // màu cam nổi bật khi chọn
+        tabBarInactiveTintColor: '#999',
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+          height: 65,
+          paddingBottom: 8,
+          paddingTop: 6,
+          position: 'absolute',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
+          elevation: 4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+          marginBottom: 4,
+        },
         tabBarIcon: ({ color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'home';
 
@@ -22,7 +44,7 @@ export default function BottomTabNavigator() {
           else if (route.name === 'QRCodeScanner') iconName = 'qr-code';
           else if (route.name === 'Profile') iconName = 'person';
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName} size={24} color={color} />;
         },
       })}
     >
