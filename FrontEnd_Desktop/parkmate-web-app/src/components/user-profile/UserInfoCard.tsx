@@ -114,20 +114,20 @@ export default function UserInfoCard() {
                     <Label>Facebook</Label>
                     <Input
                       type="text"
-                      defaultValue="https://www.facebook.com/PimjoHQ"
+                      defaultValue=""
                     />
                   </div>
 
                   <div>
                     <Label>X.com</Label>
-                    <Input type="text" defaultValue="https://x.com/PimjoHQ" />
+                    <Input type="text" defaultValue="" />
                   </div>
 
                   <div>
                     <Label>Linkedin</Label>
                     <Input
                       type="text"
-                      defaultValue="https://www.linkedin.com/company/pimjo"
+                      defaultValue=""
                     />
                   </div>
 
@@ -135,7 +135,7 @@ export default function UserInfoCard() {
                     <Label>Instagram</Label>
                     <Input
                       type="text"
-                      defaultValue="https://instagram.com/PimjoHQ"
+                      defaultValue=""
                     />
                   </div>
                 </div>
