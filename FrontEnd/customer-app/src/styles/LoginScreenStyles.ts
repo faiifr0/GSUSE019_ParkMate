@@ -1,61 +1,50 @@
-import { StyleSheet } from 'react-native';
-import colors from '../constants/colors';
+import { StyleSheet } from "react-native";
+import colors from "../constants/colors";
 
 export default StyleSheet.create({
-  safe: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
-  logo: { width: 150, height: 150, alignSelf: 'center', marginBottom: 16 },
+  safe: { flex: 1, justifyContent: "center", paddingHorizontal: 24 },
+  logo: { width: 140, height: 140, alignSelf: "center", marginBottom: 12 },
   title: {
-    fontSize: 28,
-    fontFamily: 'Poppins-Bold',
+    fontSize: 32,
+    fontFamily: "Poppins-Bold",
     color: colors.surface,
-    textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+    textAlign: "center",
+    marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: "Poppins-Regular",
     color: colors.surface,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  form: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 20,
-    padding: 20,
-    marginHorizontal: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    textAlign: "center",
+    marginBottom: 28,
   },
   input: {
     marginBottom: 16,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.surface,
   },
   inputOutline: {
+    borderRadius: 14,
     borderWidth: 1,
-    borderRadius: 10,
+    borderColor: colors.border,
   },
   button: {
-    borderRadius: 10,
+    borderRadius: 14,
     marginTop: 8,
+    paddingVertical: 8,
   },
   buttonLabel: {
     fontSize: 16,
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: "Poppins-SemiBold",
     color: colors.surface,
   },
   linkContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
   },
   link: {
     fontSize: 14,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: "Poppins-Medium",
     color: colors.secondary,
   },
 });
