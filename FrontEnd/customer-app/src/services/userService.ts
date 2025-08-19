@@ -11,7 +11,7 @@ export const loginUser = (username: string, password: string) => {
 };
 
 // Lấy thông tin user theo ID
-export const getUserById = (id: number) => {
+export const getUserById = (id: number, token: string) => {
   return axiosClient.get(`/users/${id}`);
 };
 

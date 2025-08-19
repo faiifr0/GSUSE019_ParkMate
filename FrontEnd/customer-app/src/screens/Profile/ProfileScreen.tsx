@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
   Image,
@@ -13,16 +12,20 @@ import { RootState } from "../../redux/store";
 import { logout } from "../../redux/userSlice";
 import { getUserById } from "../../services/userService";
 import { Ionicons } from "@expo/vector-icons";
+import walletService from "../../services/walletService";
+import styles from "../../styles/ProfileScreenStyles";
 
 export default function ProfileScreen({ navigation }: any) {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.userInfo);
   const [userData, setUserData] = useState<any>(null);
+  const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
       fetchUserInfo(user.id, user.token);
+      fetchWalletBalance(user.id);
     }
   }, [user]);
 
@@ -35,6 +38,16 @@ export default function ProfileScreen({ navigation }: any) {
       console.error("Lỗi khi lấy thông tin user:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWalletBalance = async (userId: number) => {
+    try {
+      const wallet = await walletService.getById(userId);
+      setWalletBalance(wallet.balance);
+    } catch (error) {
+      console.error("Lỗi khi lấy số dư ví:", error);
+      setWalletBalance(0);
     }
   };
 
@@ -69,9 +82,7 @@ export default function ProfileScreen({ navigation }: any) {
             <Text style={styles.info}>
               🎭 Vai trò: {userData?.role?.name || "Khách"}
             </Text>
-            <Text style={styles.info}>
-              💰 Số dư ví: {userData?.wallet?.balance ?? 0} coin
-            </Text>
+            <Text style={styles.info}>💰 Số dư ví: {walletBalance} coin</Text>
           </View>
 
           {/* Card các hành động */}
@@ -118,67 +129,3 @@ export default function ProfileScreen({ navigation }: any) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  header: {
-    alignItems: "center",
-    paddingVertical: 24,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginBottom: 12,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-  },
-  email: {
-    fontSize: 14,
-    color: "#666",
-  },
-  infoCard: {
-    backgroundColor: "#fff",
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
-  },
-  info: {
-    fontSize: 15,
-    marginBottom: 6,
-    color: "#444",
-  },
-  actionCard: {
-    backgroundColor: "#fff",
-    marginHorizontal: 16,
-    borderRadius: 12,
-    overflow: "hidden",
-    marginBottom: 20,
-  },
-  actionItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  actionText: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 15,
-    color: "#333",
-  },
-  logoutItem: {
-    borderBottomWidth: 0,
-  },
-});
