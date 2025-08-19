@@ -1,29 +1,44 @@
-import axiosClient from '../api/axiosClient';
+// src/services/branchService.ts
+import axiosClient from "../api/axiosClient";
+import { Branch, BranchRaw } from "../types/Branch";
 
-export interface Branch {
-  id: number;
-  name: string;
-  lat: number;
-  lon: number;
-  address?: string;
-  open?: string;
-  close?: string;
-}
-
-// Dữ liệu gốc từ API có location là string
-interface BranchRaw extends Omit<Branch, 'lat' | 'lon'> {
-  location: string;
-}
+const formatTime = (time?: string) => {
+  if (!time) return undefined;
+  const date = new Date(time);
+  return date.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const branchService = {
   getAll: async (): Promise<Branch[]> => {
-    const res = await axiosClient.get<BranchRaw[]>('/park-branch');
-    const parsed: Branch[] = res.data.map((b) => {
-      const [lat, lon] = b.location.split(',').map(Number);
-      return { ...b, lat, lon };
+    const res = await axiosClient.get<BranchRaw[]>("/park-branch");
+
+    return res.data.map((b) => {
+      let lat = 0,
+        lon = 0;
+      if (b.location) {
+        const [latStr, lonStr] = b.location.split(",");
+        const parsedLat = Number(latStr);
+        const parsedLon = Number(lonStr);
+        if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
+          lat = parsedLat;
+          lon = parsedLon;
+        }
+      }
+
+      return {
+        id: b.id,
+        name: b.name,
+        address: b.address,
+        lat,
+        lon,
+        open: formatTime(b.open),
+        close: formatTime(b.close),
+      } as Branch;
     });
-    return parsed;
-  }
+  },
 };
 
 export default branchService;

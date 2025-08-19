@@ -1,133 +1,150 @@
-import React, { useState } from 'react';
-import {
-    View, StyleSheet, Alert, KeyboardAvoidingView,
-    Platform, TouchableOpacity
-} from 'react-native';
-import {
-    TextInput, Button, Text, ActivityIndicator
-} from 'react-native-paper';
-import { useDispatch } from 'react-redux';
-import { setCredentials } from '../../redux/userSlice';
-import axiosClient from '../../api/axiosClient';
+import React, { useState, useCallback, useEffect } from 'react';
+import { TouchableOpacity, View, Image } from 'react-native';
+import { TextInput, Button, Text, ActivityIndicator, Snackbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch } from 'react-redux';
+import * as SecureStore from 'expo-secure-store';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { setCredentials } from '../../redux/userSlice';
+import axiosClient from '../../api/axiosClient';
+import styles from '../../styles/LoginScreenStyles';
+import colors from '../../constants/colors';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-export default function LoginScreen({ navigation }: any) {
-    const dispatch = useDispatch();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+type RootStackParamList = {
+  MainApp: undefined;
+  ForgotPassword: undefined;
+  Register: undefined;
+};
 
-    const handleLogin = async () => {
-        if (!username || !password) {
-            Alert.alert('Thiếu thông tin', 'Vui lòng nhập đầy đủ tài khoản và mật khẩu');
-            return;
-        }
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-        try {
-            setLoading(true);
-            const response = await axiosClient.post('/users/login', {
-                username, // Ở API, username chính là email
-                password
-            });
+export default function LoginScreen({ navigation }: { navigation: LoginScreenNavigationProp }) {
+  const dispatch = useDispatch();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [secureText, setSecureText] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
+  const [snackbarColor, setSnackbarColor] = useState(colors.secondary);
 
-            // ✅ Lấy đúng key API trả về
-            const token = response.data?.accessToken;
+  const opacity = useSharedValue(0);
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: 500 });
+  }, []);
 
-            if (!token) {
-                console.log("Login API response:", response.data);
-                throw new Error('Không nhận được token từ API');
-            }
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
-            // Nếu API không trả user info, có thể tự tạo từ username/email
-            const user = { username };
+  const showMessage = (msg: string, type: 'error' | 'success' | 'warn') => {
+    setSnackbarMsg(msg);
+    setSnackbarColor(type === 'success' ? colors.success : type === 'error' ? colors.error : colors.warning);
+    setSnackbarVisible(true);
+  };
 
-            // Lưu token vào AsyncStorage
-            await AsyncStorage.setItem("token", token);
+  const handleLogin = useCallback(async () => {
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername || !password) {
+      showMessage('⚠️ Vui lòng nhập tài khoản và mật khẩu', 'warn');
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await axiosClient.post('/users/login', { username: trimmedUsername, password });
+      const token = response.data?.accessToken;
+      if (!token) throw new Error('No token');
+      await SecureStore.setItemAsync('token', token);
+      dispatch(setCredentials({ token, userInfo: { username: trimmedUsername } }));
+      showMessage('🎉 Đăng nhập thành công!', 'success');
+      navigation.replace('MainApp');
+    } catch (error) {
+      showMessage('❌ Sai tài khoản hoặc mật khẩu', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [username, password, navigation, dispatch]);
 
-            // Lưu vào Redux
-            dispatch(setCredentials({ token, userInfo: user }));
+  return (
+    <LinearGradient
+      colors={[colors.gradientStart, colors.gradientMid, colors.gradientEnd]}
+      style={styles.safe}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <SafeAreaView style={styles.safe}>
+        <Image
+          source={require('../../../assets/logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+          accessible
+          accessibilityLabel="Logo ParkMate"
+        />
+        <Text style={styles.title}>🎡 ParkMate</Text>
+        <Text style={styles.subtitle}>🎢 Khám phá khu vui chơi!</Text>
 
-            Alert.alert('Thành công', 'Đăng nhập thành công');
-            navigation.replace('MainApp');
-        } catch (error: any) {
-            console.log('Login error:', error?.response?.data || error.message);
-            const message =
-                error?.response?.data?.message === 'Invalid credentials'
-                    ? 'Sai tài khoản hoặc mật khẩu'
-                    : 'Lỗi đăng nhập. Vui lòng thử lại sau';
-            Alert.alert('Đăng nhập thất bại', message);
-        } finally {
-            setLoading(false);
-        }
-    };
+        <Animated.View style={[styles.form, animatedStyle]}>
+          <TextInput
+            label="Email"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            mode="outlined"
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+            outlineColor={colors.border}
+            activeOutlineColor={colors.primary}
+            textColor={colors.textPrimary}
+            accessible
+            accessibilityLabel="Nhập email"
+          />
+          <TextInput
+            label="Mật khẩu"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={secureText}
+            mode="outlined"
+            style={styles.input}
+            outlineStyle={styles.inputOutline}
+            outlineColor={colors.border}
+            activeOutlineColor={colors.primary}
+            textColor={colors.textPrimary}
+            right={<TextInput.Icon icon={secureText ? 'eye-off' : 'eye'} onPress={() => setSecureText(!secureText)} />}
+            accessible
+            accessibilityLabel="Nhập mật khẩu"
+          />
+          <Button
+            mode="contained"
+            onPress={handleLogin}
+            disabled={loading}
+            style={styles.button}
+            buttonColor={loading ? colors.disabled : colors.primary}
+            labelStyle={styles.buttonLabel}
+            accessible
+            accessibilityLabel="Đăng nhập"
+          >
+            {loading ? <ActivityIndicator color={colors.textPrimary} /> : 'Đăng nhập'}
+          </Button>
+          <View style={styles.linkContainer}>
+            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+              <Text style={styles.link}>Quên mật khẩu?</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+              <Text style={styles.link}>Đăng ký</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
 
-    return (
-        <LinearGradient
-            colors={['#e0f7fa', '#ffffff']}
-            style={styles.safe}
+        <Snackbar
+          visible={snackbarVisible}
+          onDismiss={() => setSnackbarVisible(false)}
+          duration={2500}
+          style={{ backgroundColor: snackbarColor }}
+          action={{ label: 'OK', onPress: () => setSnackbarVisible(false) }}
         >
-            <SafeAreaView style={{ flex: 1 }}>
-                <KeyboardAvoidingView
-                    style={styles.container}
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                >
-                    <View style={styles.form}>
-                        <Text variant="headlineMedium" style={styles.title}>
-                            🎡 Chào mừng bạn!
-                        </Text>
-
-                        <TextInput
-                            label="Tài khoản (Email)"
-                            value={username}
-                            onChangeText={setUsername}
-                            style={styles.input}
-                            autoCapitalize="none"
-                            mode="outlined"
-                        />
-                        <TextInput
-                            label="Mật khẩu"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                            style={styles.input}
-                            mode="outlined"
-                        />
-
-                        <Button
-                            mode="contained"
-                            onPress={handleLogin}
-                            disabled={loading}
-                            style={styles.button}
-                            contentStyle={{ paddingVertical: 6 }}
-                        >
-                            {loading ? <ActivityIndicator animating color="white" /> : 'Đăng nhập'}
-                        </Button>
-
-                        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                            <Text style={styles.link}>Chưa có tài khoản? Đăng ký ngay</Text>
-                        </TouchableOpacity>
-                    </View>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
-        </LinearGradient>
-    );
+          {snackbarMsg}
+        </Snackbar>
+      </SafeAreaView>
+    </LinearGradient>
+  );
 }
-
-const styles = StyleSheet.create({
-    safe: { flex: 1 },
-    container: {
-        flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20,
-    },
-    form: {
-        width: '100%', maxWidth: 400, backgroundColor: '#ffffffee',
-        padding: 24, borderRadius: 16, shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1,
-        shadowRadius: 4, elevation: 5,
-    },
-    title: { textAlign: 'center', marginBottom: 24, fontWeight: 'bold' },
-    input: { marginBottom: 16 },
-    button: { borderRadius: 8 },
-    link: { marginTop: 20, textAlign: 'center', color: '#007bff', fontSize: 14 },
-});
