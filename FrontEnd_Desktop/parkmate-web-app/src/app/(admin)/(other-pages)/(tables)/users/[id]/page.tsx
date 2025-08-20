@@ -5,9 +5,9 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "User Profile | ParkMate",
+  title: "User Info | ParkMate",
   description:
-    "This is Next.js Profile page for ParkMate",
+    "This is Next.js User Info page for ParkMate",
 };
 
 export default function Profile() {
