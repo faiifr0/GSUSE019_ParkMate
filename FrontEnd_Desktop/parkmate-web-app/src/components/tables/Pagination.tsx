@@ -1,3 +1,5 @@
+import { Fragment } from "react";
+
 type PaginationProps = {
   currentPage: number;
   totalPages: number;
@@ -15,7 +17,7 @@ const Pagination: React.FC<PaginationProps> = ({
   );
 
   return (
-    <div className="flex items-center ">
+    <div className="flex items-center justify-center px-4 pt-5 pb-7">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -24,7 +26,20 @@ const Pagination: React.FC<PaginationProps> = ({
         Previous
       </button>
       <div className="flex items-center gap-2">
-        {currentPage > 3 && <span className="px-2">...</span>}
+        {currentPage > 3 && 
+
+        <Fragment>
+          <button
+              key={1}
+              onClick={() => onPageChange(1)}
+              className='px-4 py-2 rounded flex w-10 items-center justify-center h-10 rounded-lg text-sm font-medium hover:bg-blue-500/[0.08] hover:text-brand-500 dark:hover:text-brand-500'
+            >
+              1
+          </button>
+          
+          <span className="px-2">...</span>
+        </Fragment>}
+
         {pagesAroundCurrent.map((page) => (
           <button
             key={page}
@@ -38,7 +53,18 @@ const Pagination: React.FC<PaginationProps> = ({
             {page}
           </button>
         ))}
-        {currentPage < totalPages - 2 && <span className="px-2">...</span>}
+        {currentPage < totalPages - 2 && 
+
+        <Fragment>
+          <span className="px-2">...</span>
+          <button
+              key={totalPages}
+              onClick={() => onPageChange(totalPages)}
+              className='px-4 py-2 rounded flex w-10 items-center justify-center h-10 rounded-lg text-sm font-medium hover:bg-blue-500/[0.08] hover:text-brand-500 dark:hover:text-brand-500'
+            >
+              {totalPages}
+          </button>        
+        </Fragment>}        
       </div>
       <button
         onClick={() => onPageChange(currentPage + 1)}

@@ -1,31 +1,36 @@
-import axiosClient from "../api/axiosClient";
-import { Wallet, WalletRaw } from "../types/Wallet";
+// src/services/walletService.ts
+import api from "./api"; // instance axios có sẵn
 
-const formatDateTime = (time?: string) => {
-  if (!time) return undefined;
-  const date = new Date(time);
-  return date.toLocaleString("vi-VN", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-};
+import { Wallet, Transaction } from "../types/Wallet";
 
-const walletService = {
-  getById: async (id: number): Promise<Wallet> => {
-    const res = await axiosClient.get<WalletRaw>(`/wallets/${id}`);
+export const walletService = {
+  // Lấy thông tin ví theo id
+  getWalletById: async (id: number): Promise<Wallet> => {
+    const res = await api.get(`/wallets/${id}`);
+    return res.data;
+  },
 
-    return {
-      id: res.data.id,
-      balance: res.data.balance,
-      userId: res.data.userId,
-      createdAt: formatDateTime(res.data.createdAt),
-      updatedAt: formatDateTime(res.data.updatedAt),
-    } as Wallet;
+  // Lấy lịch sử giao dịch
+  getTransactions: async (id: number): Promise<Transaction[]> => {
+    const res = await api.get(`/wallets/${id}/transactions`);
+    return res.data;
+  },
+
+  // Nạp tiền
+  topUp: async (id: number, amount: number, description?: string): Promise<Wallet> => {
+    const res = await api.post(`/wallets/${id}/topup`, { amount, description });
+    return res.data;
+  },
+
+  // Trừ tiền
+  deduct: async (id: number, amount: number, description?: string): Promise<Wallet> => {
+    const res = await api.post(`/wallets/${id}/deduct`, { amount, description });
+    return res.data;
+  },
+
+  // (Optional) Rút tiền
+  withdraw: async (id: number, amount: number, description?: string): Promise<Wallet> => {
+    const res = await api.post(`/wallets/${id}/withdraw`, { amount, description });
+    return res.data;
   },
 };
-
-export default walletService;

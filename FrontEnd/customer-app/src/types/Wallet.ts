@@ -1,16 +1,17 @@
+// src/types/wallet.ts
 export interface Wallet {
   id: number;
   balance: number;
   userId: number;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Dữ liệu raw từ API
-export interface WalletRaw {
+export interface Transaction {
   id: number;
-  balance: number;
-  userId: number;
-  createdAt: string; // ISO datetime
-  updatedAt: string; // ISO datetime
+  walletId: number;
+  amount: number;
+  type: "TOPUP" | "PURCHASE" | "REFUND" | "BONUS";
+  description: string;
+  createdAt: string;
 }

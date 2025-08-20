@@ -18,14 +18,55 @@ import { Branch } from '../../types/Branch';
 import styles from '../../styles/HomeScreenStyles';
 import colors from '../../constants/colors';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 
 type RootStackParamList = {
   BranchDetail: { branchId: number };
+  Notifications: undefined;
 };
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
+
+// ✅ Header component để reuse
+function AppHeader({ coin, onNotificationPress }: { coin: number; onNotificationPress: () => void }) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        backgroundColor: colors.primary,
+      }}
+    >
+      {/* Tên App */}
+      <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>🎡 ParkMate</Text>
+
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {/* Coin */}
+        <View
+          style={{
+            backgroundColor: 'white',
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+            borderRadius: 20,
+            marginRight: 12,
+          }}
+        >
+          <Text style={{ fontWeight: 'bold', color: colors.primary }}>🪙 {coin}</Text>
+        </View>
+
+        {/* Notification */}
+        <TouchableOpacity onPress={onNotificationPress}>
+          <Ionicons name="notifications-outline" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
   const [nearestBranch, setNearestBranch] = useState<Branch | null>(null);
@@ -33,6 +74,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // 🚀 coin giả định, sau này lấy từ API hoặc Redux
+  const [coin] = useState<number>(120);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -117,6 +161,12 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
   return (
     <View style={styles.container}>
+      {/* ✅ Header mới */}
+      <AppHeader
+        coin={coin}
+        onNotificationPress={() => navigation.navigate('Notifications')}
+      />
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Animatable.Text animation="fadeIn" style={styles.title}>
           🎡 Chào mừng đến với ParkMate
