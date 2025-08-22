@@ -115,7 +115,7 @@ const tableData: Order[] = [
 ];
 
 // Handle what happens when you click on the pagination
-const handlePageChange = (page: number) => {};
+const handlePageChange = (page: number) => {}; // eslint-disable-line no-unused-vars
 
 export default function UserTable() {
   return (

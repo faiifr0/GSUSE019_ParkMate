@@ -75,6 +75,21 @@ const tableData: Branch[] = [
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
 
+//test api
+//const url_db = "https://parkmate-management-system.azurewebsites.net/api/park-branch";
+const url_test = "https://api.genderize.io?name=luc";
+
+const response = await fetch(url_test, {
+  method: 'GET',
+  // headers: {
+  //   'Content-Type': 'application/json',
+  //   'Authorization': `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyMDBAZ21haWwuY29tIiwidXNlcklkIjo1LCJpYXQiOjE3NTU4NTU2ODIsImV4cCI6MTc2MTAzOTY4Mn0.1LrtDwgWQVRBwlwKJsmMM9MGnbAzE8hU8207GnEB1ww`,          
+  // }
+});
+//------------------------------------------------------------------------------------------
+
+const data = await response.json();
+
 export default function UserTable() {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -127,9 +142,11 @@ export default function UserTable() {
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
               {tableData.map((branch) => (
                 <TableRow key={branch.id}>
-                  <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {branch.name}
-                  </TableCell>
+                  <a href={"/park-branches/" + branch.id} className="text-center">
+                    <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
+                      {branch.name}
+                    </TableCell>
+                  </a>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     {branch.address}
                   </TableCell>
@@ -168,6 +185,10 @@ export default function UserTable() {
         totalPages={7}
         onPageChange={handlePageChange}
       />
+
+      <div className="border border-gray-500 text-center text-gray-800 text-theme-lg">                  
+        {JSON.stringify(data)}
+      </div>
     </div>
   );
 }
