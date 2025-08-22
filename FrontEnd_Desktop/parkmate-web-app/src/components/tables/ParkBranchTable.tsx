@@ -76,19 +76,20 @@ const tableData: Branch[] = [
 const handlePageChange = (page: number) => {};
 
 //test api
-//const url_db = "https://parkmate-management-system.azurewebsites.net/api/park-branch";
+const url_db = "https://parkmate-management-system.azurewebsites.net/api/park-branch";
 const url_test = "https://api.genderize.io?name=luc";
 
-const response = await fetch(url_test, {
+const response = await fetch(url_db, {
   method: 'GET',
-  // headers: {
-  //   'Content-Type': 'application/json',
-  //   'Authorization': `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyMDBAZ21haWwuY29tIiwidXNlcklkIjo1LCJpYXQiOjE3NTU4NTU2ODIsImV4cCI6MTc2MTAzOTY4Mn0.1LrtDwgWQVRBwlwKJsmMM9MGnbAzE8hU8207GnEB1ww`,          
-  // }
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyMDBAZ21haWwuY29tIiwidXNlcklkIjo1LCJpYXQiOjE3NTU4Njc5OTcsImV4cCI6MTc2MTA1MTk5N30.YK3VdnYUtnnS6szQcrrRYfviA82Nyr2NRrkAOVikJlo`,          
+  }
 });
-//------------------------------------------------------------------------------------------
 
 const data = await response.json();
+
+//------------------------------------------------------------------------------------------
 
 export default function UserTable() {
   return (
