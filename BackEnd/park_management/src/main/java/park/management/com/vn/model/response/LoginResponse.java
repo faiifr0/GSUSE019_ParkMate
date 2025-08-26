@@ -9,5 +9,9 @@ import lombok.Setter;
 @Getter
 public class LoginResponse {
 
+  private Long id;
+  private String email;
+  private String roleName;
+
   private String accessToken;
 }
