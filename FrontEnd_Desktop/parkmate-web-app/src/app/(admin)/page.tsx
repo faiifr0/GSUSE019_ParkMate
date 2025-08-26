@@ -35,7 +35,7 @@ export default function Dashboard() {
     }
   }, [router]);  
 
-  if (!loginStatus) return null!;
+  if (!loginStatus) return null;
 
   else return (
       <div className="grid grid-cols-12 gap-4 md:gap-6">

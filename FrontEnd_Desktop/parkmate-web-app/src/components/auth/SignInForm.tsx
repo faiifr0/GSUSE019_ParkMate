@@ -7,7 +7,7 @@ import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import axiosClient from "@/lib/axiosClient";
+import userService from "@/services/userService";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -20,14 +20,13 @@ export default function SignInForm() {
 
   const handleLogin = async () => {
     try {
-      const response = await axiosClient.post("/users/login", { 
+      const response = await userService.login( 
         username, 
         password 
-      });
+      );
       
-      const token = response.data?.accessToken;
-      if (!token) throw new Error("No token");
-
+      const token = response?.accessToken;
+      if (!token) throw new Error("No token")
       localStorage.setItem("token", token);
       router.push("/");
     } catch (error) {
@@ -152,12 +151,12 @@ export default function SignInForm() {
                       Keep me logged in
                     </span>
                   </div>
-                  <Link
+                  {/* <Link
                     href="/reset-password"
                     className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                   >
                     Forgot password?
-                  </Link>
+                  </Link> */}
                 </div>
                 <div>
                   <Button 

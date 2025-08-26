@@ -1,13 +1,44 @@
 import axiosClient from "../lib/axiosClient";
 
-export const loginUser = (username: string, password: string) => {
-  return axiosClient.post("/users/login", { username, password });
+export type LoginResponse = {
+  accessToken: string;
 };
 
-export const getUserById = (id: number, token: string) => {
-  return axiosClient.get(`/users/${id}`);
+const userService = {
+  login: async (
+    username: string,
+    password: string
+  ): Promise<LoginResponse> => {
+    try {
+      const res = await axiosClient.post<LoginResponse>("users/login", {
+        username,
+        password,
+      });
+      return res.data;
+    } catch (error) {
+      console.error("❌ Error logging in:", error);
+      throw error;
+    }
+  },
+
+  getUserById: async (id: string): Promise<LoginResponse> => {
+    try {
+      const res = await axiosClient.get<LoginResponse>(`/users/${id}`);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Error fetching profile:", error);
+      throw error;
+    }
+  },
+
+  logout: async (): Promise<void> => {
+    try {
+      localStorage.removeItem("token");
+    } catch (error) {
+      console.error("❌ Error logging out:", error);
+      throw error;
+    }
+  },
 };
 
-export const updateUser = (id: number, data: { password?: string; parkBranchId?: number; roleId?: number }) => {
-  return axiosClient.put(`/users/${id}`, data);
-};
+export default userService;
