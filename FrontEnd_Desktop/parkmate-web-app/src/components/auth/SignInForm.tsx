@@ -110,7 +110,9 @@ export default function SignInForm() {
                 </span>
               </div>
             </div> */}
-            <form>
+            <form onSubmit = {(e) => {
+              e.preventDefault();              
+            }}>             
               <div className="space-y-6">
                 <div>
                   <Label>
@@ -120,7 +122,10 @@ export default function SignInForm() {
                     placeholder="info@gmail.com" 
                     type="email" 
                     onChange={(e) => setUsername(e.target.value)}
-                  />
+                    defaultValue="manager00@gmail.com"
+                  >
+                    
+                  </Input>
                 </div>
                 <div>
                   <Label>
@@ -131,7 +136,9 @@ export default function SignInForm() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       onChange={(e) => setPassword(e.target.value)}
-                    />
+                      defaultValue="manager00"
+                    >
+                    </Input>
                     <span
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
@@ -161,7 +168,7 @@ export default function SignInForm() {
                 <div>
                   <Button 
                     className="w-full" 
-                    size="sm"
+                    size="sm"                    
                     onClick={handleLogin}
                   >
                     Sign in
