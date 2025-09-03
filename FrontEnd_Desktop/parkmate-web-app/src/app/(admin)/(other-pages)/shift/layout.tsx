@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
-  title: "Shift | ParkMate",
+  title: "Staff Shift | ParkMate",
   description:
     "This is Next.js Shift page for ParkMate",
   // other metadata

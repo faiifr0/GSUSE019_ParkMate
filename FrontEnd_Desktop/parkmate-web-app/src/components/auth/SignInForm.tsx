@@ -8,6 +8,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import userService from "@/services/userService";
+import Cookies from "js-cookie";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -15,19 +16,25 @@ export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("manager00@gmail.com");
+  const [password, setPassword] = useState("manager00");
 
   const handleLogin = async () => {
-    try {
+    try {      
       const response = await userService.login( 
         username, 
         password 
-      );
+      );      
       
       const token = response?.accessToken;
-      if (!token) throw new Error("No token")
-      localStorage.setItem("token", token);
+      if (!token) throw new Error("No token");
+
+      Cookies.set("token", token, {
+        expires: 1/24, // expire after 1 hour
+        path: "/",
+        secure: false, // only over HTTPS
+        sameSite: "strict",
+      });
       router.push("/");
     } catch (error) {
       console.log(error);
