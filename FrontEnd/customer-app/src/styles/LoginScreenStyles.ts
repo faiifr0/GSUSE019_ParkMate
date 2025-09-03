@@ -3,7 +3,7 @@ import colors from "../constants/colors";
 
 export default StyleSheet.create({
   safe: { flex: 1, justifyContent: "center", paddingHorizontal: 24 },
-  logo: { width: 140, height: 140, alignSelf: "center", marginBottom: 12 },
+  logo: { width: 180, height: 180, alignSelf: "center", marginBottom: 12 },
   title: {
     fontSize: 32,
     fontFamily: "Poppins-Bold",
@@ -45,6 +45,12 @@ export default StyleSheet.create({
   link: {
     fontSize: 14,
     fontFamily: "Poppins-Medium",
-    color: colors.secondary,
+    color: "#2563EB", // xanh dương tươi, dễ nhìn trên cả nền sáng/tối
+  },
+
+  highlightLink: {
+    fontSize: 14,
+    fontFamily: "Poppins-SemiBold",
+    color: "#F97316", // cam nổi bật (cho nút Đăng ký)
   },
 });

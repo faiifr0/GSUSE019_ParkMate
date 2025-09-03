@@ -76,8 +76,6 @@ export default function LoginScreen({ navigation }: { navigation: LoginScreenNav
       <SafeAreaView style={styles.safe}>
         {/* Logo + tiêu đề */}
         <Image source={require("../../../assets/logo.png")} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.title}>🎡 ParkMate</Text>
-        <Text style={styles.subtitle}>🎢 Quản lý khu vui chơi thông minh</Text>
 
         {/* Form phẳng, bo tròn đẹp */}
         <Animated.View style={[animatedStyle]}>
@@ -121,7 +119,7 @@ export default function LoginScreen({ navigation }: { navigation: LoginScreenNav
               <Text style={styles.link}>Quên mật khẩu?</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-              <Text style={styles.link}>Đăng ký</Text>
+              <Text style={styles.highlightLink}>Đăng ký</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
