@@ -56,13 +56,7 @@ export default function ParkBranchTable() {
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
                   Address
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Location
-                </TableCell>
+                </TableCell>                
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
@@ -109,15 +103,20 @@ export default function ParkBranchTable() {
                   </TableCell>                  
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     {branch.address}
+                  </TableCell>                  
+                  <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
+                    {
+                      branch?.open ? 
+                      new Date(branch.open).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : ''
+                    }
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {branch.location}
-                  </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {branch.open}
-                  </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {branch.close}
+                    {
+                      branch?.close ? 
+                      new Date(branch.close).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : ''
+                    }
                   </TableCell>                                    
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     {branch.createdAt}
@@ -128,7 +127,7 @@ export default function ParkBranchTable() {
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     <Badge
                       size="sm"
-                      color="warning"
+                      color="error"
                       // color={
                       //   branch.status === "Active"
                       //     ? "success"
@@ -138,7 +137,7 @@ export default function ParkBranchTable() {
                       // }
                     >
                       {/* {branch.status} */}
-                      Status
+                      Dubious
                     </Badge>
                   </TableCell>
                 </TableRow>

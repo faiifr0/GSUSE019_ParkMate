@@ -32,11 +32,6 @@ const navItems: NavItem[] = [
     path: "/",
     // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   },
-  {
-    icon: <CalenderIcon />,
-    name: "Shift",
-    path: "/shift",
-  },
   // {
   //   icon: <UserCircleIcon />,
   //   name: "User Profile",
@@ -50,9 +45,15 @@ const navItems: NavItem[] = [
   {
     name: "Managing",
     icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false },
+    subItems: [
+             //{ name: "Basic Tables", path: "/basic-tables", pro: false },
                { name: "Users", path: "/users", pro: false },
                { name: "Park Branches", path: "/park-branches", pro: false}],
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "Shift",
+    path: "/shift",
   },
   {
     name: "Pages",
