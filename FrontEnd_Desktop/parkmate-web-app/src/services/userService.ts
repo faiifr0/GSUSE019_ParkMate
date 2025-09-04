@@ -1,8 +1,18 @@
 import axiosClient from "../lib/axiosClient";
+import { userUpdateModel } from "@/model/userUpdateModel";
 
 export type LoginResponse = {
   accessToken: string;
 };
+
+export type UserResponse = {
+  id: string;
+  username: string;
+  password: string;
+  parkBranchId: string;
+  roleId: string;
+  walletId: string;
+}
 
 const userService = {
   login: async (
@@ -21,12 +31,22 @@ const userService = {
     }
   },
 
-  getUserById: async (id: string): Promise<LoginResponse> => {
+  getUserById: async (id: string): Promise<UserResponse> => {
     try {
-      const res = await axiosClient.get<LoginResponse>(`/users/${id}`);
+      const res = await axiosClient.get<UserResponse>(`/users/${id}`);
       return res.data;
     } catch (error) {
       console.error("❌ Error fetching profile:", error);
+      throw error;
+    }
+  },
+
+  updateUser: async (id: string, model: userUpdateModel): Promise<UserResponse> => {
+    try {
+      const res = await axiosClient.put<UserResponse>(`/users/${id}`, model);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Error update profile:", error);
       throw error;
     }
   },

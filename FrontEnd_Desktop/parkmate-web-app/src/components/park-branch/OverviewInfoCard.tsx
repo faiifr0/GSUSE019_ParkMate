@@ -1,17 +1,57 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useParams} from "next/navigation";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Badge from "../ui/badge/Badge";
+import parkBranchService, { parkBranchResponse } from "@/services/parkBranchService";
+import { parkBranchUpdateModel } from "@/model/parkBranchUpdateModel";
 
 export default function OverviewInfoCard () {
-  const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
+  const { isOpen, openModal, closeModal } = useModal();  
+
+  const params = useParams();
+  const id = params.id ? String(params.id) : '0';
+
+  const [branchInfo, setBranchInfo] = useState<parkBranchResponse>();
+  const [formData, setFormData] = useState<parkBranchUpdateModel>();
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchParkBranch = async () => {
+    const response = await parkBranchService.getParkBranchById(id);
+    setBranchInfo(response);  
+    setFormData({
+      name: response.name ?? '',
+      address: response.address ?? '',
+      location: response.address ?? '',
+      open: response.open ?? '',
+      close: response.close ?? ''
+    });
+  }
+  
+  // Fetch Park Branch Overview Info
+  useEffect(() => {
+    try {
+      fetchParkBranch();  
+    } catch (err) {
+      console.log(err);
+    } finally {
+      // do something
+    }
+  }, [])
+
+  // Handle save logic here
+  const handleSave = async () => {        
+    try {
+      await parkBranchService.updateParkBranch(id, formData);      
+      fetchParkBranch();
+      closeModal();
+    } catch (err) {
+      console.log(err);
+      setError("Failed to update park branch!");
+    }
   };
 
   return (
@@ -24,7 +64,7 @@ export default function OverviewInfoCard () {
                 Branch Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Something
+                {branchInfo?.name}
               </p>
             </div>
 
@@ -33,7 +73,7 @@ export default function OverviewInfoCard () {
                 Address
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                ABC Street
+                {branchInfo?.address}
               </p>
             </div>
 
@@ -42,7 +82,7 @@ export default function OverviewInfoCard () {
                 Location
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                HCM City
+                {branchInfo?.location}
               </p>
             </div>
 
@@ -64,7 +104,11 @@ export default function OverviewInfoCard () {
                 Open Hour
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                6:00
+                {
+                  branchInfo?.open ? 
+                  new Date(branchInfo.open).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  : ''
+                }
               </p>
             </div>
 
@@ -73,7 +117,11 @@ export default function OverviewInfoCard () {
                 Close Hour
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                20:00
+                {
+                  branchInfo?.close ? 
+                  new Date(branchInfo.close).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  : ''
+                }
               </p>
             </div>
           </div>
@@ -109,7 +157,10 @@ export default function OverviewInfoCard () {
               Edit Park Branch Overview Info
             </h4>
           </div>
-          <form className="flex flex-col">
+          <form className="flex flex-col"
+                onSubmit = {(e) => {
+                  e.preventDefault();
+                }}>
             <div className="custom-scrollbar h-[275px] overflow-y-auto px-2 pb-3">
               <div>                
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
@@ -117,42 +168,57 @@ export default function OverviewInfoCard () {
                     <Label>Branch Name</Label>
                     <Input
                       type="text"
-                      defaultValue=""
+                      defaultValue={formData?.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
                   </div>
 
                   <div>
                     <Label>Address</Label>
-                    <Input type="text" defaultValue="" />
+                    <Input
+                      type="text"
+                      defaultValue={formData?.address}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    />
                   </div>
 
                   <div>
                     <Label>Location</Label>
                     <Input
                       type="text"
-                      defaultValue=""
+                      defaultValue={formData?.location}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
                   </div>
 
                   <div>
                     <Label>Status</Label>
                     <Input
-                      type="text"
-                      defaultValue=""
+                      type="text"                      
+                      defaultValue="Open!"
+                      disabled
                     />
                   </div>
                   <div>
                     <Label>Open Hour</Label>
                     <Input
                       type="text"
-                      defaultValue=""
+                      defaultValue={
+                        formData?.open ? new Date(formData.open).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : "None"
+                      }
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
                   </div>
                   <div>
                     <Label>Close Hour</Label>
                     <Input
                       type="text"
-                      defaultValue=""
+                      defaultValue={
+                        formData?.close ? new Date(formData.close).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : "None"
+                      }
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
                   </div>
                 </div>

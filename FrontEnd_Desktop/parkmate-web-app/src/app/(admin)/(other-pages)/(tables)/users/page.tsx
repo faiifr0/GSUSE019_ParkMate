@@ -1,7 +1,6 @@
 //import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import UserTable from "@/components/tables/UserTable";
-//import Pagination from "@/components/tables/Pagination";
 import { Metadata } from "next";
 import React from "react";
 
