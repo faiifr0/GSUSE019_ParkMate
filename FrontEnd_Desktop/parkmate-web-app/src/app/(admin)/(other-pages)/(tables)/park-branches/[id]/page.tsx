@@ -9,7 +9,12 @@ import React from "react";
 export default function ParkBranchOverview() {
   return (
     <div>
-      <PageBreadcrumb pageTitle="Park Branch Overview" />
+      <PageBreadcrumb 
+        pageTitle="Park Branch Overview" 
+        items={[
+          { name: "Park Branches", path: "/park-branches" },          
+        ]}
+      />
       <ComponentCard title="Park Branch Overview Info">
         <div>
           <OverviewInfoCard></OverviewInfoCard>

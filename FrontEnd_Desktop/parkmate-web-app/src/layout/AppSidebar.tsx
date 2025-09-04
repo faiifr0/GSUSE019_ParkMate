@@ -236,7 +236,8 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // const isActive = (path: string) => path === pathname;
-   const isActive = useCallback((path: string) => path === pathname, [pathname]);
+  // Edit: changes to include path because there are some pages that are not on the nav items in sidebar
+  const isActive = useCallback((path: string) => pathname.includes(path), [pathname]);
 
   useEffect(() => {
     // Check if the current path matches any submenu item

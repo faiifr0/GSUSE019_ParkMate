@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function ParkBranchesList() {
   return (
     <div>
-      <PageBreadcrumb pageTitle="Park Branches" />
+      <PageBreadcrumb pageTitle="Park Branches"/>
       <div className="space-y-6">
         <ParkBranchTable></ParkBranchTable>
       </div>
