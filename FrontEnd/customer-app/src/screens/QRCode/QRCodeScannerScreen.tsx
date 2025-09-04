@@ -1,22 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Button, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Button, TouchableOpacity, Alert } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useFocusEffect } from '@react-navigation/native';
+import { styles } from '../../styles/QRCodeScannerScreenstyles';
 
 export default function QRCodeScannerScreen() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
-  const [active, setActive] = useState(true); // camera active khi tab focus
+  const [active, setActive] = useState(true);
 
-  // Yêu cầu quyền khi vào lần đầu
   useEffect(() => {
     if (!permission) {
       requestPermission();
     }
   }, []);
 
-  // Dùng hook để biết khi nào tab focus
   useFocusEffect(
     useCallback(() => {
       setActive(true);
@@ -64,6 +63,38 @@ export default function QRCodeScannerScreen() {
             barcodeTypes: ['qr', 'ean13', 'code128'],
           }}
         >
+          <View style={styles.infoBox}>
+                  <Text style={styles.scanText}>Đưa mã QR vào khung để quét</Text>
+                  <Text style={styles.subText}>
+                    Bạn có thể quét để thanh toán hoặc xác nhận trò chơi nếu đủ điểm
+                  </Text>
+                </View>
+          {/* lớp nền mờ */}
+          <View style={styles.overlay}>
+            <View style={styles.mask} />
+
+            <View style={styles.centerRow}>
+              <View style={styles.mask} />
+
+              {/* khung + text hướng dẫn */}
+              <View style={styles.scanColumn}>
+                
+
+                <View style={styles.scanArea}>
+                  <View style={[styles.corner, styles.topLeft]} />
+                  <View style={[styles.corner, styles.topRight]} />
+                  <View style={[styles.corner, styles.bottomLeft]} />
+                  <View style={[styles.corner, styles.bottomRight]} />
+                </View>
+              </View>
+
+              <View style={styles.mask} />
+            </View>
+
+            <View style={styles.mask} />
+          </View>
+
+          {/* nút đổi camera */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
               <Text style={styles.text}>Đổi camera</Text>
@@ -71,56 +102,6 @@ export default function QRCodeScannerScreen() {
           </View>
         </CameraView>
       )}
-
-      <View style={styles.overlay}>
-        <Text style={styles.scanText}>Đưa mã QR vào khung</Text>
-      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10,
-  },
-  camera: {
-    flex: 1,
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
-  },
-  button: {
-    flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  overlay: {
-    position: 'absolute',
-    bottom: 50,
-    width: '100%',
-    alignItems: 'center',
-  },
-  scanText: {
-    fontSize: 18,
-    color: '#fff',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-});
