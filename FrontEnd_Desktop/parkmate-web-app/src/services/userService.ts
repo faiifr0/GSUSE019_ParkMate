@@ -42,8 +42,9 @@ const userService = {
 
   getAll: async (): Promise<UserResponse[]> => {
     try {
-      const res = await axiosClient.get<UserResponse[]>("/users");
-        console.log(JSON.stringify(res.data));
+      const res = await axiosClient.get<UserResponse[]>("/users");    
+      console.log("Data:", res.data);
+      Array.isArray(res.data) ? console.log("Its an array!") : console.log("No its not!");
       return res.data;      
     } catch (error) {
       console.error("❌ Error fetching all users:", error);

@@ -16,7 +16,6 @@ const handlePageChange = (page: number) => {}; // eslint-disable-line no-unused-
 export default function StaffOverviewTable() {
   const params = useParams();
   const id = String(params.id);
-  console.log("param id - " + id);
 
   const MANAGER_ROLE_ID = '2';
   const STAFF_ROLE_ID = '3';
@@ -24,15 +23,25 @@ export default function StaffOverviewTable() {
   const [staffs, setStaffs] = useState<UserResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch Users List
+  // Fetch Staffs List
   useEffect(() => {
     const fetchStaffs = async () => {
       try {
-        const response = await userService.getAll();                                                      
-        // setStaffs(response.filter(staff => (staff.role?.id === STAFF_ROLE_ID || staff.role?.id === MANAGER_ROLE_ID) 
-        //                                  && staff.parkBranch?.id === params.id)) 
-        // setStaffs()
-        setStaffs(response);       
+        const response = await userService.getAll();   
+        console.log("response: " + JSON.stringify(response));                                                   
+        setStaffs(response.filter(staff => (staff.role?.id?.toString() === STAFF_ROLE_ID || staff.role?.id?.toString() === MANAGER_ROLE_ID) 
+                                         && staff.parkBranch?.id?.toString() === params.id))         
+        // const filtered = response.filter(staff => {
+        //   const roleId = staff.role?.id?.toString();
+        //   const branchId = staff.parkBranch?.id?.toString();
+        //   console.log(`User: ${staff.username}, Role: ${roleId}, Branch: ${branchId}`);
+        //   return (
+        //     (roleId === STAFF_ROLE_ID || roleId === MANAGER_ROLE_ID) &&
+        //     branchId === id
+        //   );
+        // });
+
+        //setStaffs(response);
       } catch (err) {
         console.log(err);
       } finally {
@@ -84,7 +93,7 @@ export default function StaffOverviewTable() {
                       {staff.username}
                     </TableCell>     
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {staff.role?.id === MANAGER_ROLE_ID ? "Park Manager" : "Staff"}
+                      {staff.role?.id?.toString() === MANAGER_ROLE_ID ? "Park Manager" : "Staff"}
                     </TableCell>                              
                   </TableRow>
                 ))}

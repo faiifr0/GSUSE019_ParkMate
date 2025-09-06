@@ -1,5 +1,5 @@
 'use client';
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -11,113 +11,30 @@ import {
 import Badge from "../ui/badge/Badge";
 import Image from "next/image";
 import Pagination from "./Pagination";
-
-interface Order {
-  id: number;
-  user: {
-    image: string;
-    name: string;
-    role: string;
-  };
-  // projectName: string;
-  // team: {
-  //   images: string[];
-  // };
-  wallet: string;
-  status: string;
-  //budget: string;
-}
-
-// Define the table data using the interface
-const tableData: Order[] = [
-  {
-    id: 1,
-    user: {
-      image: "/images/user/user-17.jpg",
-      name: "Lindsey Curtis",
-      role: "Park Manager",
-    },
-    // projectName: "Agency Website",
-    // team: {
-    //   images: [
-    //     "/images/user/user-22.jpg",
-    //     "/images/user/user-23.jpg",
-    //     "/images/user/user-24.jpg",
-    //   ],
-    // },
-    wallet: "3.9K",
-    status: "Active",
-  },
-  {
-    id: 2,
-    user: {
-      image: "/images/user/user-18.jpg",
-      name: "Kaiya George",
-      role: "Park Manager",
-    },
-    // projectName: "Technology",
-    // team: {
-    //   images: ["/images/user/user-25.jpg", "/images/user/user-26.jpg"],
-    // },
-    wallet: "24.9K",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    user: {
-      image: "/images/user/user-17.jpg",
-      name: "Zain Geidt",
-      role: "Admin",
-    },
-    // projectName: "Blog Writing",
-    // team: {
-    //   images: ["/images/user/user-27.jpg"],
-    // },
-    wallet: "12.7K",
-    status: "Active",
-  },
-  {
-    id: 4,
-    user: {
-      image: "/images/user/user-20.jpg",
-      name: "Abram Schleifer",
-      role: "Park Staff",
-    },
-    //projectName: "Social Media",
-    // team: {
-    //   images: [
-    //     "/images/user/user-28.jpg",
-    //     "/images/user/user-29.jpg",
-    //     "/images/user/user-30.jpg",
-    //   ],
-    // },
-    wallet: "2.8K",
-    status: "Cancel",
-  },
-  {
-    id: 5,
-    user: {
-      image: "/images/user/user-21.jpg",
-      name: "Carla George",
-      role: "Visitor",
-    },
-    //projectName: "Website",
-    // team: {
-    //   images: [
-    //     "/images/user/user-31.jpg",
-    //     "/images/user/user-32.jpg",
-    //     "/images/user/user-33.jpg",
-    //   ],
-    // },
-    wallet: "4.5K",
-    status: "Active",
-  },
-];
+import userService, { UserResponse } from "@/services/userService";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {}; // eslint-disable-line no-unused-vars
 
 export default function UserTable() {
+  const [users, setUsers] = useState<UserResponse[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  // Fetch Park Branches List
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await userService.getAll();        
+        setUsers(response);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        // do something for example setLoading
+      }
+    }
+
+    fetchUsers();
+  }, [])
+  
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
@@ -130,6 +47,12 @@ export default function UserTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                 >
+                  No.
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
+                >
                   User
                 </TableCell>
                 <TableCell
@@ -137,19 +60,7 @@ export default function UserTable() {
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                 >
                   Role
-                </TableCell>
-                {/* <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Project Name
-                </TableCell> */}
-                {/* <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Team
-                </TableCell> */}
+                </TableCell>                
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
@@ -167,22 +78,25 @@ export default function UserTable() {
 
             {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {tableData.map((order) => (
-                <TableRow key={order.id}>
+              {users.map((user, index) => (
+                <TableRow key={user.id}>
+                  <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
+                    {index + 1}
+                  </TableCell>
                   <TableCell className="px-5 py-4 sm:px-6 text-start">
                     <div className="flex items-center justify-center gap-3">
                       <div className="w-10 h-10 overflow-hidden rounded-full">
                         <Image
                           width={40}
                           height={40}
-                          src={order.user.image}
-                          alt={order.user.name}
+                          src="/images/user/user-17.jpg"
+                          alt={user.username}
                         />
                       </div>
                       <div>
-                        <a href={"/users/id?=" + order.id}>
+                        <a href={"/users/id?=" + user.id}>
                           <span className="block text-gray-500 text-theme-sm dark:text-white/90">
-                            {order.user.name}
+                            {user.username}
                           </span>
                         </a>
                         {/* <span className="block text-gray-600 text-theme-xs dark:text-gray-400">
@@ -192,7 +106,7 @@ export default function UserTable() {
                     </div>
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {order.user.role}
+                    {user.role?.id}
                   </TableCell>
                   {/* <TableCell className="px-4 py-3 text-gray-600 text-center text-theme-sm dark:text-gray-400">
                     {order.projectName}
@@ -216,20 +130,21 @@ export default function UserTable() {
                     </div>
                   </TableCell> */}
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {order.wallet}
+                    {user.wallet?.id}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     <Badge
                       size="sm"
-                      color={
-                        order.status === "Active"
-                          ? "success"
-                          : order.status === "Pending"
-                          ? "warning"
-                          : "error"
-                      }
+                      // color={
+                      //   user.status === "Active"
+                      //     ? "success"
+                      //     : user.status === "Pending"
+                      //     ? "warning"
+                      //     : "error"
+                      // }
+                      color="warning"
                     >
-                      {order.status}
+                      Dubious
                     </Badge>
                   </TableCell>                  
                 </TableRow>
