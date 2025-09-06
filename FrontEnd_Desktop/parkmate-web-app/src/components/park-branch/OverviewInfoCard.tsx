@@ -25,7 +25,7 @@ export default function OverviewInfoCard () {
     setFormData({
       name: response.name ?? '',
       address: response.address ?? '',
-      location: response.address ?? '',
+      location: response.location ?? '',
       open: response.open ?? '',
       close: response.close ?? ''
     });
@@ -58,7 +58,7 @@ export default function OverviewInfoCard () {
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>          
-          <div className="grid grid-cols-1 border gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32 ml-103">
+          <div className="grid grid-cols-1 border gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32 ml-90">
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Branch Name
@@ -178,7 +178,7 @@ export default function OverviewInfoCard () {
                     <Input
                       type="text"
                       defaultValue={formData?.address}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     />
                   </div>
 
@@ -187,7 +187,7 @@ export default function OverviewInfoCard () {
                     <Input
                       type="text"
                       defaultValue={formData?.location}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     />
                   </div>
 
@@ -207,7 +207,7 @@ export default function OverviewInfoCard () {
                         formData?.open ? new Date(formData.open).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : "None"
                       }
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, open: e.target.value })}
                     />
                   </div>
                   <div>
@@ -218,7 +218,7 @@ export default function OverviewInfoCard () {
                         formData?.close ? new Date(formData.close).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : "None"
                       }
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, close: e.target.value })}
                     />
                   </div>
                 </div>

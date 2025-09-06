@@ -8,10 +8,19 @@ export type LoginResponse = {
 export type UserResponse = {
   id: string;
   username: string;
+  email: string;
   password: string;
-  parkBranchId: string;
-  roleId: string;
-  walletId: string;
+  parkBranch?: {
+    id: string;
+  }
+  role?: {
+    id: string;
+  }
+  wallet?: {
+    id: string;
+  }
+  createdAt: string;
+  updatedAt: string;
 }
 
 const userService = {
@@ -27,6 +36,17 @@ const userService = {
       return res.data;
     } catch (error) {
       console.error("❌ Error logging in:", error);
+      throw error;
+    }
+  },
+
+  getAll: async (): Promise<UserResponse[]> => {
+    try {
+      const res = await axiosClient.get<UserResponse[]>("/users");
+        console.log(JSON.stringify(res.data));
+      return res.data;      
+    } catch (error) {
+      console.error("❌ Error fetching all users:", error);
       throw error;
     }
   },
