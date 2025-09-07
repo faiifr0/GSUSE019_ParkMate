@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import park.management.com.vn.entity.Users;
+import park.management.com.vn.entity.UserEntity;
 import park.management.com.vn.model.request.LoginRequest;
 import park.management.com.vn.model.request.RegisterUserRequest;
 import park.management.com.vn.model.request.UserRequest;
 import park.management.com.vn.model.response.LoginResponse;
 import park.management.com.vn.model.response.RegisterUserResponse;
+import park.management.com.vn.model.response.UserResponse;
 import park.management.com.vn.service.UserService;
 
 @RestController
@@ -40,19 +41,17 @@ public class UserController {
   }
 
   @GetMapping
-  public ResponseEntity<List<Users>> getAllUsers() {
+  public ResponseEntity<List<UserEntity>> getAllUsers() {
     return ResponseEntity.ok(userService.getAllUsers());
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Users> getUserById(@PathVariable Long id) {
-    return userService.findUserById(id)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+  public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.getUserDetail(id));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Users> updateUser(@PathVariable Long id, @RequestBody UserRequest users) {
+  public ResponseEntity<UserEntity> updateUser(@PathVariable Long id, @RequestBody UserRequest users) {
     return ResponseEntity.ok(userService.updateUser(id, users));
   }
 
