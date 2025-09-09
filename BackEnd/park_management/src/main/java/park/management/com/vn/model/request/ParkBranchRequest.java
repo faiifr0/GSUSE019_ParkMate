@@ -7,10 +7,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import lombok.Data;
 
 @Builder
 @Setter
 @Getter
+@lombok.Data
 public class ParkBranchRequest {
 
     @NotBlank
