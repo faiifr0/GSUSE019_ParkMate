@@ -8,6 +8,9 @@ import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
 
 import java.time.LocalTime;
+import lombok.*;
+import jakarta.persistence.*;
+
 
 @Entity
 @Table(name = "shift")
@@ -15,7 +18,6 @@ import java.time.LocalTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class Shift extends BaseEntity {
 
     @Column(name = "start_time", nullable = false)

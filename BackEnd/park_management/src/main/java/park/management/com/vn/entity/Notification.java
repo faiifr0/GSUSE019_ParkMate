@@ -10,6 +10,9 @@ import lombok.Setter;
 import park.management.com.vn.constaint.NotificationStatus;
 import park.management.com.vn.constaint.NotificationType;
 import park.management.com.vn.entity.base.BaseEntity;
+import lombok.*;
+import jakarta.persistence.*;
+
 
 @Entity
 @Table(name = "notification")
@@ -21,7 +24,7 @@ public class Notification extends BaseEntity {
 
   @ManyToOne
   @JoinColumn(name = "user_id")
-  private Users user;
+  private UserEntity userEntity;
 
   @Column(name = "message", nullable = false)
   private String message;

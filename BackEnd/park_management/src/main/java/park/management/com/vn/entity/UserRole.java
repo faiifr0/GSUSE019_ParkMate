@@ -1,7 +1,9 @@
 package park.management.com.vn.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,13 +15,18 @@ import jakarta.persistence.*;
 
 
 @Entity
-@Table(name = "amenity_type")
+@Table(name = "user_role")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AmenityType extends BaseEntity {
+public class UserRole extends BaseEntity {
 
-    @Column(name = "name", nullable = false, unique = true)
-    private String name;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "role_id")
+  private Role role;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private UserEntity userEntity;
 }
