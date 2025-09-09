@@ -7,6 +7,7 @@ import lombok.Setter;
 @Builder
 @Setter
 @Getter
+@lombok.Data
 public class RegisterUserResponse {
 
   private String username;
