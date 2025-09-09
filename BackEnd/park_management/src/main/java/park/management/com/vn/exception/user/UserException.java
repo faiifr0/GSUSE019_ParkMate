@@ -1,12 +1,9 @@
 package park.management.com.vn.exception.user;
 
-import lombok.NoArgsConstructor;
-import park.management.com.vn.exception.BaseException;
+import park.management.com.vn.exception.AppException;
 import park.management.com.vn.exception.ErrorCode;
 
-public abstract class UserException extends BaseException {
-
-    public UserException(String message, ErrorCode errorCode) {
-        super(message, errorCode);
-    }
+public class UserException extends AppException {
+    public UserException(ErrorCode error) { super(error); }
+    public UserException(ErrorCode error, String message) { super(error, message); }
 }

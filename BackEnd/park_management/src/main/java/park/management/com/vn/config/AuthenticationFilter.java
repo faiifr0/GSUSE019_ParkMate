@@ -17,13 +17,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import park.management.com.vn.service.UserService;
 import park.management.com.vn.utils.JWTTokenUtils;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Log4j2
 @Component
 @RequiredArgsConstructor
 public class AuthenticationFilter extends OncePerRequestFilter {
 
   public static final String AUTHORIZATION_HEADER = "Authorization";
+private static final Logger log = LoggerFactory.getLogger(AuthenticationFilter.class);
 
   private final JWTTokenUtils jwtTokenUtils;
 
@@ -34,16 +36,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     if (StringUtils.isNotBlank(jwt)) {
       try {
         this.jwtTokenUtils.validateToken(jwt);
-      } catch (ExpiredJwtException ex) {
-        log.error("Method: doFilter, jwt expired : ", ex);
+      } catch (Exception ex) {
+        log.error("(doFilterInternal) message: {}", ex.getMessage());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.getWriter().write("UNAUTHORIZED");
-        return;
-      } catch (Exception ex) {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.getWriter().write("INTERNAL_SERVER_ERROR");
+        response.getWriter().write("Unauthorized");
         return;
       }
       Authentication authentication = this.jwtTokenUtils.getAuthentication(jwt);
