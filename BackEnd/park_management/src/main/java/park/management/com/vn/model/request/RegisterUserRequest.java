@@ -9,7 +9,7 @@ import lombok.Data;
 @Builder
 @Setter
 @Getter
-@lombok.Data
+
 public class RegisterUserRequest {
   @NotNull
   private String email;

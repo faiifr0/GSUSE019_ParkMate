@@ -13,7 +13,6 @@ import lombok.Data;
 @Builder
 @Setter
 @Getter
-@lombok.Data
 public class BranchPromotionRequest {
     @NotNull
     private Long parkBranchId;

@@ -10,7 +10,6 @@ import lombok.Data;
 @Builder
 @Setter
 @Getter
-@lombok.Data
 public class BranchStaffRequest {
     @NotBlank
     private String role;

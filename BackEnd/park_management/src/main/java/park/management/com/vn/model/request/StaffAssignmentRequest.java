@@ -11,7 +11,7 @@ import lombok.Data;
 @Builder
 @Setter
 @Getter
-@lombok.Data
+
 public class StaffAssignmentRequest {
     @NotNull
     private Long staffId;

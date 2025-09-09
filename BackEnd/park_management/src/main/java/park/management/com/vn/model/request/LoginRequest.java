@@ -9,7 +9,6 @@ import lombok.Data;
 @Builder
 @Setter
 @Getter
-@lombok.Data
 public class LoginRequest {
 
   @NotBlank

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Setter
 @Getter
-@lombok.Data
+
 public class TransactionRecordResponse {
     private Long id;
     private double amount;

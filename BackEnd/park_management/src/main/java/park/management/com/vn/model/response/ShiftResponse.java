@@ -10,7 +10,7 @@ import java.time.LocalTime;
 @Builder
 @Setter
 @Getter
-@lombok.Data
+
 public class ShiftResponse {
     private Long id;
     private LocalTime startTime;

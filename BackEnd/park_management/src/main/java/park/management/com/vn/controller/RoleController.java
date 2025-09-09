@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import park.management.com.vn.constant.PermissionConstant;
+import park.management.com.vn.constaint.PermissionConstant;
 import park.management.com.vn.model.request.RoleRequest;
 import park.management.com.vn.model.response.RoleResponse;
 import park.management.com.vn.service.RoleService;

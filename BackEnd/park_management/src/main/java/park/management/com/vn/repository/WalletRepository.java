@@ -3,10 +3,12 @@ package park.management.com.vn.repository;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import park.management.com.vn.entity.Wallet;
 
 import java.util.Optional;
 
+@Repository
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
 
     // keep your existing non-locking finder if you still need it

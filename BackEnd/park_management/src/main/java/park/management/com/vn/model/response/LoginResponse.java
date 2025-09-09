@@ -8,7 +8,7 @@ import lombok.Builder;
 @Builder
 @Setter
 @Getter
-@lombok.Data
+
 public class LoginResponse {
 
   private String accessToken;

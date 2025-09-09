@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 @Setter
 @Getter
-@lombok.Data
+
 public class RoleRequest {
     @NotNull
     private String name;

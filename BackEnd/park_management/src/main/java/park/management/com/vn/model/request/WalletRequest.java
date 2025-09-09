@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @Setter
 @Getter
-@lombok.Data
+
 public class WalletRequest {
 
     private Long userId;

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 import lombok.*;
 
-import park.management.com.vn.constant.TicketStatus;
+import park.management.com.vn.constaint.TicketStatus;
 import park.management.com.vn.entity.base.BaseEntity;
 
 import java.math.BigDecimal;

@@ -6,7 +6,11 @@ import java.math.BigDecimal;
 
 @Data
 public class ConfirmTopupRequest {
-  @NotNull private Long orderCode;
-  @NotNull private BigDecimal amount;      // VND
+
+  @NotNull
+  private Long orderCode;
+
+  @NotNull
+  private BigDecimal amount;      // VND
   private String paymentLinkId;            // optional
 }
