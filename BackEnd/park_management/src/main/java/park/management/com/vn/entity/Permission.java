@@ -1,8 +1,8 @@
 package park.management.com.vn.entity;
 
-import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,20 +13,16 @@ import jakarta.persistence.*;
 
 
 @Entity
-@Table(name = "park_branch")
+@Table(name = "permission")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ParkBranch extends BaseEntity {
+public class Permission extends BaseEntity {
 
   @Column(nullable = false, unique = true)
   private String name;
-  @Column(name = "address")
-  private String address;
-  @Column(name = "location")
-  private String location;
 
-  private LocalDateTime open;
-  private LocalDateTime close;
+  @Column(name = "description")
+  private String description;
 }

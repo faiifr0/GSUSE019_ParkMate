@@ -7,11 +7,15 @@ import lombok.Setter;
 import park.management.com.vn.entity.base.BaseEntity;
 
 import java.time.LocalDate;
+import lombok.*;
+import jakarta.persistence.*;
+
 
 @Entity
 @Table(name = "daily_ticket_inventory")
 @Getter
 @Setter
+@lombok.Data
 public class DailyTicketInventory extends BaseEntity {
 
     @ManyToOne
@@ -26,4 +30,9 @@ public class DailyTicketInventory extends BaseEntity {
 
     @Column(nullable = false)
     private Integer sold;
+
+    // ====== helper to satisfy service calls ======
+    public Integer getTotalAvailable() {
+        return totalAvailable;
+    }
 }
