@@ -52,8 +52,8 @@ const navItems: NavItem[] = [
   },
   {
     icon: <CalenderIcon />,
-    name: "Shift",
-    path: "/shift",
+    name: "Staff Shifts",
+    path: "/staff-shifts",
   },
   {
     name: "Pages",

@@ -1,7 +1,8 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "https://parkmate-management-system.azurewebsites.net/api",
+  // baseURL: "https://parkmate-management-system.azurewebsites.net/api",
+  baseURL: "http://localhost:8080/api",
   headers: {
     "Content-Type": "application/json",
   },
