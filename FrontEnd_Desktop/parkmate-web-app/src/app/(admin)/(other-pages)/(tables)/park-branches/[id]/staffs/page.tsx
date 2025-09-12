@@ -36,8 +36,8 @@ export default function ParkBranchTicketsList() {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Tickets" items={breadcrumbItems}/>
-      <ComponentCard title={"Tickets of " + branchInfo?.name}>
+      <PageBreadcrumb pageTitle="Staffs" items={breadcrumbItems}/>
+      <ComponentCard title={"Staffs of " + branchInfo?.name}>
         <div className="space-y-6">
           <ParkBranchTicketTable></ParkBranchTicketTable>
         </div>

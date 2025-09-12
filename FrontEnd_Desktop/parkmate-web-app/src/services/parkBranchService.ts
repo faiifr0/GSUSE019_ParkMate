@@ -1,3 +1,4 @@
+import { parkBranchCreateModel } from "@/model/parkBranchCreateModel";
 import axiosClient from "../lib/axiosClient";
 import {parkBranchUpdateModel} from "@/model/parkBranchUpdateModel";
 
@@ -33,6 +34,18 @@ const parkBranchService = {
       return res.data;
     } catch (error) {
       console.error("❌ Error fetching park branch id {" + id + "} :", error);
+      throw error;
+    }
+  },
+
+  createParkBranch: async (    
+    model?: parkBranchCreateModel
+  ): Promise<parkBranchResponse> => {
+    try {
+      const res = await axiosClient.post<parkBranchResponse>(`/park-branch/`, model);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Error create park branch: ", error);
       throw error;
     }
   },

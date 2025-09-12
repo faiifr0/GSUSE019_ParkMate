@@ -1,4 +1,5 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
+import Cookies from "js-cookie"
 
 const axiosClient = axios.create({
   // baseURL: "https://parkmate-management-system.azurewebsites.net/api",
@@ -10,13 +11,8 @@ const axiosClient = axios.create({
 
 // 📌 Request interceptor
 axiosClient.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    let token: string | null = null;
-
-    if (typeof window !== "undefined") {
-      // ✅ Only access localStorage on the client
-      token = localStorage.getItem("token");
-    }
+  async (config: InternalAxiosRequestConfig) => {   
+    const token = Cookies.get("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -28,7 +24,7 @@ axiosClient.interceptors.request.use(
       method: config.method,
       headers: config.headers,
       data: config.data,
-    });
+    });     
 
     return config;
   },

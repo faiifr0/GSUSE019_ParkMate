@@ -1,9 +1,15 @@
 import axiosClient from "../lib/axiosClient";
+import { userCreateModel } from "@/model/userCreateModel";
 import { userUpdateModel } from "@/model/userUpdateModel";
 
 export type LoginResponse = {
   accessToken: string;
 };
+
+export type CreateUserResponse = {
+  username: string;
+  email: string;
+}
 
 export type UserResponse = {
   id: string;
@@ -13,11 +19,16 @@ export type UserResponse = {
   parkBranch?: {
     id: string;
   }
-  role?: {
+  userRoles?: {
     id: string;
-  }
+    role?: {
+      id: string;
+      name: string;
+    };
+  } [];
   wallet?: {
     id: string;
+    balance: number;
   }
   createdAt: string;
   updatedAt: string;
@@ -29,7 +40,7 @@ const userService = {
     password: string
   ): Promise<LoginResponse> => {
     try {
-      const res = await axiosClient.post<LoginResponse>("users/login", {
+      const res = await axiosClient.post<LoginResponse>("/users/login", {
         username,
         password,
       });
@@ -43,8 +54,8 @@ const userService = {
   getAll: async (): Promise<UserResponse[]> => {
     try {
       const res = await axiosClient.get<UserResponse[]>("/users");    
-      console.log("Data:", res.data);
-      Array.isArray(res.data) ? console.log("Its an array!") : console.log("No its not!");
+      //console.log("Data:", res.data);
+      //Array.isArray(res.data) ? console.log("Its an array!") : console.log("No its not!");
       return res.data;      
     } catch (error) {
       console.error("❌ Error fetching all users:", error);
@@ -62,7 +73,17 @@ const userService = {
     }
   },
 
-  updateUser: async (id: string, model: userUpdateModel): Promise<UserResponse> => {
+  createUser: async (model?: userCreateModel): Promise<CreateUserResponse> => {
+    try {
+      const res = await axiosClient.post<CreateUserResponse>("/users/register", model);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Error create user:", error);
+      throw error;
+    }
+  },
+
+  updateUser: async (id: string, model?: userUpdateModel): Promise<UserResponse> => {
     try {
       const res = await axiosClient.put<UserResponse>(`/users/${id}`, model);
       return res.data;

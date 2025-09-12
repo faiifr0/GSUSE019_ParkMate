@@ -48,7 +48,7 @@ export default function ParkBranchTicketTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
-                  No #
+                  No.
                 </TableCell>
                 <TableCell
                   isHeader

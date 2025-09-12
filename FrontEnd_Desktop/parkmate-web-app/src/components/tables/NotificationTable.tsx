@@ -11,6 +11,7 @@ import {
 import Badge from "../ui/badge/Badge";
 import Pagination from "./Pagination";
 import notificationService, { notificationResponse } from "@/services/notificationService";
+import { format } from 'date-fns';
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {}; // eslint-disable-line no-unused-vars
@@ -18,6 +19,7 @@ const handlePageChange = (page: number) => {}; // eslint-disable-line no-unused-
 export default function UserTable() {
   const [notifications, setNotifications] = useState<notificationResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
+
   // Fetch Park Branches List
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -52,14 +54,14 @@ export default function UserTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                 >
-                  Notification Type
+                  Message
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                 >
-                  Message
-                </TableCell>                
+                  Notification Type
+                </TableCell>                               
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
@@ -83,27 +85,26 @@ export default function UserTable() {
                     {index + 1}
                   </TableCell>                  
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {notification.notificationType}
+                    {notification.message}
                   </TableCell>                  
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {notification.message}
+                    {notification.notificationType}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {notification.sentAt}
+                    {format(new Date(notification.sentAt), 'HH:mm dd-MM-yyyy')}
                   </TableCell>                  
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     <Badge
                       size="sm"
-                      // color={
-                      //   user.status === "Active"
-                      //     ? "success"
-                      //     : user.status === "Pending"
-                      //     ? "warning"
-                      //     : "error"
-                      // }
-                      color="warning"
+                      color={
+                        notification.status === "SENT"
+                          ? "success"
+                          : notification.status === "PENDING"
+                          ? "warning"
+                          : "error"
+                      }                      
                     >
-                      Dubious
+                      {notification.status}
                     </Badge>
                   </TableCell>                  
                 </TableRow>

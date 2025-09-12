@@ -1,12 +1,12 @@
 import ComponentCard from "@/components/common/ComponentCard";
-import UserTable from "@/components/tables/UserTable";
+import NotificationTable from "@/components/tables/NotificationTable";
 import React from "react";
 
 export default function NotificationsList() {
   return (
     <div>
       <ComponentCard title="Your Notifications">
-        <UserTable />
+        <NotificationTable />
       </ComponentCard>
     </div>      
   );

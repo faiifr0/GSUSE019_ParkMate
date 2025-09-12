@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
-  title: "Notification | ParkMate",
+  title: "Notifications | ParkMate",
   description:
     "This is Next.js Notification page for ParkMate",
   // other metadata
