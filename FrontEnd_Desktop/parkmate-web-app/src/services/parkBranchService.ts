@@ -42,7 +42,7 @@ const parkBranchService = {
     model?: parkBranchCreateModel
   ): Promise<parkBranchResponse> => {
     try {
-      const res = await axiosClient.post<parkBranchResponse>(`/park-branch/`, model);
+      const res = await axiosClient.post<parkBranchResponse>("/park-branch", model);
       return res.data;
     } catch (error) {
       console.error("❌ Error create park branch: ", error);

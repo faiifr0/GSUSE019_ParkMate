@@ -52,8 +52,7 @@ export default function ParkBranchTable() {
   
   // Handle save logic here
   const handleSave = async () => {        
-    try {
-      setFormData
+    try {      
       await parkBranchService.createParkBranch(formData);
       fetchParkBranches();      
       setFormData(undefined);

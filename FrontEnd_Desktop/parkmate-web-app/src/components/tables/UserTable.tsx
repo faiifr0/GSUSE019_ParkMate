@@ -143,7 +143,7 @@ export default function UserTable() {
                           />
                         </div>
                         <div>
-                          <a href={"/users/id?=" + user.id}>
+                          <a href={"/users/" + user.id}>
                             <span className="block text-gray-500 text-theme-sm dark:text-white/90">
                               {user.username}
                             </span>

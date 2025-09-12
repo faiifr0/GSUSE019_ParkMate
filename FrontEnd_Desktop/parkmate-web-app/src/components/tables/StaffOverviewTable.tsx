@@ -29,8 +29,8 @@ export default function StaffOverviewTable() {
       try {
         const response = await userService.getAll();   
         console.log("response: " + JSON.stringify(response));                                                   
-        setStaffs(response.filter(staff => (staff.role?.id?.toString() === STAFF_ROLE_ID || staff.role?.id?.toString() === MANAGER_ROLE_ID) 
-                                         && staff.parkBranch?.id?.toString() === params.id))         
+        //setStaffs(response.filter(staff => (staff.role?.id?.toString() === STAFF_ROLE_ID || staff.role?.id?.toString() === MANAGER_ROLE_ID) 
+                                         //&& staff.parkBranch?.id?.toString() === params.id))         
         // const filtered = response.filter(staff => {
         //   const roleId = staff.role?.id?.toString();
         //   const branchId = staff.parkBranch?.id?.toString();
@@ -41,7 +41,7 @@ export default function StaffOverviewTable() {
         //   );
         // });
 
-        //setStaffs(response);
+        setStaffs(response);
       } catch (err) {
         console.log(err);
       } finally {
@@ -93,7 +93,8 @@ export default function StaffOverviewTable() {
                       {staff.username}
                     </TableCell>     
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {staff.role?.id?.toString() === MANAGER_ROLE_ID ? "Park Manager" : "Staff"}
+                      {/* {staff.role?.id?.toString() === MANAGER_ROLE_ID ? "Park Manager" : "Staff"} */}
+                      nothing
                     </TableCell>                              
                   </TableRow>
                 ))}
