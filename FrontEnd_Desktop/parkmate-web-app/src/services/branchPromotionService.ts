@@ -38,7 +38,7 @@ const branchPromotionService = {
 
   createBranchPromotion: async (model?: branchPromotionCreateModel): Promise<branchPromotionResponse> => {
     try {
-      const res = await axiosClient.post<branchPromotionResponse>(`/branch-promotion`);
+      const res = await axiosClient.post<branchPromotionResponse>(`/branch-promotion`, model);
       return res.data;
     } catch (error) {
       console.error("❌ Error create branch promotion : ", error);

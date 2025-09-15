@@ -6,6 +6,7 @@ import EventOverViewTable from "@/components/tables/EventOverviewTable";
 import TicketPriceOverViewTable from "@/components/tables/TicketPriceOverviewTable";
 import StaffOverviewTable from "@/components/tables/StaffOverviewTable";
 import React from "react";
+import VoucherOverviewTable from "@/components/tables/VoucherOverviewTable";
 
 export default function ParkBranchOverview() {
   return (
@@ -21,15 +22,15 @@ export default function ParkBranchOverview() {
           <OverviewInfoCard></OverviewInfoCard>
         </div>
 
-        <div className="grid grid-cols-12 gap-4 md:gap-6">
-          <div className="col-span-6 space-y-6 xl:col-span-6">
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-6 space-y-6">
             <ComponentCard title="Current Staffs">
               <div>                
                 <StaffOverviewTable></StaffOverviewTable>
               </div>
             </ComponentCard>
           </div>
-          <div className="col-span-6 space-y-6 xl:col-span-6">
+          <div className="col-span-6 space-y-6">
             <ComponentCard title="Tickets">
               <div>
                 <TicketPriceOverViewTable></TicketPriceOverViewTable>
@@ -37,16 +38,21 @@ export default function ParkBranchOverview() {
             </ComponentCard>
           </div>
         </div>        
-        <div className="grid grid-cols-12 gap-4 md:gap-6">
-          {/* <div className="col-span-3"></div> */}
-          <div className="col-span-8 col-start-3">
+        <div className="grid grid-cols-12 gap-6">          
+          <div className="col-span-6 space-y-6">
             <ComponentCard title="Upcoming Events">
               <div>
                 <EventOverViewTable></EventOverViewTable>
               </div>
             </ComponentCard>
           </div>
-          {/* <div className="col-span-3"></div> */}
+          <div className="col-span-6 space-y-6">
+            <ComponentCard title="Vouchers">
+              <div>
+                <VoucherOverviewTable></VoucherOverviewTable>
+              </div>
+            </ComponentCard>
+          </div>               
         </div>        
       </ComponentCard>
     </div>

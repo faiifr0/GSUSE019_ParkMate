@@ -46,7 +46,7 @@ export default function ParkBranchVoucherTable() {
   
   useEffect(() => {    
     fetchBranchPromotions();
-    setFormData(form => ({ ...form, parkBranchId: id }));
+    setFormData(form => ({ ...form, parkBranchId: +id }));
   }, [])
 
   // Handle save logic here
@@ -55,7 +55,7 @@ export default function ParkBranchVoucherTable() {
       await branchPromotionService.createBranchPromotion(formData);
       fetchBranchPromotions();      
       setFormData(undefined);
-      setFormData(form => ({ ...form, parkBranchId: id }));
+      setFormData(form => ({ ...form, parkBranchId: +id }));
       closeModal();
     } catch (err) {
       console.log(err);
@@ -97,7 +97,7 @@ export default function ParkBranchVoucherTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Discount
+                  Discount (%)
                 </TableCell>                
                 <TableCell
                   isHeader
@@ -109,7 +109,7 @@ export default function ParkBranchVoucherTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
-                  To
+                  Available To
                 </TableCell>
                 <TableCell
                   isHeader
@@ -121,14 +121,8 @@ export default function ParkBranchVoucherTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
-                  End Time
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Status
-                </TableCell>
+                  Action
+                </TableCell>                              
               </TableRow>
             </TableHeader>
 
@@ -178,6 +172,10 @@ export default function ParkBranchVoucherTable() {
                       }                      
                     </Badge>
                   </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
+                      {/* <Button size="sm" onClick={() => openEditModal(staff)}>Edit</Button> */}
+                      <Button size="sm">Edit</Button>
+                    </TableCell> 
                 </TableRow>
               ))}
             </TableBody>
@@ -196,9 +194,9 @@ export default function ParkBranchVoucherTable() {
                   onSubmit = {(e) => {
                     e.preventDefault();
                   }}>
-              <div className="custom-scrollbar h-[275px] overflow-y-auto px-2 pb-3">
+              <div className="custom-scrollbar h-[350px] overflow-y-auto px-2 pb-3">
                 <div>                
-                  <div className="grid grid-cols-12 my-9 gap-x-4">   
+                  <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">   
                     <div className="col-span-2"></div>                                     
                     <div className="col-span-8">
                       <Label>Voucher Description</Label>
@@ -212,38 +210,45 @@ export default function ParkBranchVoucherTable() {
 
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Discount</Label>
+                      <Label>Discount (%)</Label>
                       <Input
-                        type="number"                        
+                        type="number"
+                        min={0}
+                        max={100}
+                        step={1}
                         onChange={(e) => setFormData({ ...formData, discount: Number(e.target.value) })}                   
                       />
                     </div>  
 
                     <div className="col-span-6">
                       <Label>Active Status</Label>
-                      <Input
-                        type="text"                        
-                        onChange={(e) => setFormData({ ...formData, isActive: true })}                   
+                      <input
+                        type="checkbox"
+                        checked={formData?.isActive ?? false}                     
+                        onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })} 
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"            
                       />
                     </div>                                      
                   </div> 
 
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Available from</Label>
+                      <Label>Available From</Label>
                       <Input
-                        type="text"                        
+                        type="datetime-local"
+                        value={formData?.from ?? ''}                        
                         onChange={(e) => setFormData({ ...formData, from: e.target.value })}                   
                       />
                     </div>  
 
                     <div className="col-span-6">
-                      <Label>To</Label>
+                      <Label>Available To</Label>
                       <Input
-                        type="text"                        
+                        type="datetime-local"
+                        value={formData?.to ?? ''}                       
                         onChange={(e) => setFormData({ ...formData, to: e.target.value })}                   
                       />
-                    </div>                                      
+                    </div>                                                          
                   </div>                                                                 
                 </div>              
               </div>

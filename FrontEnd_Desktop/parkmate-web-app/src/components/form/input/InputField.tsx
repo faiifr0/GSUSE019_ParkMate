@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 
 interface InputProps {
-  type?: "text" | "number" | "email" | "password" | "date" | "time" | string;
+  type?: "text" | "number" | "email" | "password" | "date" | "time" | "checkbox" | "datetime-local" | string;
   id?: string;
   name?: string;
   placeholder?: string;
@@ -9,8 +9,8 @@ interface InputProps {
   value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
-  min?: string;
-  max?: string;
+  min?: number;
+  max?: number;
   step?: number;
   disabled?: boolean;
   success?: boolean;
