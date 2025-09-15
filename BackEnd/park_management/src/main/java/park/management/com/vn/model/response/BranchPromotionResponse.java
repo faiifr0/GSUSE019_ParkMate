@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 @Setter
 @Getter
+
 public class BranchPromotionResponse {
 
     private Long id;

@@ -1,4 +1,3 @@
-//import UserAddressCard from "@/components/user-profile/UserAddressCard";
 import UserInfoCard from "@/components/user-profile/UserInfoCard";
 import UserMetaCard from "@/components/user-profile/UserMetaCard";
 import { Metadata } from "next";
@@ -19,8 +18,7 @@ export default function Profile() {
         </h3>
         <div className="space-y-6">
           <UserMetaCard />
-          <UserInfoCard />
-          {/* <UserAddressCard /> */}
+          <UserInfoCard />          
         </div>
       </div>
     </div>

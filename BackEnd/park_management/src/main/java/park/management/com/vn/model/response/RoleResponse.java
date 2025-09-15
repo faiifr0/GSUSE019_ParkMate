@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 @Builder
 @Setter
 @Getter
+
 public class RoleResponse {
-    private Long id;
-    private String name;
-    private String description;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+  private Long id;
+  private String name;
+  private String description;
 }

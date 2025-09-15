@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Setter
 @Getter
+
 public class TransactionRecordResponse {
     private Long id;
     private double amount;

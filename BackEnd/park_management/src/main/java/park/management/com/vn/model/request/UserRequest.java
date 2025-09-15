@@ -12,12 +12,10 @@ import lombok.Setter;
 @Getter
 public class UserRequest {
 
-    private String email;
+  private String email;
 
-    private String password;
+  private String password;
 
-    private Long parkBranchId;
-
-    private Long roleId;
+  private Long parkBranchId;
 
 }

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Setter
 @Getter
+
 public class ParkBranchResponse {
 
     private Long id;

@@ -1,10 +1,6 @@
 package park.management.com.vn.entity;
 
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,14 +9,15 @@ import park.management.com.vn.entity.base.BaseEntity;
 
 @Entity
 @Table(name ="ai_chat_log")
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 public class AIChatLog extends BaseEntity {
 
-    @Column(name = "content")
+    @Lob
+    @Column(name = "content", columnDefinition = "text", nullable = false)
     private String content;
-    @ManyToOne
-    private Users user;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)           // ✅ bắt buộc có user
+    @JoinColumn(name = "user_entity_id", nullable = false)
+    private UserEntity userEntity;
 }

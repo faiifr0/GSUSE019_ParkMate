@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import park.management.com.vn.entity.base.BaseEntity;
+import lombok.*;
+import jakarta.persistence.*;
+
 
 @Entity
 @Table(name = "transaction_record")
@@ -14,6 +17,7 @@ import park.management.com.vn.entity.base.BaseEntity;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@lombok.Data
 public class TransactionRecord extends BaseEntity {
 
     @Column(name = "amount")

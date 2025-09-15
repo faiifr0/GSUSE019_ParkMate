@@ -5,14 +5,17 @@ import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
 
 import java.time.LocalDate;
+import lombok.*;
+import jakarta.persistence.*;
+
 
 @Entity
-@Table(name = "staff_assignment")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Table(name = "staff_assignment")
+@lombok.Data
 public class StaffAssignment extends BaseEntity {
 
     @Column(name = "assigned_date", nullable = false)

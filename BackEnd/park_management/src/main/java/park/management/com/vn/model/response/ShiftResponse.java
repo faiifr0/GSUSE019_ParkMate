@@ -10,6 +10,7 @@ import java.time.LocalTime;
 @Builder
 @Setter
 @Getter
+
 public class ShiftResponse {
     private Long id;
     private LocalTime startTime;

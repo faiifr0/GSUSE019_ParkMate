@@ -32,11 +32,6 @@ const navItems: NavItem[] = [
     path: "/",
     // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   },
-  {
-    icon: <CalenderIcon />,
-    name: "Shift",
-    path: "/shift",
-  },
   // {
   //   icon: <UserCircleIcon />,
   //   name: "User Profile",
@@ -50,9 +45,15 @@ const navItems: NavItem[] = [
   {
     name: "Managing",
     icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false },
+    subItems: [
+             //{ name: "Basic Tables", path: "/basic-tables", pro: false },
                { name: "Users", path: "/users", pro: false },
                { name: "Park Branches", path: "/park-branches", pro: false}],
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "Staff Shifts",
+    path: "/staff-shifts",
   },
   {
     name: "Pages",
@@ -85,14 +86,14 @@ const othersItems: NavItem[] = [
   //     { name: "Videos", path: "/videos", pro: false },
   //   ],
   // },
-  {
-    icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      // { name: "Sign Up", path: "/signup", pro: false },
-    ],
-  },
+  // {
+  //   icon: <PlugInIcon />,
+  //   name: "Authentication",
+  //   subItems: [
+  //     { name: "Sign In", path: "/signin", pro: false },
+  //     // { name: "Sign Up", path: "/signup", pro: false },
+  //   ],
+  // },
 ];
 
 const AppSidebar: React.FC = () => {
@@ -101,7 +102,7 @@ const AppSidebar: React.FC = () => {
 
   const renderMenuItems = (
     navItems: NavItem[],
-    menuType: "main" | "others"
+    menuType: "main" //| "others"
   ) => (
     <ul className="flex flex-col gap-4">
       {navItems.map((nav, index) => (
@@ -235,7 +236,8 @@ const AppSidebar: React.FC = () => {
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // const isActive = (path: string) => path === pathname;
-   const isActive = useCallback((path: string) => path === pathname, [pathname]);
+  // Edit: changes to include path because there are some pages that are not on the nav items in sidebar
+  const isActive = useCallback((path: string) => pathname.includes(path), [pathname]);
 
   useEffect(() => {
     // Check if the current path matches any submenu item
@@ -357,7 +359,7 @@ const AppSidebar: React.FC = () => {
               {renderMenuItems(navItems, "main")}
             </div>
 
-            <div className="">
+            {/* <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
                   !isExpanded && !isHovered
@@ -372,7 +374,7 @@ const AppSidebar: React.FC = () => {
                 )}
               </h2>
               {renderMenuItems(othersItems, "others")}
-            </div>
+            </div> */}
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? null : null}

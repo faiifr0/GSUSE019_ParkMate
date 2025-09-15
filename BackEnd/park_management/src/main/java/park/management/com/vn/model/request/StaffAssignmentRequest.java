@@ -6,10 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import lombok.Data;
 
 @Builder
 @Setter
 @Getter
+
 public class StaffAssignmentRequest {
     @NotNull
     private Long staffId;

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 @Setter
 @Getter
+
 public class BranchReviewResponse {
     private Long id;
     private Long userId;
