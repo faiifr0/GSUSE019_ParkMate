@@ -160,12 +160,16 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             {error && <Text style={styles.errorText}>{error}</Text>}
 
             {nearestBranch && (
-              <Animatable.View animation="bounceIn" duration={900} style={styles.branchBox}>
-                <Text style={styles.branchTitle}>Chi nhánh gần nhất</Text>
-                <Text style={styles.text} numberOfLines={1}>{nearestBranch.name}</Text>
-                <Text style={styles.text} numberOfLines={1}>{nearestBranch.address ?? 'Chưa có địa chỉ'}</Text>
-                <Text style={styles.text}>🕒 {nearestBranch.open ?? '?'} - {nearestBranch.close ?? '?'}</Text>
-              </Animatable.View>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('BranchDetail', { branchId: nearestBranch.id })}
+              >
+                <Animatable.View animation="bounceIn" duration={900} style={styles.branchBox}>
+                  <Text style={styles.branchTitle}>Chi nhánh gần nhất</Text>
+                  <Text style={styles.text} numberOfLines={1}>{nearestBranch.name}</Text>
+                  <Text style={styles.text} numberOfLines={1}>{nearestBranch.address ?? 'Chưa có địa chỉ'}</Text>
+                  <Text style={styles.text}>🕒 {nearestBranch.open ?? '?'} - {nearestBranch.close ?? '?'}</Text>
+                </Animatable.View>
+              </TouchableOpacity>
             )}
 
             <Animatable.Text animation="fadeIn" style={styles.sectionTitle}>
