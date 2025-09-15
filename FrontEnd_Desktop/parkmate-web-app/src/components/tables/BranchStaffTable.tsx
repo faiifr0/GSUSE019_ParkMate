@@ -10,7 +10,6 @@ import {
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
 import Pagination from "./Pagination";
-import Link from "next/link";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
@@ -20,6 +19,7 @@ import branchStaffService, { branchStaffResponse } from "@/services/branchStaffS
 import { branchStaffCreateModel } from "@/model/branchStaffCreateModel";
 import { useParams } from "next/navigation";
 import userService, { UserResponse } from "@/services/userService";
+import { branchStaffUpdateModel } from "@/model/branchStaffUpdateModel";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -33,6 +33,8 @@ export default function BranchStaffTable() {
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [branchStaffs, setBranchStaffs] = useState<branchStaffResponse[]>([]);
   const [formData, setFormData] = useState<branchStaffCreateModel>();
+  const [selectedStaff, setSelectedStaff] = useState<branchStaffResponse | null>(null);
+  const [mode, setMode] = useState<'create' | 'edit'>('create');
   const [error, setError] = useState<string | null>(null);
 
   // Fetch Park Branch Staffs
@@ -61,21 +63,53 @@ export default function BranchStaffTable() {
 
   useEffect(() => {    
     fetchBranchStaffs();
-    fetchUsers();
-    setFormData(form => ({ ...form, parkBranchId: parseInt(id) }));
+    fetchUsers();    
   }, [])
   
   // Handle save logic here
   const handleSave = async () => {        
-    try {      
-      await branchStaffService.createBranchStaff(formData);
+    try {
+      console.log("Form userId: " + formData?.userId);
+      console.log("Form parkBranchId: " + formData?.parkBranchId);
+      console.log("Form role: " + formData?.role);
+      console.log("Form description: " + formData?.description);
+      if (mode === 'edit' && selectedStaff) {
+        await branchStaffService.updateBranchStaff(String(selectedStaff.id), formData as branchStaffUpdateModel);
+      } else {
+        await branchStaffService.createBranchStaff(formData);
+      }      
       fetchBranchStaffs();      
       setFormData(undefined);
+      setSelectedStaff(null);
       closeModal();
     } catch (err) {
       console.log(err);
-      setError("Failed to create new branch staff!");
+      setError("Failed to " + mode + " branch staff!");
     }
+  };
+
+  const openCreateModal = () => {
+    setMode('create');
+    setFormData({
+      userId: undefined, // or leave as undefined if optional
+      parkBranchId: parseInt(id),
+      role: '',
+      description: '',
+    });
+    setSelectedStaff(null);
+    openModal();
+  };
+
+  const openEditModal = (staff: branchStaffResponse) => {
+    setMode('edit');
+    setSelectedStaff(staff);
+    setFormData({
+      userId: 1, // ### should be user.id need changes in what return from api
+      parkBranchId: parseInt(id),
+      role: staff.role,
+      description: staff.description,
+    });
+    openModal();
   };
 
   return (
@@ -84,7 +118,7 @@ export default function BranchStaffTable() {
         <button 
           className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition 
                      px-4 py-3 mb-6 mx-6 text-sm bg-brand-500 text-white hover:bg-brand-600"
-          onClick={openModal}>
+          onClick={openCreateModal}>
             Add Branch Staff +
         </button>
       </div>
@@ -144,6 +178,12 @@ export default function BranchStaffTable() {
                   >
                     Status
                   </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
+                  >
+                    Action
+                  </TableCell>
                 </TableRow>
               </TableHeader>
 
@@ -155,11 +195,7 @@ export default function BranchStaffTable() {
                       {index + 1}
                     </TableCell>             
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      <Link 
-                        href={"/park-branches/" + staff.id} 
-                        className="text-center block w-full h-full no-underline">                     
-                          {staff.userFullName}
-                      </Link>                    
+                      {staff.userFullName}
                     </TableCell>                  
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {staff.parkBranchName}
@@ -192,6 +228,9 @@ export default function BranchStaffTable() {
                         Dubious
                       </Badge>
                     </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
+                      <Button size="sm" onClick={() => openEditModal(staff)}>Edit</Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -203,7 +242,7 @@ export default function BranchStaffTable() {
           <div className="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
             <div className="px-2 pr-14">
               <h4 className="mb-9 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
-                Add New Branch Staff
+                {mode === 'edit' ? 'Edit Branch Staff' : 'Add New Branch Staff'}
               </h4>
             </div>
             <form className="flex flex-col"
@@ -215,10 +254,14 @@ export default function BranchStaffTable() {
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
                       <Label>User</Label>
-                      <select                        
-                        className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      <select            
+                        value={formData?.userId !== undefined ? formData.userId : ''}            
+                        className="block w-full rounded-md border border-gray-300 bg-white px-3 py-[12px] text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         onChange={(e) => setFormData({ ...formData, userId: parseInt(e.target.value) })}
                       >
+                        <option value="" disabled>
+                          -- Select a user --
+                        </option>
                         {users.map(user => (
                         <option key={user.id} value={user.id}>
                             {user.username} - {user.email}
@@ -229,7 +272,7 @@ export default function BranchStaffTable() {
                     
                     <div className="col-span-6">
                       <Label>Park Branch Id</Label>
-                      <Input
+                      <Input                        
                         type="number"                        
                         defaultValue={parseInt(id)}
                         disabled
@@ -242,7 +285,8 @@ export default function BranchStaffTable() {
                     <div className="col-span-12">
                       <Label>Role</Label>
                       <Input
-                        type="text"                        
+                        type="text"                    
+                        value={formData?.role ?? ''}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}                   
                       />
                     </div>                                        
@@ -252,7 +296,8 @@ export default function BranchStaffTable() {
                     <div className="col-span-12">
                       <Label>Description</Label>
                       <Input
-                        type="text"                        
+                        type="text"
+                        value={formData?.description ?? ''}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}                                          
                       />
                     </div>                                        
@@ -264,7 +309,7 @@ export default function BranchStaffTable() {
                   Close
                 </Button>
                 <Button size="sm" onClick={handleSave}>
-                  Save Changes
+                  {mode === 'edit' ? 'Edit' : 'Save Changes'}
                 </Button>
               </div>
             </form>

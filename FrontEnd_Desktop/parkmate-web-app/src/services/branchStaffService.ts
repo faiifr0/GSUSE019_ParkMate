@@ -36,7 +36,7 @@ const branchStaffService = {
 
   createBranchStaff: async (model?: branchStaffCreateModel): Promise<branchStaffResponse> => {
     try {
-      const res = await axiosClient.post<branchStaffResponse>(`/branch-staff`);
+      const res = await axiosClient.post<branchStaffResponse>(`/branch-staff`, model);
       return res.data;
     } catch (error) {
       console.error("❌ Error create branch staff : ", error);
