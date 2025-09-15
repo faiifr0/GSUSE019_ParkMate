@@ -1,3 +1,4 @@
+import { parkBranchCreateModel } from "@/model/parkBranchCreateModel";
 import axiosClient from "../lib/axiosClient";
 import {parkBranchUpdateModel} from "@/model/parkBranchUpdateModel";
 
@@ -28,6 +29,18 @@ const branchTicketTypeService = {
       return res.data;
     } catch (error) {
       console.error("❌ Error fetching branch ticket type id {" + id + "} :", error);
+      throw error;
+    }
+  },
+
+  createTicketType: async (
+    model?: parkBranchCreateModel
+  ): Promise<branchTicketTypeResponse> => {
+    try {
+      const res = await axiosClient.post<branchTicketTypeResponse>(`/ticket-type`, model);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Error create branch ticket type: ", error);
       throw error;
     }
   },

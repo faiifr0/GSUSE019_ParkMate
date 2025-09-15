@@ -1,4 +1,5 @@
 import axiosClient from "../lib/axiosClient";
+import { branchPromotionCreateModel } from "@/model/branchPromotionCreateModel";
 import { branchPromotionUpdateModel } from "@/model/branchPromotionUpdateModel";
 
 export type branchPromotionResponse = {
@@ -35,7 +36,7 @@ const branchPromotionService = {
     }
   },
 
-  createBranchPromotion: async (model: branchPromotionUpdateModel): Promise<branchPromotionResponse> => {
+  createBranchPromotion: async (model?: branchPromotionCreateModel): Promise<branchPromotionResponse> => {
     try {
       const res = await axiosClient.post<branchPromotionResponse>(`/branch-promotion`);
       return res.data;

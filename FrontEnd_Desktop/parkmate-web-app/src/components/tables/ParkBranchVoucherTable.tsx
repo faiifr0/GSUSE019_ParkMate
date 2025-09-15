@@ -11,34 +11,63 @@ import {
 import Badge from "../ui/badge/Badge";
 import Pagination from "./Pagination";
 import branchPromotionService, { branchPromotionResponse } from "@/services/branchPromotionService";
+import { branchPromotionCreateModel } from "@/model/branchPromotionCreateModel";
+import { useParams } from "next/navigation";
+import { useModal } from "@/hooks/useModal";
+import { Modal } from "../ui/modal";
+import Label from "../form/Label";
+import Input from "../form/input/InputField";
+import Button from "../ui/button/Button";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
 
 export default function ParkBranchVoucherTable() {
+  const params = useParams();
+  const id = String(params.id);
+
+  const { isOpen, openModal, closeModal } = useModal();
+
+  const [formData, setFormData] = useState<branchPromotionCreateModel>();
   const [branchPromotions, setBranchPromotions] = useState<branchPromotionResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch Park Branches List
-  useEffect(() => {
-    const fetchBranchPromotions = async () => {
-      try {
-        const response = await branchPromotionService.getAll();
-        setBranchPromotions(response);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        // do something for example setLoading
-      }
+  const fetchBranchPromotions = async () => {
+    try {
+      const response = await branchPromotionService.getAll();
+      setBranchPromotions(response);
+    } catch (err) {
+      console.log(err);
+    } finally {
+    // do something for example setLoading
     }
-
-    fetchBranchPromotions();
-  }, [])
+  }
   
+  useEffect(() => {    
+    fetchBranchPromotions();
+    setFormData(form => ({ ...form, parkBranchId: id }));
+  }, [])
+
+  // Handle save logic here
+  const handleSave = async () => {        
+    try {      
+      await branchPromotionService.createBranchPromotion(formData);
+      fetchBranchPromotions();      
+      setFormData(undefined);
+      setFormData(form => ({ ...form, parkBranchId: id }));
+      closeModal();
+    } catch (err) {
+      console.log(err);
+      setError("Failed to create new branch voucher!");
+    }
+  };
+
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-      <div className="max-w-full overflow-x-auto">
-        <div className="min-w-[1102px]">
+    <div>
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+        <div className="max-w-full overflow-x-auto">
+        <div className="min-w-[1102px]">             
           <Table>
             {/* Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
@@ -108,10 +137,18 @@ export default function ParkBranchVoucherTable() {
                     {promotion.discount}
                   </TableCell>                  
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {promotion.from}
+                    {
+                      promotion.from ? 
+                      `${new Date(promotion.from).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${new Date(promotion.from).toLocaleDateString('en-GB')}`
+                      : ''
+                    }
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {promotion.to}
+                    {
+                      promotion.to ? 
+                      `${new Date(promotion.to).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${new Date(promotion.to).toLocaleDateString('en-GB')}`
+                      : ''
+                    }
                   </TableCell>                                                                       
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     <Badge                      
@@ -137,13 +174,88 @@ export default function ParkBranchVoucherTable() {
             </TableBody>
           </Table>
         </div>
-      </div>
+        </div>
 
-      <Pagination 
-        currentPage={4}
-        totalPages={7}
-        onPageChange={handlePageChange}
-      />     
+        <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] m-4">
+          <div className="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+            <div className="px-2 pr-14">
+              <h4 className="mb-9 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
+                Add New Branch Voucher
+              </h4>
+            </div>
+            <form className="flex flex-col"
+                  onSubmit = {(e) => {
+                    e.preventDefault();
+                  }}>
+              <div className="custom-scrollbar h-[275px] overflow-y-auto px-2 pb-3">
+                <div>                
+                  <div className="grid grid-cols-12 my-9 gap-x-4">   
+                    <div className="col-span-2"></div>                                     
+                    <div className="col-span-8">
+                      <Label>Voucher Description</Label>
+                      <Input
+                        type="text"                        
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}                        
+                      />
+                    </div>                                        
+                    <div className="col-span-2"></div>                    
+                  </div>
+
+                  <div className="grid grid-cols-12 my-9 gap-x-4">                    
+                    <div className="col-span-6">
+                      <Label>Discount</Label>
+                      <Input
+                        type="number"                        
+                        onChange={(e) => setFormData({ ...formData, discount: Number(e.target.value) })}                   
+                      />
+                    </div>  
+
+                    <div className="col-span-6">
+                      <Label>Active Status</Label>
+                      <Input
+                        type="text"                        
+                        onChange={(e) => setFormData({ ...formData, isActive: true })}                   
+                      />
+                    </div>                                      
+                  </div> 
+
+                  <div className="grid grid-cols-12 my-9 gap-x-4">                    
+                    <div className="col-span-6">
+                      <Label>Available from</Label>
+                      <Input
+                        type="text"                        
+                        onChange={(e) => setFormData({ ...formData, from: e.target.value })}                   
+                      />
+                    </div>  
+
+                    <div className="col-span-6">
+                      <Label>To</Label>
+                      <Input
+                        type="text"                        
+                        onChange={(e) => setFormData({ ...formData, to: e.target.value })}                   
+                      />
+                    </div>                                      
+                  </div>                                                                 
+                </div>              
+              </div>
+              <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+                <Button size="sm" variant="outline" onClick={closeModal}>
+                  Close
+                </Button>
+                <Button size="sm" onClick={handleSave}>
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </div>
+        </Modal>
+
+        <Pagination 
+            currentPage={4}
+            totalPages={7}
+            onPageChange={handlePageChange}
+        />     
+      </div>
     </div>
   );
 }
