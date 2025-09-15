@@ -1,24 +1,34 @@
+// src/api/axiosClient.ts
 import axios, { InternalAxiosRequestConfig } from "axios";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const axiosClient = axios.create({
-  baseURL: "https://parkmate-management-system.azurewebsites.net/api",
+  baseURL:
+    Platform.OS === "android"
+      ? "http://192.168.1.194:8080/api"
+      : "http://localhost:8080/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// 📌 Interceptor request
+// 📌 Request Interceptor
 axiosClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    let token: string | null = null;
+    // ❌ Không gắn token cho login/register
+    if (
+      config.url?.includes("/users/login") ||
+      config.url?.includes("/users/register")
+    ) {
+      delete config.headers.Authorization;
+      return config;
+    }
 
+    let token: string | null = null;
     if (Platform.OS === "web") {
-      // Web: dùng localStorage
       token = localStorage.getItem("token");
     } else {
-      // Mobile: dùng AsyncStorage
       token = await AsyncStorage.getItem("token");
     }
 
@@ -26,26 +36,14 @@ axiosClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // ✅ Log chi tiết request
-    console.log("📤 Request:", {
-      url: `${config.baseURL}${config.url}`,
-      method: config.method,
-      headers: config.headers,
-      data: config.data,
-    });
-
     return config;
   },
-  (error) => {
-    console.log("❌ Request Error:", error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// 📌 Interceptor response
+// 📌 Response Interceptor
 axiosClient.interceptors.response.use(
   (response) => {
-    // ✅ Log chi tiết response
     console.log("📥 Response:", {
       url: response.config.url,
       status: response.status,
@@ -55,7 +53,6 @@ axiosClient.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      // ✅ Log khi server trả lỗi
       console.log("❌ API Error Response:", {
         url: error.config?.url,
         status: error.response.status,
