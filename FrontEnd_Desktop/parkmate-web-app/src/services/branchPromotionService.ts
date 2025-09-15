@@ -2,6 +2,7 @@ import axiosClient from "../lib/axiosClient";
 import { branchPromotionUpdateModel } from "@/model/branchPromotionUpdateModel";
 
 export type branchPromotionResponse = {
+  id: string;
   parkBranchId: string;
   description: string;
   discount: number;

@@ -5,7 +5,7 @@ import ParkBranchTicketTable from "@/components/tables/ParkBranchTicketTable";
 import { useParams } from "next/navigation";
 import ComponentCard from "@/components/common/ComponentCard";
 import parkBranchService, { parkBranchResponse } from "@/services/parkBranchService";
-import BranchStaffTable from "@/components/tables/BranchStaffTable";
+import ParkBranchVoucherTable from "@/components/tables/ParkBranchVoucherTable";
 
 export default function ParkBranchTicketsList() {
   const params = useParams();
@@ -37,10 +37,10 @@ export default function ParkBranchTicketsList() {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Staffs" items={breadcrumbItems}/>
-      <ComponentCard title={"Staffs of " + branchInfo?.name}>
+      <PageBreadcrumb pageTitle="Vouchers" items={breadcrumbItems}/>
+      <ComponentCard title={"Vouchers of " + branchInfo?.name}>
         <div className="space-y-6">
-          <BranchStaffTable></BranchStaffTable>
+          <ParkBranchVoucherTable></ParkBranchVoucherTable>
         </div>
       </ComponentCard>
     </div>
