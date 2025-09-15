@@ -55,81 +55,69 @@ export default function OverviewInfoCard () {
   };
 
   return (
-    <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-        <div>          
-          <div className="grid grid-cols-1 border gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32 ml-90">
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Branch Name
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {branchInfo?.name}
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Address
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {branchInfo?.address}
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Location
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {branchInfo?.location}
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Status
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                <Badge
-                  size="sm"
-                  color="success">
-                    Open!
-                </Badge>
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Open Hour
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {
-                  branchInfo?.open ? 
-                  new Date(branchInfo.open).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  : ''
-                }
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Close Hour
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {
-                  branchInfo?.close ? 
-                  new Date(branchInfo.close).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  : ''
-                }
-              </p>
-            </div>
-          </div>
+    <div className="grid grid-cols-4 gap-6 p-6 border border-gray-200 rounded-2xl dark:border-gray-800">
+      <div className="col-span-2 col-start-2 grid grid-cols-2 gap-6 py-5 border border-gray-200 rounded-2xl">
+        <div className="flex flex-col items-center">
+          <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+            Branch Name
+          </p>
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+            {branchInfo?.name}
+          </p>
         </div>
 
+        <div className="flex flex-col items-center">
+          <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+            Address
+          </p>
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+            {branchInfo?.address}
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center">
+          <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+            Location
+          </p>
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+            {branchInfo?.location}
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center">
+          <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+            Status
+          </p>
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+            <Badge size="sm" color="success">
+              Open!
+            </Badge>
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center">
+          <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+            Open Hour
+          </p>
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+            {branchInfo?.open ? new Date(branchInfo.open).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+          </p>
+        </div>
+      
+        <div className="flex flex-col items-center">
+          <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+            Close Hour
+          </p>
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+            {branchInfo?.close ? new Date(branchInfo.close).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+          </p>
+        </div>
+      </div>
+
+      <div className="col-span-2 col-start-4 flex justify-end items-start">
         <button
           onClick={openModal}
-          className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
+          className="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
         >
           <svg
             className="fill-current"
