@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { userService } from '../../services/userService';
+import { registerUser } from '../../services/userService';  // <-- import trực tiếp hàm
 
 export default function RegisterScreen({ navigation }: any) {
     const [email, setEmail] = useState('');
@@ -13,7 +13,7 @@ export default function RegisterScreen({ navigation }: any) {
         }
 
         try {
-            const res = await userService.register(email, password);
+            const res = await registerUser(email, password);  // <-- gọi trực tiếp
             console.log('Đăng ký thành công:', res.data);
             Alert.alert('Thành công', 'Bạn có thể đăng nhập ngay.');
             navigation.navigate('Login');

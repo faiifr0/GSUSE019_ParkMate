@@ -1,5 +1,6 @@
+// src/screens/Auth/LoginScreen.tsx
 import React, { useState, useEffect, useCallback } from "react";
-import { View, TouchableOpacity, Image } from "react-native";
+import { View, TouchableOpacity, Image, Platform } from "react-native";
 import { TextInput, Button, Text, Snackbar, ActivityIndicator } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -7,10 +8,10 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-na
 import { useDispatch } from "react-redux";
 import * as SecureStore from "expo-secure-store";
 import { setCredentials } from "../../redux/userSlice";
-import axiosClient from "../../api/axiosClient";
 import styles from "../../styles/LoginScreenStyles";
 import colors from "../../constants/colors";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { loginUser } from "../../services/userService"; // ✅ Dùng service
 
 type RootStackParamList = {
   MainApp: undefined;
@@ -45,6 +46,15 @@ export default function LoginScreen({ navigation }: { navigation: LoginScreenNav
     setSnackbarVisible(true);
   };
 
+  // Hàm lưu token cross-platform
+  const saveToken = async (token: string) => {
+    if (Platform.OS === "web") {
+      localStorage.setItem("token", token);
+    } else {
+      await SecureStore.setItemAsync("token", token);
+    }
+  };
+
   const handleLogin = useCallback(async () => {
     if (!username.trim() || !password) {
       showMessage("⚠️ Vui lòng nhập tài khoản và mật khẩu", "warn");
@@ -52,14 +62,17 @@ export default function LoginScreen({ navigation }: { navigation: LoginScreenNav
     }
     try {
       setLoading(true);
-      const response = await axiosClient.post("/users/login", { username, password });
+      const response = await loginUser(username, password); // ✅ Gọi service
       const token = response.data?.accessToken;
       if (!token) throw new Error("No token");
-      await SecureStore.setItemAsync("token", token);
+
+      await saveToken(token);
       dispatch(setCredentials({ token, userInfo: { username } }));
+
       showMessage("🎉 Đăng nhập thành công!", "success");
       navigation.replace("MainApp");
-    } catch {
+    } catch (err) {
+      console.error(err);
       showMessage("❌ Sai tài khoản hoặc mật khẩu", "error");
     } finally {
       setLoading(false);
@@ -74,10 +87,8 @@ export default function LoginScreen({ navigation }: { navigation: LoginScreenNav
       end={{ x: 1, y: 1 }}
     >
       <SafeAreaView style={styles.safe}>
-        {/* Logo + tiêu đề */}
         <Image source={require("../../../assets/logo.png")} style={styles.logo} resizeMode="contain" />
 
-        {/* Form phẳng, bo tròn đẹp */}
         <Animated.View style={[animatedStyle]}>
           <TextInput
             label="Email"
@@ -113,7 +124,6 @@ export default function LoginScreen({ navigation }: { navigation: LoginScreenNav
             {loading ? <ActivityIndicator color={colors.surface} /> : "Đăng nhập"}
           </Button>
 
-          {/* Link quên mk + đăng ký */}
           <View style={styles.linkContainer}>
             <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
               <Text style={styles.link}>Quên mật khẩu?</Text>
@@ -124,7 +134,6 @@ export default function LoginScreen({ navigation }: { navigation: LoginScreenNav
           </View>
         </Animated.View>
 
-        {/* Snackbar đẹp hơn */}
         <Snackbar
           visible={snackbarVisible}
           onDismiss={() => setSnackbarVisible(false)}
