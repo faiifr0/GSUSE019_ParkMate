@@ -4,5 +4,4 @@ export type parkBranchCreateModel = {
   location?: string;
   open?: string;
   close?: string;
-  //status: string; // doesn't have this yet
 }

@@ -12,7 +12,7 @@ export type branchPromotionResponse = {
   updatedAt: string;
 };
 
-const voucherService = {
+const branchPromotionService = {
   getAll: async(): 
     Promise<branchPromotionResponse[]> => {
     try {
@@ -58,4 +58,4 @@ const voucherService = {
   },
 };
 
-export default voucherService;
+export default branchPromotionService;

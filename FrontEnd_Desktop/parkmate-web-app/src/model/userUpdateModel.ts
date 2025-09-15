@@ -3,4 +3,5 @@ export type userUpdateModel = {
   password: string;
   parkBranchId: string;
   roleId: string;
+  // status: boolean; // not implemented yet
 }
