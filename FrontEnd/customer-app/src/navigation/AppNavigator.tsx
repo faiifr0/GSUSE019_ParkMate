@@ -10,8 +10,12 @@ import RegisterScreen from "../screens/Auth/RegisterScreen";
 import BottomTabNavigator from "./BottomTabNavigator";
 import NotificationScreen from "../screens/Notification/NotificationScreen";
 import NotificationDetailScreen from "../screens/Notification/NotificationDetailScreen";
+import BranchDetailScreen from "../screens/Branch/BranchDetailScreen";
+import GamesScreen from "../screens/Branch/GamesScreen";
+import { RootStackParamList } from "./types"; // 👈 import type
 
-const Stack = createNativeStackNavigator();
+// 👇 dùng type ở đây
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigatorInner() {
   const insets = useSafeAreaInsets();
@@ -50,6 +54,12 @@ function AppNavigatorInner() {
             name="NotificationDetail"
             component={NotificationDetailScreen}
           />
+
+          {/* Stack cho chi nhánh */}
+          <Stack.Screen name="BranchDetail" component={BranchDetailScreen} />
+
+          {/* Stack cho game */}
+          <Stack.Screen name="GameDetail" component={GamesScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
