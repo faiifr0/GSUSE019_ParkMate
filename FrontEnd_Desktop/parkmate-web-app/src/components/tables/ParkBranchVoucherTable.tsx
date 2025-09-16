@@ -18,6 +18,7 @@ import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
+import { branchPromotionUpdateModel } from "@/model/branchPromotionUpdateModel";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -30,6 +31,8 @@ export default function ParkBranchVoucherTable() {
 
   const [formData, setFormData] = useState<branchPromotionCreateModel>();
   const [branchPromotions, setBranchPromotions] = useState<branchPromotionResponse[]>([]);
+  const [selectedVoucher, setSelectedVoucher] = useState<branchPromotionResponse | null>(null);
+  const [mode, setMode] = useState<'create' | 'edit'>('create');
   const [error, setError] = useState<string | null>(null);
 
   // Fetch Park Branches List
@@ -45,21 +48,52 @@ export default function ParkBranchVoucherTable() {
   }
   
   useEffect(() => {    
-    fetchBranchPromotions();
-    setFormData(form => ({ ...form, parkBranchId: +id }));
+    fetchBranchPromotions();    
   }, [])
+
+  const openCreateModal = () => {
+      setMode('create');
+      setFormData({
+        parkBranchId: id,
+        description: '',
+        discount: undefined,
+        from: undefined,
+        to: undefined,
+        isActive: false,
+      });
+      setSelectedVoucher(null);
+      openModal();
+    };
+  
+    const openEditModal = (voucher: branchPromotionResponse) => {
+      setMode('edit');
+      setSelectedVoucher(voucher);
+      setFormData({
+        parkBranchId: id,
+        description: voucher.description,
+        discount: voucher.discount,
+        from: voucher.from,
+        to: voucher.to,
+        isActive: voucher.isActive,
+      });
+      openModal();
+    };
 
   // Handle save logic here
   const handleSave = async () => {        
     try {      
-      await branchPromotionService.createBranchPromotion(formData);
+      if (mode === 'edit' && selectedVoucher) {
+        await branchPromotionService.updateBranchPromotion(selectedVoucher.id, formData as branchPromotionUpdateModel);
+      } else {
+        await branchPromotionService.createBranchPromotion(formData);
+      }
       fetchBranchPromotions();      
       setFormData(undefined);
-      setFormData(form => ({ ...form, parkBranchId: +id }));
+      setFormData(form => ({ ...form, parkBranchId: id }));
       closeModal();
     } catch (err) {
       console.log(err);
-      setError("Failed to create new branch voucher!");
+      setError("Failed to " + mode + "branch voucher!");
     }
   };
 
@@ -69,7 +103,7 @@ export default function ParkBranchVoucherTable() {
         <button 
           className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition 
                      px-4 py-3 mb-6 mx-6 text-sm bg-brand-500 text-white hover:bg-brand-600"
-          onClick={openModal}>
+          onClick={openCreateModal}>
             Add Branch Voucher +
         </button>
       </div>
@@ -172,9 +206,8 @@ export default function ParkBranchVoucherTable() {
                       }                      
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {/* <Button size="sm" onClick={() => openEditModal(staff)}>Edit</Button> */}
-                      <Button size="sm">Edit</Button>
+                  <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
+                      <Button size="sm" onClick={() => openEditModal(promotion)}>Edit</Button>
                     </TableCell> 
                 </TableRow>
               ))}
@@ -187,7 +220,7 @@ export default function ParkBranchVoucherTable() {
           <div className="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
             <div className="px-2 pr-14">
               <h4 className="mb-9 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
-                Add New Branch Voucher
+                {mode === 'edit' ? 'Edit Branch Voucher' : 'Add New Branch Voucher'}
               </h4>
             </div>
             <form className="flex flex-col"
@@ -201,7 +234,8 @@ export default function ParkBranchVoucherTable() {
                     <div className="col-span-8">
                       <Label>Voucher Description</Label>
                       <Input
-                        type="text"                        
+                        type="text"
+                        value={formData?.description !== undefined ? formData.description : ''} 
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}                        
                       />
                     </div>                                        
@@ -216,6 +250,7 @@ export default function ParkBranchVoucherTable() {
                         min={0}
                         max={100}
                         step={1}
+                        value={formData?.discount !== undefined ? formData.discount : ''}
                         onChange={(e) => setFormData({ ...formData, discount: Number(e.target.value) })}                   
                       />
                     </div>  
@@ -257,7 +292,7 @@ export default function ParkBranchVoucherTable() {
                   Close
                 </Button>
                 <Button size="sm" onClick={handleSave}>
-                  Save Changes
+                  {mode === 'edit' ? 'Edit' : 'Save Changes'}
                 </Button>
               </div>
             </form>

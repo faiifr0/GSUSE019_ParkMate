@@ -15,10 +15,8 @@ export default function UsersList() {
   return (
     <div>
       <PageBreadcrumb pageTitle="Users" />
-      <div className="space-y-6">
-        {/* <ComponentCard title="Users"> */}
-          <UserTable />
-        {/* </ComponentCard> */}
+      <div className="space-y-6">        
+        <UserTable />
       </div>      
     </div>
   );
