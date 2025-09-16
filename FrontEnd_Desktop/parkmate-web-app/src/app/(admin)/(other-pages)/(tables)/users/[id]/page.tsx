@@ -1,6 +1,7 @@
 //import UserAddressCard from "@/components/user-profile/UserAddressCard";
-import UserInfoCard from "@/components/user-profile/UserInfoCard";
-import UserMetaCard from "@/components/user-profile/UserMetaCard";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import UserDetailInfoCard from "@/components/user-detail/UserDetailInfoCard";
+import UserDetailMetaCard from "@/components/user-detail/UserDetailMetaCard";
 import { Metadata } from "next";
 import React from "react";
 
@@ -11,16 +12,17 @@ export const metadata: Metadata = {
 };
 
 export default function Profile() {
+  const breadcrumbItems = [
+    { name: "Users", path: "/users" },    
+  ];
+
   return (
     <div>
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-        <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
-          Profile
-        </h3>
+        <PageBreadcrumb pageTitle="User Info" items={breadcrumbItems}/>
         <div className="space-y-6">
-          <UserMetaCard />
-          <UserInfoCard />
-          {/* <UserAddressCard /> */}
+          <UserDetailMetaCard />
+          <UserDetailInfoCard />          
         </div>
       </div>
     </div>

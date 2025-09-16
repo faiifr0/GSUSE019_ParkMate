@@ -24,12 +24,12 @@ public class Users extends BaseEntity {
   @Column(nullable = false)
   private String password;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   private ParkBranch parkBranch;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   private Role role;
 
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-  private Wallet wallet;
+  // @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+  // private Wallet wallet;
 }

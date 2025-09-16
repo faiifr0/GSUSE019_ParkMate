@@ -138,7 +138,7 @@ export default function UserTable() {
                           <Image
                             width={40}
                             height={40}
-                            src="/images/user/user-17.jpg"
+                            src="/images/user/owner.jpg"
                             alt={user.username}
                           />
                         </div>

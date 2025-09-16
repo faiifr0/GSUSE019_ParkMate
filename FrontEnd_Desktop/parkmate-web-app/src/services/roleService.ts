@@ -1,6 +1,6 @@
 import axiosClient from "../lib/axiosClient";
 
-export type roleResponse = {
+export type RoleResponse = {
   id: string;
   name: string;
   description: string;
@@ -8,9 +8,9 @@ export type roleResponse = {
 
 const roleService = {
   getAll: async(): 
-    Promise<roleResponse[]> => {
+  Promise<RoleResponse[]> => {
     try {
-      const res = await axiosClient.get<roleResponse[]>("/role");
+      const res = await axiosClient.get<RoleResponse[]>("/role");
       return res.data;
     } catch (error) {
       console.error("❌ Error get all roles:", error);

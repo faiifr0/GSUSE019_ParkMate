@@ -1,5 +1,5 @@
 export type branchPromotionCreateModel = {
-  parkBranchId?: number;
+  parkBranchId?: string;
   description?: string;
   discount?: number; // must be greater than 0
   from?: string;

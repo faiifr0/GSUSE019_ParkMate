@@ -18,6 +18,7 @@ export type UserResponse = {
   password: string;
   parkBranch?: {
     id: string;
+    name: string;
   }
   userRoles?: {
     id: string;
