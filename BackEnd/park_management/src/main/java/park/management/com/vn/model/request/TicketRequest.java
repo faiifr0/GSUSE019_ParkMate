@@ -35,5 +35,8 @@ public class TicketRequest {
         @Min(1)
         private Integer quantity;
 
+
+
+        private Long promotionId; // optional
     }
 }

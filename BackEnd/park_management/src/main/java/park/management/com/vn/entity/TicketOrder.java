@@ -11,6 +11,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.*;
+import jakarta.persistence.*;
+
 
 @Entity
 @Table(name = "ticket_order")
@@ -23,7 +29,7 @@ public class TicketOrder extends BaseEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private UserEntity userEntity;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

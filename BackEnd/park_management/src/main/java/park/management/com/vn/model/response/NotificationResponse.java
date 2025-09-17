@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @Setter
 @Getter
+@lombok.Data
 public class NotificationResponse {
 
     private Long id;

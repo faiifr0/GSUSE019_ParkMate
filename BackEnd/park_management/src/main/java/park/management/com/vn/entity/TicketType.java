@@ -1,6 +1,10 @@
 package park.management.com.vn.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,28 +13,37 @@ import park.management.com.vn.entity.base.BaseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
-import java.util.List;
 
-
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "ticket_type")
 public class TicketType extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
-    private String name;
-
+    private String name;            // @Column(nullable = false, unique = true) moved to DDL; JPA can infer
     private String description;
 
-    @Column(nullable = false)
-    private BigDecimal basePrice;
+    private BigDecimal basePrice;   // @Column(nullable = false) in DDL
 
-    private Boolean isCancelable; // default true if null
+    private Boolean isCancelable;   // default true if null (enforce in service if needed)
 
-    // e.g., morning/afternoon/evening slot (optional)
     private LocalTime startTime;
     private LocalTime endTime;
+
+    // NEW: link a ticket type to a Game (so “ticket leads to game”)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id")
+    private Game game;
+
+    // ====== helpers to satisfy service calls (keep) ======
+    @Override
+    public Long getId() {
+        return super.getId();
+    }
+
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
 }
