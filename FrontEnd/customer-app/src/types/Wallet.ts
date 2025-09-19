@@ -1,8 +1,7 @@
-// src/types/wallet.ts
 export interface Wallet {
   id: number;
-  balance: number;
   userId: number;
+  balance: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -11,7 +10,8 @@ export interface Transaction {
   id: number;
   walletId: number;
   amount: number;
-  type: "TOPUP" | "PURCHASE" | "REFUND" | "BONUS";
-  description: string;
+  type: "topup" | "deduct" | "withdraw" | "purchase";
+  description?: string;
   createdAt: string;
+  updatedAt: string;
 }
