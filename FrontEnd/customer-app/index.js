@@ -11,3 +11,4 @@ registerRootComponent(App);
 // sudo -u postgres psql
 // export GOOGLE_API_KEY="AIzaSyDuone_2gRBtEXmisrB17EYTNZeb1P2Row"
 // cloudflared tunnel --url http://localhost:8080
+// root@LAPTOP-NGV7VA82:/mnt/c/Users/USER/Downloads/park_management_be/park_management_be/park_management# mvn spring-boot:run -Dspring-boot.run.arguments="--server.address=0.0.0.0 --server.port=8080"
