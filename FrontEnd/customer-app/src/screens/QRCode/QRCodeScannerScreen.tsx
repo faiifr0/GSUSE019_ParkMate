@@ -64,11 +64,12 @@ export default function QRCodeScannerScreen() {
           }}
         >
           <View style={styles.infoBox}>
-                  <Text style={styles.scanText}>Đưa mã QR vào khung để quét</Text>
-                  <Text style={styles.subText}>
-                    Bạn có thể quét để thanh toán hoặc xác nhận trò chơi nếu đủ điểm
-                  </Text>
-                </View>
+            <Text style={styles.scanText}>Đưa mã QR vào khung để quét</Text>
+            <Text style={styles.subText}>
+              Bạn có thể quét để thanh toán hoặc xác nhận trò chơi nếu đủ điểm
+            </Text>
+          </View>
+
           {/* lớp nền mờ */}
           <View style={styles.overlay}>
             <View style={styles.mask} />
@@ -78,7 +79,7 @@ export default function QRCodeScannerScreen() {
 
               {/* khung + text hướng dẫn */}
               <View style={styles.scanColumn}>
-                
+
 
                 <View style={styles.scanArea}>
                   <View style={[styles.corner, styles.topLeft]} />
