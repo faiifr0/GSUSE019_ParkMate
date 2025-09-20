@@ -1,0 +1,18 @@
+{
+  "about": {
+    "title": "Về chúng tôi",
+    "description": "ParkMate là ứng dụng quản lý khu vui chơi và vé trực tuyến...",
+    "mission": "Mang lại trải nghiệm tiện lợi, hiện đại cho khách hàng.",
+    "team": "Đội ngũ trẻ, năng động và sáng tạo.",
+    "values": [
+      "Khách hàng là trung tâm",
+      "Minh bạch & rõ ràng",
+      "Đổi mới liên tục"
+    ]
+  },
+  "contact": {
+    "phone": "0123 456 789",
+    "email": "info@company.com",
+    "address": "123 Đường, Quận, Thành phố"
+  }
+}
