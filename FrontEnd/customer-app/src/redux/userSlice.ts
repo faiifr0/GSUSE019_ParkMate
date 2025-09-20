@@ -1,29 +1,32 @@
-// redux/userSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+// src/redux/userSlice.ts
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
-    token: string | null;
-    userInfo: any;
+  token: string | null; // cho phép null
+  userInfo: any | null; // cho phép null
 }
 
 const initialState: UserState = {
-    token: null,
-    userInfo: null,
+  token: null,
+  userInfo: null,
 };
 
 const userSlice = createSlice({
-    name: 'user',
-    initialState,
-    reducers: {
-        setCredentials: (state, action: PayloadAction<{ token: string; userInfo: any }>) => {
-            state.token = action.payload.token;
-            state.userInfo = action.payload.userInfo;
-        },
-        logout: (state) => {
-            state.token = null;
-            state.userInfo = null;
-        },
+  name: "user",
+  initialState,
+  reducers: {
+    setCredentials: (
+      state,
+      action: PayloadAction<{ token: string | null; userInfo: any | null }>
+    ) => {
+      state.token = action.payload.token;
+      state.userInfo = action.payload.userInfo;
     },
+    logout: (state) => {
+      state.token = null;
+      state.userInfo = null;
+    },
+  },
 });
 
 export const { setCredentials, logout } = userSlice.actions;

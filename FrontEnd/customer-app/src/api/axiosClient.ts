@@ -1,102 +1,85 @@
+// src/api/axiosClient.ts
 import axios, { InternalAxiosRequestConfig } from "axios";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { store } from "../redux/store";
+import { logout } from "../redux/userSlice";
 
-// 🟢 Helper: decode JWT payload
 function decodeJWT(token: string): any | null {
   try {
     const payload = token.split(".")[1];
-    const decoded = atob(payload); // web
+    const decoded =
+      Platform.OS === "web"
+        ? atob(payload) // web
+        : Buffer.from(payload, "base64").toString("utf-8"); // native
     return JSON.parse(decoded);
   } catch {
     return null;
   }
 }
 
-// 🟢 Token
 async function getToken(): Promise<string | null> {
   if (Platform.OS === "web") return localStorage.getItem("token");
   return AsyncStorage.getItem("token");
 }
 
-// 🟢 UserId
-async function setUserId(userId: number) {
-  if (Platform.OS === "web") localStorage.setItem("userId", userId.toString());
-  else await AsyncStorage.setItem("userId", userId.toString());
-}
-async function getUserId(): Promise<number | null> {
-  if (Platform.OS === "web") return Number(localStorage.getItem("userId") || null);
-  const uid = await AsyncStorage.getItem("userId");
-  return uid ? Number(uid) : null;
-}
-
-// 🟢 WalletId
-async function setWalletId(walletId: number) {
-  if (Platform.OS === "web") localStorage.setItem("walletId", walletId.toString());
-  else await AsyncStorage.setItem("walletId", walletId.toString());
-}
-async function getWalletId(): Promise<number | null> {
-  if (Platform.OS === "web") return Number(localStorage.getItem("walletId") || null);
-  const w = await AsyncStorage.getItem("walletId");
-  return w ? Number(w) : null;
+async function removeToken() {
+  if (Platform.OS === "web") {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+  } else {
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("userId");
+  }
 }
 
 const axiosClient = axios.create({
   baseURL:
     Platform.OS === "android"
-      ? "http://192.168.1.217:8080/api"
+      ? "http://192.168.1.16:8080/api"
       : "http://localhost:8080/api",
   headers: { "Content-Type": "application/json" },
 });
 
-// Request Interceptor
+// Request interceptor → gắn token
 axiosClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    if (config.url?.includes("/users/login") || config.url?.includes("/users/register")) {
+    if (
+      config.url?.includes("/users/login") ||
+      config.url?.includes("/users/register")
+    ) {
       delete config.headers.Authorization;
       return config;
     }
 
     const token = await getToken();
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      const storedUserId = await getUserId();
-      if (!storedUserId) {
-        const payload = decodeJWT(token);
-        const userId = payload?.sub || payload?.userId;
-        if (userId) await setUserId(Number(userId));
+      // check token expired
+      const payload = decodeJWT(token);
+      if (payload?.exp && Date.now() >= payload.exp * 1000) {
+        await removeToken();
+        store.dispatch(logout());
+        return Promise.reject({ message: "Token expired" });
       }
+
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor
+// Response interceptor → xử lý 401/403
 axiosClient.interceptors.response.use(
-  (response) => {
-    console.log("📥 Response:", {
-      url: response.config.url,
-      status: response.status,
-      data: response.data,
-    });
-    return response;
-  },
-  (error) => {
-    if (error.response) {
-      console.log("❌ API Error Response:", {
-        url: error.config?.url,
-        status: error.response.status,
-        data: error.response.data,
-      });
-    } else if (error.request) {
-      console.log("❌ No Response:", error.config?.url);
-    } else {
-      console.log("❌ Error Message:", error.message);
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      await removeToken();
+      store.dispatch(logout());
     }
     return Promise.reject(error);
   }
 );
 
+export { getToken, decodeJWT, removeToken }; // ✅ export thêm để import bên ngoài
 export default axiosClient;
-export { getUserId, setUserId, getWalletId, setWalletId, decodeJWT, getToken };
