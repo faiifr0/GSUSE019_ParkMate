@@ -85,12 +85,6 @@ const handleLogin = useCallback(async () => {
       dispatch(setCredentials({ token, userInfo: { username } }));
 
       showMessage("🎉 Đăng nhập thành công!", "success");
-
-      // 👉 navigate qua MainApp
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "MainApp" }],
-      });
     } catch (err) {
       console.error(err);
       showMessage("❌ Sai tài khoản hoặc mật khẩu", "error");
