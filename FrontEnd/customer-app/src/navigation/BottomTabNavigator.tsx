@@ -16,7 +16,6 @@ import PromotionScreen from "../screens/Promotion/PromotionScreen";
 import ChatBoxScreen from "../screens/ChatBox/ChatBox";
 import ContactScreen from "../screens/Contact/ContactScreen";
 
-// 👇 Import type từ file riêng
 import type { RootStackParamList } from "./types";
 
 const Tab = createBottomTabNavigator<RootStackParamList>();

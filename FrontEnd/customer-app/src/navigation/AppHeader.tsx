@@ -12,6 +12,8 @@ import colors from "../constants/colors";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "./types";
+// import { useSelector } from "react-redux";
+// import { RootState } from "../redux/store";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type Props = { coin?: number };
@@ -22,6 +24,10 @@ export default function AppHeader({ coin = 0 }: Props) {
   const isWeb = Platform.OS === "web";
   const isMobileView = width < 768;
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // ✅ Lấy token từ redux để check login (giữ lại nhưng comment vì AppNavigator đã chặn)
+  // const { token } = useSelector((state: RootState) => state.user);
+  // const isLoggedIn = !!token;
 
   // 👉 Mobile header
   if (!isWeb) {
@@ -41,6 +47,7 @@ export default function AppHeader({ coin = 0 }: Props) {
         </Text>
 
         <View style={{ flexDirection: "row", alignItems: "center" }}>
+          {/* Trước đây check login ở đây, giờ bỏ luôn */}
           <View
             style={{
               paddingHorizontal: 10,
@@ -96,15 +103,6 @@ export default function AppHeader({ coin = 0 }: Props) {
         <View style={{ flexDirection: "row", gap: 32, alignItems: "center" }}>
           <TouchableOpacity onPress={() => navigation.navigate("Home")}>
             <Text style={{ fontSize: 16, fontWeight: "500" }}>Trang chủ</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("BranchList")}>
-            <Text style={{ fontSize: 16, fontWeight: "500" }}>Về chúng tôi</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Promotion")}>
-            <Text style={{ fontSize: 16, fontWeight: "500" }}>Trò chơi</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("ChatBox")}>
-            <Text style={{ fontSize: 16, fontWeight: "500" }}>Khuyến mãi</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Contact")}>
             <Text style={{ fontSize: 16, fontWeight: "500" }}>Liên hệ</Text>
