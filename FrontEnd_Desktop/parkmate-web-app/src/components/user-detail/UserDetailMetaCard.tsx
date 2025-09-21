@@ -5,11 +5,11 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Label from "../form/Label";
 import Image from "next/image";
-import userService, { UserResponse } from "@/services/userService";
+import userService, { UserResponse } from "@/lib/services/userService";
 import { useParams } from "next/navigation";
-import roleService, { RoleResponse } from "@/services/roleService";
-import { userRoleUpdateModel } from "@/model/userRoleUpdateModel";
-import userRoleService from "@/services/userRoleService";
+import roleService, { RoleResponse } from "@/lib/services/roleService";
+import { userRoleUpdateModel } from "@/lib/model/userRoleUpdateModel";
+import userRoleService from "@/lib/services/userRoleService";
 
 
 export default function UserDetailMetaCard() {

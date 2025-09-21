@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Users | ParkMate",
+  title: "Danh sách người dùng | ParkMate",
   description:
     "This is Next.js User List page for ParkMate",
   // other metadata

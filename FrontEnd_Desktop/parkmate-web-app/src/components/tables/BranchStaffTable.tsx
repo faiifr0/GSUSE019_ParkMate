@@ -15,11 +15,13 @@ import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
-import branchStaffService, { branchStaffResponse } from "@/services/branchStaffService";
-import { branchStaffCreateModel } from "@/model/branchStaffCreateModel";
+import branchStaffService, { branchStaffResponse } from "@/lib/services/branchStaffService";
+import { branchStaffCreateModel } from "@/lib/model/branchStaffCreateModel";
 import { useParams } from "next/navigation";
-import userService, { UserResponse } from "@/services/userService";
-import { branchStaffUpdateModel } from "@/model/branchStaffUpdateModel";
+import userService, { UserResponse } from "@/lib/services/userService";
+import { branchStaffUpdateModel } from "@/lib/model/branchStaffUpdateModel";
+import toast from "react-hot-toast";
+import { parseISO, format } from 'date-fns';
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -35,7 +37,6 @@ export default function BranchStaffTable() {
   const [formData, setFormData] = useState<branchStaffCreateModel>();
   const [selectedStaff, setSelectedStaff] = useState<branchStaffResponse | null>(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
-  const [error, setError] = useState<string | null>(null);
 
   // Fetch Park Branch Staffs
   const fetchBranchStaffs = async () => {
@@ -43,7 +44,12 @@ export default function BranchStaffTable() {
       const response = await branchStaffService.getAll();
       setBranchStaffs(response);
     } catch (err) {
-      console.log(err);
+      const message =
+        err instanceof Error ? err.message : 'Fetch nhân viên chi nhánh thất bại!';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     } finally {
       // do something for example setLoading
     }
@@ -56,6 +62,12 @@ export default function BranchStaffTable() {
       setUsers(response);
     } catch (err) {
       console.log(err);
+      const message =
+        err instanceof Error ? err.message : 'Fetch người dùng thất bại!';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     } finally {
       // do something for example setLoading
     }
@@ -69,10 +81,10 @@ export default function BranchStaffTable() {
   // Handle save logic here
   const handleSave = async () => {        
     try {
-      console.log("Form userId: " + formData?.userId);
-      console.log("Form parkBranchId: " + formData?.parkBranchId);
-      console.log("Form role: " + formData?.role);
-      console.log("Form description: " + formData?.description);
+      //console.log("Form userId: " + formData?.userId);
+      //console.log("Form parkBranchId: " + formData?.parkBranchId);
+      //console.log("Form role: " + formData?.role);
+      //console.log("Form description: " + formData?.description);
       if (mode === 'edit' && selectedStaff) {
         await branchStaffService.updateBranchStaff(String(selectedStaff.id), formData as branchStaffUpdateModel);
       } else {
@@ -84,7 +96,12 @@ export default function BranchStaffTable() {
       closeModal();
     } catch (err) {
       console.log(err);
-      setError("Failed to " + mode + " branch staff!");
+      const message =
+        err instanceof Error ? err.message : 'Failed to' + mode + 'branch staff!';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     }
   };
 
@@ -119,7 +136,7 @@ export default function BranchStaffTable() {
           className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition 
                      px-4 py-3 mb-6 mx-6 text-sm bg-brand-500 text-white hover:bg-brand-600"
           onClick={openCreateModal}>
-            Add Branch Staff +
+            Thêm Nhân Viên +
         </button>
       </div>
 
@@ -140,43 +157,37 @@ export default function BranchStaffTable() {
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Full Name
+                    Tên Nhân Viên
+                  </TableCell>                                  
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
+                  >
+                    Vai trò
                   </TableCell>
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Park Branch Name
-                  </TableCell>                
-                  <TableCell
-                    isHeader
-                    className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
-                  >
-                    Role
+                    Mô tả
                   </TableCell>
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Description
+                    Tạo lúc
                   </TableCell>
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Created At
+                    Cập nhật lúc
                   </TableCell>
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Updated At
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
-                  >
-                    Status
+                    Trạng thái
                   </TableCell>
                   <TableCell
                     isHeader
@@ -196,21 +207,18 @@ export default function BranchStaffTable() {
                     </TableCell>             
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {staff.userFullName}
-                    </TableCell>                  
-                    <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {staff.parkBranchName}
-                    </TableCell>                  
+                    </TableCell>                                                       
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {staff.role}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {staff.description}
                     </TableCell>                                   
-                    <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {staff.createdAt}
+                    <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
+                      {format(parseISO(staff.createdAt), 'dd/MM/yyyy HH:mm:ss')}
                     </TableCell> 
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {staff.updatedAt}
+                      {format(parseISO(staff.updatedAt), 'dd/MM/yyyy HH:mm:ss')}
                     </TableCell>                  
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       <Badge
@@ -251,16 +259,18 @@ export default function BranchStaffTable() {
                   }}>
               <div className="custom-scrollbar h-[275px] overflow-y-auto px-2 pb-3">
                 <div>                
-                  <div className="grid grid-cols-12 my-9 gap-x-4">                    
-                    <div className="col-span-6">
-                      <Label>User</Label>
+                  <div className="grid grid-cols-12 my-9 gap-x-4"
+                       style={{ display: mode === 'edit' ? 'none' : 'block' }}>   
+                    <div className="col-span-2"></div>                 
+                    <div className="col-span-8">
+                      <Label>Người dùng</Label>
                       <select            
                         value={formData?.userId !== undefined ? formData.userId : ''}            
                         className="block w-full rounded-md border border-gray-300 bg-white px-3 py-[12px] text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         onChange={(e) => setFormData({ ...formData, userId: parseInt(e.target.value) })}
                       >
                         <option value="" disabled>
-                          -- Select a user --
+                          -- Chọn 1 người dùng --
                         </option>
                         {users.map(user => (
                         <option key={user.id} value={user.id}>
@@ -268,14 +278,17 @@ export default function BranchStaffTable() {
                         </option>
                         ))}
                       </select>
-                    </div>                    
+                    </div>  
+                    <div className="col-span-2"></div>                  
                     
-                    <div className="col-span-6">
-                      <Label>Park Branch Id</Label>
-                      <Input                        
+                    <div 
+                      className=""
+                      style={{ display: 'none' }}>
+                      <Label>Id Chi Nhánh</Label>
+                      <input                        
                         type="number"                        
                         defaultValue={parseInt(id)}
-                        disabled
+                        disabled                                              
                       />
                     </div>
                     <div className="col-span-2"></div>
@@ -283,7 +296,7 @@ export default function BranchStaffTable() {
 
                   <div className="grid grid-cols-12 my-9">                    
                     <div className="col-span-12">
-                      <Label>Role</Label>
+                      <Label>Vai trò</Label>
                       <Input
                         type="text"                    
                         value={formData?.role ?? ''}
@@ -294,7 +307,7 @@ export default function BranchStaffTable() {
 
                   <div className="grid grid-cols-12 my-9">                    
                     <div className="col-span-12">
-                      <Label>Description</Label>
+                      <Label>Mô tả</Label>
                       <Input
                         type="text"
                         value={formData?.description ?? ''}
@@ -306,10 +319,10 @@ export default function BranchStaffTable() {
               </div>
               <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
                 <Button size="sm" variant="outline" onClick={closeModal}>
-                  Close
+                  Đóng
                 </Button>
                 <Button size="sm" onClick={handleSave}>
-                  {mode === 'edit' ? 'Edit' : 'Save Changes'}
+                  {mode === 'edit' ? 'Cập Nhật' : 'Tạo Mới'}
                 </Button>
               </div>
             </form>

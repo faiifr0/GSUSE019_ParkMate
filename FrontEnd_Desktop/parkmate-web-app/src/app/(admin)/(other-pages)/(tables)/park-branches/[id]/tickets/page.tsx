@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import ParkBranchTicketTable from "@/components/tables/ParkBranchTicketTable";
 import { useParams } from "next/navigation";
 import ComponentCard from "@/components/common/ComponentCard";
-import parkBranchService, { parkBranchResponse } from "@/services/parkBranchService";
+import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
+import { Toaster } from "react-hot-toast";
 
 export default function ParkBranchTicketsList() {
   const params = useParams();
@@ -30,14 +31,22 @@ export default function ParkBranchTicketsList() {
   }, [])
 
   const breadcrumbItems = [
-    { name: "Park Branches", path: "/park-branches" },
-    { name: "Park Branch Overview", path: "/park-branches/" + id } 
+    { name: "Danh sách chi nhánh", path: "/park-branches" },
+    { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + id } 
   ];
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Tickets" items={breadcrumbItems}/>
-      <ComponentCard title={"Tickets of " + branchInfo?.name}>
+      <PageBreadcrumb pageTitle="Các loại vé" items={breadcrumbItems}/>
+      <Toaster
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            marginTop: '70px',            
+            zIndex: 100000, // cao hơn modal
+          },
+      }}/>
+      <ComponentCard title={"Các loại vé của " + branchInfo?.name}>
         <div className="space-y-6">
           <ParkBranchTicketTable></ParkBranchTicketTable>
         </div>

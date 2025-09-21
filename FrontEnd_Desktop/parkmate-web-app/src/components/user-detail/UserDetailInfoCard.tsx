@@ -6,9 +6,9 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { useParams } from "next/navigation";
-import userService, { UserResponse } from "@/services/userService";
-import { userUpdateModel } from "@/model/userUpdateModel";
-import parkBranchService, { parkBranchResponse } from "@/services/parkBranchService";
+import userService, { UserResponse } from "@/lib/services/userService";
+import { userUpdateModel } from "@/lib/model/userUpdateModel";
+import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
 
 export default function UserDetailInfoCard() {
   const params = useParams();

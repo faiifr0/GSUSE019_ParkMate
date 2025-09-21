@@ -10,15 +10,16 @@ import {
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
 import Pagination from "./Pagination";
-import branchTicketTypeService from "@/services/branchTicketTypeService";
-import { branchTicketTypeResponse } from "@/services/branchTicketTypeService";
+import branchTicketTypeService from "@/lib/services/branchTicketTypeService";
+import { branchTicketTypeResponse } from "@/lib/services/branchTicketTypeService";
 import { useParams } from "next/navigation";
 import { useModal } from "@/hooks/useModal";
-import { branchTicketTypeCreateModel } from "@/model/branchTicketTypeCreateModel";
+import { branchTicketTypeCreateModel } from "@/lib/model/branchTicketTypeCreateModel";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
+import { toast } from "react-hot-toast";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -31,17 +32,26 @@ export default function ParkBranchTicketTable() {
 
   const [ticketTypes, setTicketTypes] = useState<branchTicketTypeResponse[]>([]);
   const [formData, setFormData] = useState<branchTicketTypeCreateModel>();
-  const [error, setError] = useState<string | null>(null);
 
   // Fetch Park Branches List
   const fetchBranchTicketTypes = async () => {
     try {
       const response = await branchTicketTypeService.getAll();
       setTicketTypes(response);
+
+      setFormData(prev => ({
+        ...prev,
+        isCancelable: false, // default to be false
+      }));
     } catch (err) {
-        console.log(err);
+      console.log(err);
+      const message = 'Fetch các loại vé thất bại';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     } finally {
-      // do something for example setLoading
+      // do something
     }
   }
 
@@ -58,7 +68,11 @@ export default function ParkBranchTicketTable() {
       closeModal();
     } catch (err) {
       console.log(err);
-      setError("Failed to create new branch ticket!");
+      const message = 'Tạo loại vé mới thất bại!';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     }
   };
   
@@ -69,7 +83,7 @@ export default function ParkBranchTicketTable() {
           className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition 
                      px-4 py-3 mb-6 mx-6 text-sm bg-brand-500 text-white hover:bg-brand-600"
           onClick={openModal}>
-            Add Branch Ticket +
+            Tạo loại vé mới +
         </button>
       </div>
 
@@ -90,43 +104,31 @@ export default function ParkBranchTicketTable() {
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Ticket Name
+                    Tên vé
                   </TableCell>
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Description
+                    Mô tả
                   </TableCell>                
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Base Price
+                    Giả cơ bản (vnđ)
                   </TableCell>
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    IsCancelable
-                  </TableCell>
+                    Được hủy vé?
+                  </TableCell>                  
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Start Time
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
-                  >
-                    End Time
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
-                  >
-                    Status
+                    Trạng thái
                   </TableCell>
                 </TableRow>
               </TableHeader>
@@ -149,13 +151,7 @@ export default function ParkBranchTicketTable() {
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {ticketType.isCancelable}
-                    </TableCell>                                    
-                    <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {ticketType.startTime}
-                    </TableCell> 
-                    <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {ticketType.endTime}
-                    </TableCell>                  
+                    </TableCell>                                                                          
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       <Badge
                         size="sm"
@@ -183,7 +179,7 @@ export default function ParkBranchTicketTable() {
           <div className="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
             <div className="px-2 pr-14">
               <h4 className="mb-9 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
-                Add New Branch Ticket Type
+                Tạo loại vé mới
               </h4>
             </div>
             <form className="flex flex-col"
@@ -194,7 +190,7 @@ export default function ParkBranchTicketTable() {
                 <div>                
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Type Name</Label>
+                      <Label>Tên vé</Label>
                       <Input
                         type="text"                                                
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}                      
@@ -202,10 +198,13 @@ export default function ParkBranchTicketTable() {
                     </div>                    
                     
                     <div className="col-span-6">
-                      <Label>Base Price</Label>
+                      <Label>Giá cơ bản (vnđ)</Label>
                       <Input
                         type="number"                        
-                        defaultValue={0}
+                        defaultValue={1000}
+                        min={1000}
+                        max={5000000}
+                        step={1000}
                         onChange={(e) => setFormData({ ...formData, basePrice: Number(e.target.value) })}                      
                       />
                     </div>
@@ -214,39 +213,23 @@ export default function ParkBranchTicketTable() {
 
                   <div className="grid grid-cols-12 my-9">                    
                     <div className="col-span-12">
-                      <Label>Description</Label>
+                      <Label>Mô tả</Label>
                       <Input
                         type="text"                        
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}                   
                       />
                     </div>                                        
-                  </div> 
-
-                  <div className="grid grid-cols-12 my-9 gap-x-4">                    
-                    <div className="col-span-6">
-                      <Label>Start Time</Label>
-                      <Input
-                        type="text"                        
-                        onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}                                          
-                      />
-                    </div>
-
-                    <div className="col-span-6">
-                      <Label>End Time</Label>
-                      <Input
-                        type="text"                        
-                        onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}                                          
-                      />
-                    </div>                                        
-                  </div>
+                  </div>                 
 
                   <div className="grid grid-cols-12 my-9 gap-x-4">
                     <div className="col-span-4"></div>                   
-                    <div className="col-span-4">
-                      <Label>Is Cancelable?</Label>
-                      <Input
-                        type="text"                        
-                        onChange={(e) => setFormData({ ...formData, isCancelable: true })}                                          
+                    <div className="col-span-4 flex items-center gap-2">
+                      <Label>Được hủy vé?</Label>
+                      <input
+                        type="checkbox"
+                        checked={formData?.isCancelable ?? false}                     
+                        onChange={(e) => setFormData({ ...formData, isCancelable: e.target.checked })} 
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer mb-2"            
                       />
                     </div>                                       
                     <div className="col-span-4"></div>                   
@@ -256,10 +239,10 @@ export default function ParkBranchTicketTable() {
 
               <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
                 <Button size="sm" variant="outline" onClick={closeModal}>
-                  Close
+                  Đóng
                 </Button>
                 <Button size="sm" onClick={handleSave}>
-                  Save Changes
+                  Lưu
                 </Button>
               </div>
             </form>

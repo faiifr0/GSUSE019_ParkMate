@@ -7,7 +7,7 @@ import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import userService from "@/services/userService";
+import userService from "@/lib/services/userService";
 import Cookies from "js-cookie";
 
 export default function SignInForm() {

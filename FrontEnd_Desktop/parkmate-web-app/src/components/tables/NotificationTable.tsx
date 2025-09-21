@@ -10,8 +10,9 @@ import {
 
 import Badge from "../ui/badge/Badge";
 import Pagination from "./Pagination";
-import notificationService, { notificationResponse } from "@/services/notificationService";
+import notificationService, { notificationResponse } from "@/lib/services/notificationService";
 import { format } from 'date-fns';
+import toast from "react-hot-toast";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {}; // eslint-disable-line no-unused-vars
@@ -27,7 +28,12 @@ export default function UserTable() {
         const response = await notificationService.getAll();        
         setNotifications(response);
       } catch (err) {
-        console.log(err);
+        const message =
+          err instanceof Error ? err.message : 'Failed to fetch notifications!';
+        toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
       } finally {
         // do something for example setLoading
       }

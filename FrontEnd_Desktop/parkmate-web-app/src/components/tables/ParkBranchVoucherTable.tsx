@@ -10,15 +10,16 @@ import {
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
 import Pagination from "./Pagination";
-import branchPromotionService, { branchPromotionResponse } from "@/services/branchPromotionService";
-import { branchPromotionCreateModel } from "@/model/branchPromotionCreateModel";
+import branchPromotionService, { branchPromotionResponse } from "@/lib/services/branchPromotionService";
+import { branchPromotionCreateModel } from "@/lib/model/branchPromotionCreateModel";
 import { useParams } from "next/navigation";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
-import { branchPromotionUpdateModel } from "@/model/branchPromotionUpdateModel";
+import { branchPromotionUpdateModel } from "@/lib/model/branchPromotionUpdateModel";
+import toast from "react-hot-toast";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -42,6 +43,12 @@ export default function ParkBranchVoucherTable() {
       setBranchPromotions(response);
     } catch (err) {
       console.log(err);
+      const message =
+        err instanceof Error ? err.message : 'Failed to fetch branch vouchers!';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     } finally {
     // do something for example setLoading
     }

@@ -2,8 +2,8 @@ import axios, { InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie"
 
 const axiosClient = axios.create({
-  baseURL: "https://parkmate-management-system.azurewebsites.net/api",
-  //baseURL: "http://localhost:8080/api",
+  //baseURL: "https://parkmate-management-system.azurewebsites.net/api",
+  baseURL: "http://localhost:8080/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -51,6 +51,13 @@ axiosClient.interceptors.response.use(
         status: error.response.status,
         data: error.response.data,
       });
+
+      if (error.response.status === 403) {
+        window.location.href = '/error-403'; // ✅ redirect to forbidden page
+      }
+      if (error.response.status === 404) {
+        window.location.href = '/error-404'; // ✅ redirect to forbidden page
+      }
     } else if (error.request) {
       console.log("❌ No Response:", error.config?.url);
     } else {

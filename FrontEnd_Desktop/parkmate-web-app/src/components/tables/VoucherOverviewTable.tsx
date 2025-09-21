@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "../ui/table";
 import Link from "next/link";
-import branchPromotionService, { branchPromotionResponse } from "@/services/branchPromotionService";
+import branchPromotionService, { branchPromotionResponse } from "@/lib/services/branchPromotionService";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {}; // eslint-disable-line no-unused-vars

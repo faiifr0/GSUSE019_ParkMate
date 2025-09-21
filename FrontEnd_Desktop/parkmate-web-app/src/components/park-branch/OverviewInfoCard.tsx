@@ -6,8 +6,9 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Badge from "../ui/badge/Badge";
-import parkBranchService, { parkBranchResponse } from "@/services/parkBranchService";
-import { parkBranchUpdateModel } from "@/model/parkBranchUpdateModel";
+import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
+import { parkBranchUpdateModel } from "@/lib/model/parkBranchUpdateModel";
+import toast from "react-hot-toast";
 
 export default function OverviewInfoCard () {
   const { isOpen, openModal, closeModal } = useModal();  
@@ -17,7 +18,6 @@ export default function OverviewInfoCard () {
 
   const [branchInfo, setBranchInfo] = useState<parkBranchResponse>();
   const [formData, setFormData] = useState<parkBranchUpdateModel>();
-  const [error, setError] = useState<string | null>(null);
 
   const fetchParkBranch = async () => {
     const response = await parkBranchService.getParkBranchById(id);
@@ -26,8 +26,9 @@ export default function OverviewInfoCard () {
       name: response.name ?? '',
       address: response.address ?? '',
       location: response.location ?? '',
-      open: response.open ?? '',
-      close: response.close ?? ''
+      openTime: response.openTime ?? '',
+      closeTime: response.closeTime ?? '',
+      status: response.status ?? false
     });
   }
   
@@ -37,20 +38,33 @@ export default function OverviewInfoCard () {
       fetchParkBranch();  
     } catch (err) {
       console.log(err);
-    } finally {
-      // do something
-    }
+      const message = 'Fetch chi nhánh công viên id ' + id + ' thất bại!';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
+    } 
   }, [])
 
   // Handle save logic here
   const handleSave = async () => {        
     try {
-      await parkBranchService.updateParkBranch(id, formData);      
+      await parkBranchService.updateParkBranch(id, formData);         
       fetchParkBranch();
       closeModal();
+      const message = 'Cập nhật chi nhánh công viên thành công!';
+      toast.success(message, {
+        duration: 3000,
+        position: 'top-right',
+      }) 
     } catch (err) {
-      console.log(err);
-      setError("Failed to update park branch!");
+      const message = 'Cập nhật chi nhánh công viên thất bại!';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });   
+      fetchParkBranch();         
+      closeModal();
     }
   };
 
@@ -59,7 +73,7 @@ export default function OverviewInfoCard () {
       <div className="col-span-2 col-start-2 grid grid-cols-2 gap-6 py-5 border border-gray-200 rounded-2xl">
         <div className="flex flex-col items-center">
           <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-            Branch Name
+            Tên chi nhánh
           </p>
           <p className="text-sm font-medium text-gray-800 dark:text-white/90">
             {branchInfo?.name}
@@ -68,7 +82,7 @@ export default function OverviewInfoCard () {
 
         <div className="flex flex-col items-center">
           <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-            Address
+            Địa chỉ
           </p>
           <p className="text-sm font-medium text-gray-800 dark:text-white/90">
             {branchInfo?.address}
@@ -77,7 +91,7 @@ export default function OverviewInfoCard () {
 
         <div className="flex flex-col items-center">
           <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-            Location
+            Vị trí
           </p>
           <p className="text-sm font-medium text-gray-800 dark:text-white/90">
             {branchInfo?.location}
@@ -86,30 +100,48 @@ export default function OverviewInfoCard () {
 
         <div className="flex flex-col items-center">
           <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-            Status
+            Trạng thái
           </p>
           <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-            <Badge size="sm" color="success">
-              Open!
+            <Badge size="sm" 
+              color="success">
+              <Badge
+                size="sm"                        
+                color={
+                  branchInfo?.status === true
+                    ? "success"
+                    : branchInfo?.status === false
+                    ? "error"
+                    : "info"
+                }
+              >
+                {
+                  branchInfo?.status === true
+                    ? "Đang hoạt động"
+                    : branchInfo?.status === false
+                    ? "Ngừng hoạt động"
+                    : "Unknown"                        
+                }
+              </Badge>
             </Badge>
           </p>
         </div>
 
         <div className="flex flex-col items-center">
           <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-            Open Hour
+            Giờ mở cửa
           </p>
           <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-            {branchInfo?.open ? new Date(branchInfo.open).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+            {branchInfo?.openTime}
           </p>
         </div>
       
         <div className="flex flex-col items-center">
           <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-            Close Hour
+            Giờ đóng cửa
           </p>
           <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-            {branchInfo?.close ? new Date(branchInfo.close).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+            {branchInfo?.closeTime}
           </p>
         </div>
       </div>
@@ -134,7 +166,7 @@ export default function OverviewInfoCard () {
               fill=""
             />
           </svg>
-          Edit
+          Cập nhật
         </button>
       </div>
 
@@ -142,7 +174,7 @@ export default function OverviewInfoCard () {
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-9 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
-              Edit Park Branch Overview Info
+              Cập nhật thông tin chung của chi nhánh
             </h4>
           </div>
           <form className="flex flex-col"
@@ -153,7 +185,7 @@ export default function OverviewInfoCard () {
               <div>                
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
-                    <Label>Branch Name</Label>
+                    <Label>Tên chi nhánh</Label>
                     <Input
                       type="text"
                       defaultValue={formData?.name}
@@ -162,7 +194,7 @@ export default function OverviewInfoCard () {
                   </div>
 
                   <div>
-                    <Label>Address</Label>
+                    <Label>Địa chỉ</Label>
                     <Input
                       type="text"
                       defaultValue={formData?.address}
@@ -171,7 +203,7 @@ export default function OverviewInfoCard () {
                   </div>
 
                   <div>
-                    <Label>Location</Label>
+                    <Label>Vị trí</Label>
                     <Input
                       type="text"
                       defaultValue={formData?.location}
@@ -180,33 +212,28 @@ export default function OverviewInfoCard () {
                   </div>
 
                   <div>
-                    <Label>Status</Label>
-                    <Input
-                      type="text"                      
-                      defaultValue="Open!"
-                      disabled
+                    <Label>Trạng thái</Label>
+                    <input
+                      type="checkbox"
+                      checked={formData?.status ?? false}                     
+                      onChange={(e) => setFormData({ ...formData, status: e.target.checked })} 
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"            
                     />
                   </div>
                   <div>
-                    <Label>Open Hour</Label>
+                    <Label>Giờ mở cửa</Label>
                     <Input
-                      type="text"
-                      defaultValue={
-                        formData?.open ? new Date(formData.open).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : "None"
-                      }
-                      onChange={(e) => setFormData({ ...formData, open: e.target.value })}
+                      type="time"
+                      defaultValue={formData?.openTime}                    
+                      onChange={(e) => setFormData({ ...formData, openTime: e.target.value })}
                     />
                   </div>
                   <div>
-                    <Label>Close Hour</Label>
+                    <Label>Giờ đóng cửa</Label>
                     <Input
-                      type="text"
-                      defaultValue={
-                        formData?.close ? new Date(formData.close).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : "None"
-                      }
-                      onChange={(e) => setFormData({ ...formData, close: e.target.value })}
+                      type="time"
+                      defaultValue={formData?.closeTime}
+                      onChange={(e) => setFormData({ ...formData, closeTime: e.target.value })}
                     />
                   </div>
                 </div>
@@ -214,10 +241,10 @@ export default function OverviewInfoCard () {
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
+                Đóng
               </Button>
               <Button size="sm" onClick={handleSave}>
-                Save Changes
+                Lưu thay đổi
               </Button>
             </div>
           </form>

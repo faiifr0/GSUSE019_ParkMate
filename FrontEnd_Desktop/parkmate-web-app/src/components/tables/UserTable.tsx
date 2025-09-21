@@ -11,14 +11,14 @@ import {
 import Badge from "../ui/badge/Badge";
 import Image from "next/image";
 import Pagination from "./Pagination";
-import userService, { UserResponse } from "@/services/userService";
+import userService, { UserResponse } from "@/lib/services/userService";
 import { format } from "date-fns";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-import { userCreateModel } from "@/model/userCreateModel";
+import { userCreateModel } from "@/lib/model/userCreateModel";
 import { EyeCloseIcon, EyeIcon } from "@/icons";
 
 // Handle what happens when you click on the pagination

@@ -1,7 +1,7 @@
 import React from "react";
 import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
 import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
-import StatisticsChart from "@/components/ecommerce/StatisticsChart";
+import CustomerStatisticsChart from "@/components/ecommerce/CustomerStatisticsChart";
 
 export default function AdminDashboard() {
   return (
@@ -15,7 +15,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="col-span-12">
-        <StatisticsChart />
+        <CustomerStatisticsChart />
       </div>
     </div>
   )

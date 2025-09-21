@@ -1,18 +1,17 @@
 'use client'
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import React, { useEffect, useState } from "react";
-import ParkBranchTicketTable from "@/components/tables/ParkBranchTicketTable";
 import { useParams } from "next/navigation";
 import ComponentCard from "@/components/common/ComponentCard";
-import parkBranchService, { parkBranchResponse } from "@/services/parkBranchService";
+import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
 import BranchStaffTable from "@/components/tables/BranchStaffTable";
+import { Toaster } from "react-hot-toast";
 
 export default function ParkBranchTicketsList() {
   const params = useParams();
   const id = params.id ? String(params.id) : '0';
 
-  const [branchInfo, setBranchInfo] = useState<parkBranchResponse>();  
-  const [error, setError] = useState<string | null>(null);
+  const [branchInfo, setBranchInfo] = useState<parkBranchResponse>();    
 
   const fetchParkBranch = async () => {
     const response = await parkBranchService.getParkBranchById(id);
@@ -31,14 +30,22 @@ export default function ParkBranchTicketsList() {
   }, [])
 
   const breadcrumbItems = [
-    { name: "Park Branches", path: "/park-branches" },
-    { name: "Park Branch Overview", path: "/park-branches/" + id } 
+    { name: "Danh sách chi nhánh", path: "/park-branches" },
+    { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + id } 
   ];
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Staffs" items={breadcrumbItems}/>
-      <ComponentCard title={"Staffs of " + branchInfo?.name}>
+      <PageBreadcrumb pageTitle="Nhân viên của chi nhánh" items={breadcrumbItems}/>
+      <Toaster
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            marginTop: '70px',            
+            zIndex: 100000, // cao hơn modal
+          },
+      }}/>
+      <ComponentCard title={"Nhân viên của " + branchInfo?.name}>
         <div className="space-y-6">
           <BranchStaffTable></BranchStaffTable>
         </div>
