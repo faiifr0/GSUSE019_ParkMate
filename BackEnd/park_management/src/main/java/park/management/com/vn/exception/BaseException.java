@@ -1,20 +1,32 @@
 package park.management.com.vn.exception;
 
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-@Getter
-public abstract class BaseException extends RuntimeException {
+public class BaseException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
     private final ErrorCode errorCode;
 
-    public BaseException(String message, ErrorCode errorCode) {
-        super(message);
+    public BaseException(ErrorCode errorCode, String message) {
+        super(message != null ? message : (errorCode != null ? errorCode.getCode() : null));
         this.errorCode = errorCode;
     }
 
+    public BaseException(String message) {
+        super(message);
+        this.errorCode = null; // no enum provided
+    }
+
+    public BaseException(ErrorCode errorCode) {
+        super(errorCode != null ? errorCode.getCode() : null);
+        this.errorCode = errorCode;
+    }
+
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
+
     public HttpStatus getStatus() {
-        return this.errorCode.getStatus(); // delegate to enum
+        return errorCode != null ? errorCode.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     }
 }
-

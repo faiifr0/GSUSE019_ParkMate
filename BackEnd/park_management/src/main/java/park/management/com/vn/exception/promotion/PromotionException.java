@@ -1,10 +1,9 @@
 package park.management.com.vn.exception.promotion;
 
-import park.management.com.vn.exception.BaseException;
+import park.management.com.vn.exception.AppException;
 import park.management.com.vn.exception.ErrorCode;
 
-public abstract class PromotionException extends BaseException {
-    public PromotionException(String message, ErrorCode errorCode) {
-        super(message, errorCode);
-    }
+public class PromotionException extends AppException {
+    public PromotionException(ErrorCode error) { super(error); }
+    public PromotionException(ErrorCode error, String message) { super(error, message); }
 }

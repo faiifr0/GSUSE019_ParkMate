@@ -1,10 +1,9 @@
 package park.management.com.vn.exception.price;
 
-import park.management.com.vn.exception.BaseException;
+import park.management.com.vn.exception.AppException;
 import park.management.com.vn.exception.ErrorCode;
 
-public abstract class PriceException extends BaseException {
-    public PriceException(String message, ErrorCode errorCode) {
-        super(message, errorCode);
-    }
+public class PriceException extends AppException {
+    public PriceException(ErrorCode error) { super(error); }
+    public PriceException(ErrorCode error, String message) { super(error, message); }
 }
