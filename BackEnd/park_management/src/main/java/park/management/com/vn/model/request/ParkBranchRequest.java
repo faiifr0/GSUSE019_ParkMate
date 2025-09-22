@@ -12,7 +12,7 @@ import lombok.Data;
 @Builder
 @Setter
 @Getter
-
+@lombok.Data
 public class ParkBranchRequest {
 
     @NotBlank

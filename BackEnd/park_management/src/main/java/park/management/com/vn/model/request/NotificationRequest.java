@@ -5,14 +5,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import park.management.com.vn.constant.NotificationStatus;
-import park.management.com.vn.constant.NotificationType;
+import park.management.com.vn.constaint.NotificationStatus;
+import park.management.com.vn.constaint.NotificationType;
 
 import java.time.LocalDateTime;
+import lombok.Data;
 
 @Builder
 @Setter
 @Getter
+@lombok.Data
 public class NotificationRequest {
 
     @NotNull
