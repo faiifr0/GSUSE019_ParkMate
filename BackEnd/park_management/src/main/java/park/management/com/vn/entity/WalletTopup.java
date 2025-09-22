@@ -2,10 +2,13 @@ package park.management.com.vn.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import park.management.com.vn.constaint.TopupStatus;
+import park.management.com.vn.constant.TopupStatus;
 import park.management.com.vn.entity.base.BaseEntity;
 
 import java.math.BigDecimal;
+import lombok.*;
+import jakarta.persistence.*;
+
 
 
 @Entity

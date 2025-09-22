@@ -7,6 +7,9 @@ import java.time.LocalDate;
 
 import lombok.*;
 import park.management.com.vn.entity.base.BaseEntity;
+import lombok.*;
+import jakarta.persistence.*;
+
 
 @Entity
 @Table(name = "ticket_detail")
