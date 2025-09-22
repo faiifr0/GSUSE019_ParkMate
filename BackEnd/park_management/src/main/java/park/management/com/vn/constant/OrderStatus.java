@@ -1,4 +1,4 @@
-package park.management.com.vn.constaint;
+package park.management.com.vn.constant;
 
 public enum OrderStatus {
 
