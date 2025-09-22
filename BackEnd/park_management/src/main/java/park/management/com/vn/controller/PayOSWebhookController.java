@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import park.management.com.vn.constaint.TopupStatus;
+import park.management.com.vn.constant.TopupStatus;
 import park.management.com.vn.entity.Wallet;
 import park.management.com.vn.entity.WalletTopup;
 import park.management.com.vn.repository.WalletRepository;
