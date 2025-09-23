@@ -10,6 +10,8 @@ import userService, { UserResponse } from "@/lib/services/userService";
 import { userUpdateModel } from "@/lib/model/userUpdateModel";
 import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
 import toast from "react-hot-toast";
+import { format } from "date-fns"
+import axios, { Axios, AxiosError } from "axios";
 
 export default function UserDetailInfoCard() {
   const params = useParams();
@@ -62,7 +64,7 @@ export default function UserDetailInfoCard() {
         username: user?.username ?? "",
         email: user?.email ?? "",
         password: user?.password ?? "",
-        parkBranchId: user?.parkBranch?.id,
+        parkBranchId: user?.parkBranchId,        
         fullName: user?.fullName ?? "",
         dob: user?.dob ?? "",
         phoneNumber: user?.phoneNumber ?? ""
@@ -71,16 +73,31 @@ export default function UserDetailInfoCard() {
   };
 
   const handleSave = async () => {    
-    await userService.updateUser(id, formData);
-    fetchUser();
+    try {
+      await userService.updateUser(id, formData);
+      fetchUser();
 
-    const message = 'Cập nhật thông tin người dùng thành công!';
-    toast.success(message, {
-      duration: 3000,
-      position: 'top-right',
-    });
+      const message = 'Cập nhật thông tin người dùng thành công!';
+      toast.success(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
 
-    closeModal();
+      closeModal();
+    } catch (err) {
+      let message = 'Cập nhật thông tin người dùng thất bại! ';
+
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
+        message += err.response.data.message;
+      }
+      
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
+      
+      closeModal();
+    }
   };
 
   return (
@@ -115,7 +132,7 @@ export default function UserDetailInfoCard() {
                 Tên đầy đủ
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user?.fullName}
+                {user?.fullName || "(Chưa có)"}
               </p>
             </div>                                 
           </div>
@@ -126,7 +143,7 @@ export default function UserDetailInfoCard() {
                 SĐT
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user?.phoneNumber}
+                {user?.phoneNumber || "(Chưa có)"}
               </p>
             </div>            
 
@@ -135,7 +152,7 @@ export default function UserDetailInfoCard() {
                 Ngày sinh
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user?.dob}
+                {user?.dob ? format(new Date(user.dob), "dd-MM-yyyy") : "(Chưa có)"}
               </p>
             </div>
 
@@ -145,7 +162,7 @@ export default function UserDetailInfoCard() {
                 Quản Lý Chi Nhánh
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user?.parkBranch ? user.parkBranch.name : 'Chưa có'}
+                {user?.parkBranchName ? user.parkBranchName : '(Chưa có)'}
               </p>
             </div>
             )}                                 
@@ -238,11 +255,11 @@ export default function UserDetailInfoCard() {
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Quản lý chi nhánh</Label>
                     <select            
-                      value={formData?.parkBranchId !== undefined ? formData.parkBranchId : ""}            
+                      value={formData?.parkBranchId ?? ""}            
                       className="block w-full rounded-md border border-gray-300 bg-white px-3 py-[12px] text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       onChange={(e) => setFormData({ ...formData, parkBranchId: Number(e.target.value) })}
                     >
-                      <option value="" disabled>
+                      <option value="">
                         -- Chọn 1 chi nhánh --
                       </option>
 

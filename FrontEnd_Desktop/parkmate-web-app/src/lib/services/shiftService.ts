@@ -9,6 +9,7 @@ export type shiftResponse = {
   updatedAt: string;      
   createdBy: string;
   updatedBy: string;
+  daysOfWeek: string;
 };
 
 const shiftService = {

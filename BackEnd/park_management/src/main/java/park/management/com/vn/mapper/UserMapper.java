@@ -17,5 +17,7 @@ public interface UserMapper {
 
   @Mapping(target = "walletId", source = "wallet.id")
   @Mapping(target = "balance", source = "wallet.balance")
+  @Mapping(target = "parkBranchId", source = "parkBranch.id")
+  @Mapping(target = "parkBranchName", source = "parkBranch.name")
   UserResponse toUserDetailResponse(UserEntity userEntity);
 }

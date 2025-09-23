@@ -26,13 +26,13 @@ export async function middleware(req: NextRequest) {
     // if (!data.success) {
     //   return NextResponse.redirect(loginUrl);
     // }
-    if (isStaticAsset) console.log(pathName);
-    else {
-      console.log("token - ", token);        
-      console.log("loginUrl - ", loginUrl);
-      console.log("reqUrl - ", req.url);
-    }
-    console.log("------------------------");
+    // if (isStaticAsset) console.log(pathName);
+    // else {
+    //   console.log("token - ", token);        
+    //   console.log("loginUrl - ", loginUrl);
+    //   console.log("reqUrl - ", req.url);
+    // }
+    // console.log("------------------------");
   } catch (error) {
     console.error("Token validation error:", error);
     return NextResponse.redirect(loginUrl);

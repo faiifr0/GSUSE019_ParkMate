@@ -74,9 +74,9 @@ public class ParkBranchServiceImpl implements ParkBranchService {
                     // When update park branch status to true it must have at least 1 ticket type
                     if (request.isStatus()) {
                         if (ticketTypeRepository.countByParkBranch_IdAndStatusTrue(id) == 0)
-                            throw new RuntimeException("Can't update status! Park branch has no active ticket type!");
+                            throw new RuntimeException("UPDATE_STATUS_FAILED_NO_ACTIVE_TICKET_TYPE");
                         if (branchStaffRepository.countByParkBranch_IdAndStatusTrue(id) == 0)
-                            throw new RuntimeException("Can't update status! Park branch has no active staff!");
+                            throw new RuntimeException("UPDATE_STATUS_FAILED_NO_ACTIVE_BRANCH_STAFF");
                     } else {
                         // When update park branch status to false
                         // Either refund all active ticket order (status: PAID && date > today)
@@ -85,7 +85,7 @@ public class ParkBranchServiceImpl implements ParkBranchService {
                     
                     return parkBranchRepository.save(branch);
                 })
-                .orElseThrow(() -> new RuntimeException("Branch not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("BRANCH_NOT_FOUND_ID_" + id));
         return mapper.toResponse(updated);
     }
 

@@ -20,4 +20,5 @@ public class ShiftResponse {
     private LocalDateTime updatedAt;
     private String createdBy;
     private String updatedBy;
+    private String daysOfWeek;
 }

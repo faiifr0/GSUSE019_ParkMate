@@ -56,21 +56,25 @@ export default function ShiftTakeAttendance() {
   const formattedDate = isValidISODate(staffAssignment?.assignedDate!) ? format(parseISO(staffAssignment?.assignedDate!), 'dd/MM/yyyy') : null;
 
   useEffect(() => {
-    try {
-      fetchParkBranch();  
-      fetchShifts();
-      fetchstaffAssignment();
-      setQrObjects([
-        { id: Number(shiftId), scanType: 'in' },
-        { id: Number(shiftId), scanType: 'out' }
-      ]);
-    } catch (err) {
-      console.log(err);
-      notFound();
-    } finally {
-      // do something
-    }
-  }, [])
+    if (!shiftId) return;
+    const fetchAll = async () => {
+      try {
+        await fetchParkBranch();  
+        await fetchShifts();
+        await fetchstaffAssignment();
+
+        setQrObjects([
+          { id: Number(shiftId), scanType: 'in' },
+          { id: Number(shiftId), scanType: 'out' }
+        ]);
+      } catch (err) {
+        console.error(err);
+        notFound();
+      }
+    };
+    fetchAll();
+  }, [shiftId]);
+
 
   const breadcrumbItems = [
     { name: "Danh sách chi nhánh", path: "/park-branches" },
@@ -96,7 +100,9 @@ export default function ShiftTakeAttendance() {
           <div className="col-span-6 space-y-6">
             <ComponentCard title="Điểm danh đến">
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}> 
-                <QrFromJson data={qrObjects?.[0]} />
+                {qrObjects.length > 0 && (
+                  <QrFromJson data={qrObjects[0]} />
+                )}
               </div>
             </ComponentCard>
           </div>
@@ -104,7 +110,9 @@ export default function ShiftTakeAttendance() {
           <div className="col-span-6 space-y-6">
             <ComponentCard title={"Điểm danh về"}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>   
-                <QrFromJson data={qrObjects?.[1]} />             
+                {qrObjects.length > 0 && (
+                  <QrFromJson data={qrObjects[1]} />
+                )}            
               </div>
             </ComponentCard>
           </div>

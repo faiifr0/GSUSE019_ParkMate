@@ -62,8 +62,7 @@ export default function BranchStaffTable() {
       setUsers(response);
     } catch (err) {
       console.log(err);
-      const message =
-        err instanceof Error ? err.message : 'Fetch người dùng thất bại!';
+      const message = 'Fetch người dùng thất bại!';
       toast.error(message, {
         duration: 3000,
         position: 'top-right',
@@ -111,7 +110,7 @@ export default function BranchStaffTable() {
       userId: undefined, // or leave as undefined if optional
       parkBranchId: parseInt(id),
       role: '',
-      description: '',
+      description: '',      
     });
     setSelectedStaff(null);
     openModal();
@@ -125,6 +124,7 @@ export default function BranchStaffTable() {
       parkBranchId: parseInt(id),
       role: staff.role,
       description: staff.description,
+      status: staff.status
     });
     openModal();
   };
@@ -169,7 +169,7 @@ export default function BranchStaffTable() {
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
-                    Mô tả
+                    Mô tả vai trò
                   </TableCell>
                   <TableCell
                     isHeader
@@ -200,13 +200,22 @@ export default function BranchStaffTable() {
 
               {/* Table Body */}
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {branchStaffs.map((staff, index) => (
+                {[...branchStaffs]
+                  .sort((a, b) => {
+                    // Prioritize status: true before false
+                    if (a.status !== b.status) {
+                      return a.status ? -1 : 1;
+                    }
+                    // Then sort by updatedAt descending
+                      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+                  })
+                  .map((staff, index) => (
                   <TableRow key={staff.id}>      
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {index + 1}
                     </TableCell>             
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {staff.userFullName}
+                      {staff.username} - {staff.userFullName}
                     </TableCell>                                                       
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {staff.role}
@@ -222,24 +231,22 @@ export default function BranchStaffTable() {
                     </TableCell>                  
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       <Badge
-                        size="sm"
-                        color="error"
-                        // color={
-                        //   branch.status === "Active"
-                        //     ? "success"
-                        //     : branch.status === "Pending"
-                        //     ? "warning"
-                        //     : "error"
-                        // }
+                        size="sm"                        
+                        color={
+                          staff.status
+                            ? "success"
+                            : !staff.status
+                            ? "error"
+                            : "warning"
+                        }
                       >
-                        {/* {branch.status} */}
-                        Dubious
+                        {staff.status ? "Đang làm việc" : "Ngừng làm việc"}
                       </Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       <Button size="sm" onClick={() => openEditModal(staff)}>Edit</Button>
                     </TableCell>
-                  </TableRow>
+                  </TableRow>                  
                 ))}
               </TableBody>
             </Table>
@@ -261,25 +268,28 @@ export default function BranchStaffTable() {
                 <div>                
                   <div className="grid grid-cols-12 my-9 gap-x-4"
                        style={{ display: mode === 'edit' ? 'none' : 'block' }}>   
-                    <div className="col-span-2"></div>                 
-                    <div className="col-span-8">
-                      <Label>Người dùng</Label>
+                    <div className="col-span-3"></div>                 
+                    <div className="col-span-6">
+                      <Label>Nhân viên</Label>
                       <select            
                         value={formData?.userId !== undefined ? formData.userId : ''}            
                         className="block w-full rounded-md border border-gray-300 bg-white px-3 py-[12px] text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         onChange={(e) => setFormData({ ...formData, userId: parseInt(e.target.value) })}
                       >
                         <option value="" disabled>
-                          -- Chọn 1 người dùng --
+                          -- Chọn 1 nhân viên --
                         </option>
-                        {users.map(user => (
+                        {users.filter(u => u.roles?.[0]?.roleName === "STAFF" &&
+                        !branchStaffs.some(staff => staff.userId === u.id)
+                        )
+                        .map(user => (
                         <option key={user.id} value={user.id}>
                             {user.username} - {user.email}
                         </option>
                         ))}
                       </select>
                     </div>  
-                    <div className="col-span-2"></div>                  
+                    <div className="col-span-3"></div>                  
                     
                     <div 
                       className=""
@@ -290,8 +300,7 @@ export default function BranchStaffTable() {
                         defaultValue={parseInt(id)}
                         disabled                                              
                       />
-                    </div>
-                    <div className="col-span-2"></div>
+                    </div>                    
                   </div>
 
                   <div className="grid grid-cols-12 my-9">                    
@@ -314,6 +323,18 @@ export default function BranchStaffTable() {
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}                                          
                       />
                     </div>                                        
+                  </div> 
+
+                  <div className="grid grid-cols-6 my-9 gap-x-4">                                     
+                    <div className="col-span-6 flex items-start gap-3">
+                      <Label>Trạng thái</Label>
+                      <input
+                        type="checkbox"
+                        checked={formData?.status ?? false}                     
+                        onChange={(e) => setFormData({ ...formData, status: e.target.checked })} 
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"            
+                      />
+                    </div>                                                                         
                   </div>                                                                
                 </div>              
               </div>

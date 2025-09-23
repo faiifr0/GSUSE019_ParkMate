@@ -13,7 +13,8 @@ public class UserResponse {
   private Long id;
   private String username;
   private String email;
-  private ParkBranch parkBranch;
+  private Long parkBranchId;
+  private String parkBranchName;
   private List<UserRoleResponse> roles;
   private Long walletId;
   private BigDecimal balance;

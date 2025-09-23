@@ -36,7 +36,7 @@ public class BranchStaffController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<BranchStaffResponse> updateBranchStaff(@PathVariable Long id, @Valid @RequestBody BranchStaffRequest request) {
         BranchStaffResponse response = branchStaffService.updateBranchStaff(id, request);
         return ResponseEntity.ok(response);

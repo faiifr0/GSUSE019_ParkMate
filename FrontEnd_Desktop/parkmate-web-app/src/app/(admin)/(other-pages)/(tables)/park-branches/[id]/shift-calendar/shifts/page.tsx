@@ -28,8 +28,8 @@ export default function Shifts() {
     notFound();
   }
 
-  const weekdayVN = format(formattedDate, 'EEEE', { locale: vi });
-  const weekdayEN = format(formattedDate, 'EEEE', { locale: enUS });
+  const weekdayVN = format(rawDate!, 'EEEE', { locale: vi });
+  const weekdayEN = format(rawDate!, 'EEEE', { locale: enUS });
 
   const [branchInfo, setBranchInfo] = useState<parkBranchResponse>();    
   const [shifts, setShifts] = useState<shiftResponse[]>([]); 
@@ -77,7 +77,7 @@ export default function Shifts() {
       />
       <ComponentCard title={"Ca làm ngày " + formattedDate + " của " + branchInfo?.name}>
         <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-5 space-y-6">
+          <div className="col-span-6 space-y-6">
             <ComponentCard title="Nhân viên chi nhánh">
               <div>                
                 <StaffOverviewTable></StaffOverviewTable>
@@ -85,7 +85,7 @@ export default function Shifts() {
             </ComponentCard>
           </div>
 
-          <div className="col-span-7 space-y-6">
+          <div className="col-span-6 space-y-6">
             <ComponentCard title={"Ca " + weekdayVN + " ngày " + formattedDate + " (10h-22h)"}>
               <div>
                 <StaffJoinShiftTable></StaffJoinShiftTable>

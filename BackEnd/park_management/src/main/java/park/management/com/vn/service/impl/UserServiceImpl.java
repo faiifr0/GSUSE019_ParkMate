@@ -142,11 +142,15 @@ public class UserServiceImpl implements UserService {
     UserEntity currUser = userRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("USER_NOT_FOUND"));
 
-    if (updatedUser.getParkBranchId() != null) {
+    // <select> return 0 if the <option> with value "" is chosen
+    // set null to park branch if this happens
+    if (updatedUser.getParkBranchId() != null && updatedUser.getParkBranchId() != 0) {
       ParkBranch pb = parkBranchRepository.findById(updatedUser.getParkBranchId())
           .orElseThrow(() -> new RuntimeException("PARK_BRANCH_NOT_FOUND"));
       currUser.setParkBranch(pb);      
-    }    
+    } else {
+      currUser.setParkBranch(null);
+    }
 
     if (updatedUser.getUsername() != null)
       currUser.setUsername(updatedUser.getUsername());

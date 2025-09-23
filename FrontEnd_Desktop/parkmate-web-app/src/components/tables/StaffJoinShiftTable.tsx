@@ -84,9 +84,8 @@ export default function StaffJoinShiftTable() {
         toast.success(message, {
             duration: 3000,
             position: 'top-right',
-        });
-        fetchStaffs();
-        fetchStaffAssignments();
+        });        
+        window.location.reload();
     } catch (err) {
         console.log(err);
         const message = 'Xóa ca làm thất bại!';
@@ -120,7 +119,7 @@ export default function StaffJoinShiftTable() {
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                   >
-                    Tên Nhân Viên
+                    Tên
                   </TableCell>  
                   <TableCell
                     isHeader
@@ -154,10 +153,10 @@ export default function StaffJoinShiftTable() {
                       {assignment.staffName}
                     </TableCell>                         
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
-                      None
+                      Chưa điểm danh
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
-                      None
+                      Chưa điểm danh
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400 flex justify-center items-center gap-2">
                       <Button 

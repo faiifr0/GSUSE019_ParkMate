@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { notFound, useParams, useSearchParams } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -8,9 +8,14 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import Link from "next/link";
 import branchStaffService, { branchStaffResponse } from "@/lib/services/branchStaffService";
 import Button from "../ui/button/Button";
+import staffAssignmentService from "@/lib/services/staffAssignementService";
+import { enUS, vi } from "date-fns/locale";
+import { format, parseISO } from "date-fns";
+import toast from "react-hot-toast";
+import shiftService, { shiftResponse } from "@/lib/services/shiftService";
+import { staffAssignmentCreateModel } from "@/lib/model/staffAssignmentCreateModel";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -19,38 +24,86 @@ export default function StaffOverviewTable() {
   const params = useParams();
   const id = String(params.id);
 
-  const MANAGER_ROLE_ID = '2';
-  const STAFF_ROLE_ID = '3';
+  const searchParams = useSearchParams();
+  const rawDate = searchParams.get('date');
+  
+  const isValidISODate = (date: string | null): boolean => {
+    return !!date && /^\d{4}-\d{2}-\d{2}$/.test(date);
+  };
+  
+  const formattedDate = isValidISODate(rawDate) ? format(parseISO(rawDate!), 'dd/MM/yyyy') : null;
+  
+  if (!formattedDate || id === null) {
+    notFound();
+  }
+  
+  const weekdayEN = format(rawDate!, 'EEEE', { locale: enUS });
 
   const [staffs, setStaffs] = useState<branchStaffResponse[]>([]);
+  const [shifts, setShifts] = useState<shiftResponse[]>([]);  
 
   // Fetch Staffs List
-  useEffect(() => {
-    const fetchStaffs = async () => {
-      try {
-        const response = await branchStaffService.getAll();                                                           
-        //setStaffs(response.filter(staff => (staff.role?.id?.toString() === STAFF_ROLE_ID || staff.role?.id?.toString() === MANAGER_ROLE_ID) 
-                                         //&& staff.parkBranch?.id?.toString() === params.id))         
-        // const filtered = response.filter(staff => {
-        //   const roleId = staff.role?.id?.toString();
-        //   const branchId = staff.parkBranch?.id?.toString();
-        //   console.log(`User: ${staff.username}, Role: ${roleId}, Branch: ${branchId}`);
-        //   return (
-        //     (roleId === STAFF_ROLE_ID || roleId === MANAGER_ROLE_ID) &&
-        //     branchId === id
-        //   );
-        // });
+  const fetchStaffs = async () => {
+    try {
+      const response = await branchStaffService.getAll();     
+                                                                      
+      setStaffs(response.filter(staff => staff.parkBranchId === Number(id) && staff.status === true));
 
-        setStaffs(response);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        // do something for example setLoading
-      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      // do something
     }
+  }
 
+  // Fetch Staffs List
+  const fetchShifts = async () => {
+    try {
+      const response = await shiftService.getAll();     
+                                                                      
+      setShifts(response);
+
+    } catch (err) {
+      console.log(err);
+    } finally {
+      // do something
+    }
+  }
+
+  useEffect(() => {    
     fetchStaffs();
+    fetchShifts();
   }, [])
+
+  const handleAssigning = async (staffId: number) => {
+    try {
+      const matchedShift = shifts.find(s => s.daysOfWeek === weekdayEN);      
+
+      if (matchedShift === null) throw new Error();      
+
+      const assignedShift = {
+        staffId,
+        shiftId: matchedShift?.id,
+        assignedDate: rawDate!,
+      };
+      
+      console.log("assignedShift", assignedShift);
+
+      await staffAssignmentService.createStaffAssignment(assignedShift);                
+      const message = 'Phân ca nhân viên thành công!';
+      toast.success(message, {
+        duration: 3000,
+        position: 'top-right',
+      }) 
+      window.location.reload();
+    } catch (err) {
+      const message = 'Phân ca nhân viên thất bại!';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });         
+    }
+  }
 
   return (
     <>
@@ -102,7 +155,7 @@ export default function StaffOverviewTable() {
                       {index + 1}
                     </TableCell>                  
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {staff.userFullName}
+                      {staff.username} - {staff.userFullName}
                     </TableCell>     
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
                       {staff.role}
@@ -111,7 +164,12 @@ export default function StaffOverviewTable() {
                       {staff.description}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      <Button size="sm">Phân ca</Button>
+                      <Button 
+                        size="sm"
+                        onClick={() => { handleAssigning(staff.id); }}
+                      >
+                        Phân ca
+                      </Button>
                     </TableCell>                                                  
                   </TableRow>
                 ))}

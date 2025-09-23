@@ -3,4 +3,5 @@ export type branchStaffCreateModel = {
   parkBranchId?: number;   
   role?: string;           
   description?: string;   
+  status?: boolean;
 }

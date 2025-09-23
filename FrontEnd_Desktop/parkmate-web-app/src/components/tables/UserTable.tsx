@@ -8,7 +8,6 @@ import {
   TableRow,
 } from "../ui/table";
 
-import Badge from "../ui/badge/Badge";
 import Image from "next/image";
 import Pagination from "./Pagination";
 import userService, { UserResponse } from "@/lib/services/userService";
@@ -30,8 +29,7 @@ export default function UserTable() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [users, setUsers] = useState<UserResponse[]>([]);
-  const [formData, setFormData] = useState<userCreateModel>();
-  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<userCreateModel>();  
 
   // Fetch Park Branches List
   const fetchUsers = async () => {
@@ -64,7 +62,11 @@ export default function UserTable() {
       closeModal();
     } catch (err) {
       console.log(err);
-      setError("Failed to create new user!");
+      const message = 'Tạo nhân viên mới thất bại!';
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });      
     }
   };
   

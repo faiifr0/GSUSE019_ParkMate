@@ -3,13 +3,17 @@ import axiosClient from "../axiosClient";
 import { branchStaffCreateModel } from "@/lib/model/branchStaffCreateModel";
 
 export type branchStaffResponse = {
-  id: number;              
+  id: number;    
+  userId: number;      
+  username: string;    
   userFullName: string;
+  parkBranchId: number;
   parkBranchName: string;
   role: string;
   description: string;
   createdAt: string;     
-  updatedAt: string
+  updatedAt: string;
+  status: boolean;
 };
 
 const branchStaffService = {
