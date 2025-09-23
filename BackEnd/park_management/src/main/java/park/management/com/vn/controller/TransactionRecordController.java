@@ -2,10 +2,15 @@ package park.management.com.vn.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import park.management.com.vn.model.request.TransactionRecordRequest;
+import park.management.com.vn.model.response.TicketResponse;
 import park.management.com.vn.model.response.TransactionRecordResponse;
+import park.management.com.vn.security.UserPrincipal;
 import park.management.com.vn.service.TransactionRecordService;
 
 import java.util.List;
@@ -30,6 +35,17 @@ public class TransactionRecordController {
     @GetMapping
     public ResponseEntity<List<TransactionRecordResponse>> getAllTransactions() {
         return ResponseEntity.ok(transactionRecordService.getAllTransactions());
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<TransactionRecordResponse>> getTransactionsOfUser(@AuthenticationPrincipal UserPrincipal user) {        
+        Long userId = (user != null) ? user.getId() : null;
+
+        if (userId == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        List<TransactionRecordResponse> response = transactionRecordService.getTransactionsOfUser(userId);
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")

@@ -16,4 +16,6 @@ public interface TransactionRecordService {
     TransactionRecordResponse updateTransaction(Long id, TransactionRecordRequest request);
 
     void deleteTransactionById(Long id);
+
+    List<TransactionRecordResponse> getTransactionsOfUser(Long userId);
 }

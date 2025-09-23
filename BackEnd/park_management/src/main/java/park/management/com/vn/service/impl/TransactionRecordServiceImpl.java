@@ -3,11 +3,13 @@ package park.management.com.vn.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.entity.TransactionRecord;
+import park.management.com.vn.entity.UserEntity;
 import park.management.com.vn.entity.Wallet;
 import park.management.com.vn.mapper.TransactionRecordMapper;
 import park.management.com.vn.model.request.TransactionRecordRequest;
 import park.management.com.vn.model.response.TransactionRecordResponse;
 import park.management.com.vn.repository.TransactionRecordRepository;
+import park.management.com.vn.repository.UserRepository;
 import park.management.com.vn.repository.WalletRepository;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import park.management.com.vn.service.TransactionRecordService;
 @RequiredArgsConstructor
 public class TransactionRecordServiceImpl implements TransactionRecordService {
 
+    private final UserRepository userRepo;
     private final TransactionRecordRepository transactionRepository;
     private final WalletRepository walletRepository;
     private final TransactionRecordMapper mapper;
@@ -42,6 +45,16 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
     @Override
     public List<TransactionRecordResponse> getAllTransactions() {
         return transactionRepository.findAll().stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TransactionRecordResponse> getTransactionsOfUser(Long userId) {
+        UserEntity user = userRepo.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return transactionRepository.findByWalletId(user.getWallet().getId()).stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
