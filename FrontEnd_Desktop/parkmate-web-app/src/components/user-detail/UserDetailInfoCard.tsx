@@ -5,10 +5,11 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import { useParams } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import userService, { UserResponse } from "@/lib/services/userService";
 import { userUpdateModel } from "@/lib/model/userUpdateModel";
 import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
+import toast from "react-hot-toast";
 
 export default function UserDetailInfoCard() {
   const params = useParams();
@@ -18,8 +19,7 @@ export default function UserDetailInfoCard() {
 
   const [user, setUser] = useState<UserResponse>();
   const [parkBranches, setParkBranches] = useState<parkBranchResponse[]>([]);
-  const [formData, setFormData] = useState<userUpdateModel>();
-  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<userUpdateModel>();  
 
   // Fetch Current User
   const fetchUser = async () => {
@@ -28,8 +28,9 @@ export default function UserDetailInfoCard() {
       setUser(response);
     } catch (err) {
       console.log(err);
+      notFound();
     } finally {
-      // do something for example setLoading
+      // do something 
     }
   }
 
@@ -40,8 +41,14 @@ export default function UserDetailInfoCard() {
       setParkBranches(response);
     } catch (err) {
       console.log(err);
+      const message = 'Fetch danh sách chi nhánh thất bại!';
+      toast
+      .error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     } finally {
-      // do something for example setLoading
+      // do something
     }
   }
 
@@ -52,16 +59,27 @@ export default function UserDetailInfoCard() {
 
   const openEditModal = () => {      
       setFormData({        
-        username: user?.username,
-        email: user?.email,
-        password: user?.password,
+        username: user?.username ?? "",
+        email: user?.email ?? "",
+        password: user?.password ?? "",
         parkBranchId: user?.parkBranch?.id,
+        fullName: user?.fullName ?? "",
+        dob: user?.dob ?? "",
+        phoneNumber: user?.phoneNumber ?? ""
     });
     openModal();
   };
 
   const handleSave = async () => {    
     await userService.updateUser(id, formData);
+    fetchUser();
+
+    const message = 'Cập nhật thông tin người dùng thành công!';
+    toast.success(message, {
+      duration: 3000,
+      position: 'top-right',
+    });
+
     closeModal();
   };
 
@@ -70,13 +88,13 @@ export default function UserDetailInfoCard() {
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-            Personal Information
+            Thông tin cá nhân
           </h4>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 mt-8">
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Name
+                Tên người dùng
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {user?.username}
@@ -85,23 +103,53 @@ export default function UserDetailInfoCard() {
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Email address
+                Email
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {user?.email}
               </p>
-            </div>            
-          </div>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32 mt-8">
+            </div>
+
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Manage Park Branch
+                Tên đầy đủ
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user?.parkBranch ? user.parkBranch.name : 'None'}
+                {user?.fullName}
               </p>
-            </div>                       
+            </div>                                 
           </div>
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 mt-8">
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                SĐT
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.phoneNumber}
+              </p>
+            </div>            
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Ngày sinh
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.dob}
+              </p>
+            </div>
+
+            {(user?.roles?.[0]?.roleName === "MANAGER") && (
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Quản Lý Chi Nhánh
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.parkBranch ? user.parkBranch.name : 'Chưa có'}
+              </p>
+            </div>
+            )}                                 
+          </div>         
         </div>
 
         <button
@@ -123,7 +171,7 @@ export default function UserDetailInfoCard() {
               fill=""
             />
           </svg>
-          Edit
+          Cập nhật
         </button>
       </div>
 
@@ -131,10 +179,10 @@ export default function UserDetailInfoCard() {
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit User Details
+              Cập nhật thông tin người dùng
             </h4>
             <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update user info details.
+              Cập nhật thông tin của người dùng hệ thống ParkMate
             </p>
           </div>
           <form 
@@ -142,39 +190,60 @@ export default function UserDetailInfoCard() {
             onSubmit = {(e) => {
               e.preventDefault();
           }}>
-            <div className="custom-scrollbar h-[200px] overflow-y-auto px-2 pb-3">              
+            <div className="custom-scrollbar h-[275x] overflow-y-auto px-2 pb-3">              
               <div>               
                 <div className="grid grid-cols-1 gap-x-12 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Name</Label>
+                    <Label>Tên người dùng</Label>
                     <Input 
                       type="text" 
-                      value={formData?.username !== undefined ? formData.username : ''}
+                      value={formData?.username !== undefined ? formData.username : ""}
                       onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address</Label>
+                    <Label>Email</Label>
                     <Input 
                       type="text" 
-                      value={formData?.email !== undefined ? formData.email : ''}
+                      value={formData?.email !== undefined ? formData.email : ""}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="email@gmail.com"
                     />
                   </div>                                    
                 </div>
 
-                <div className="grid grid-cols-1 gap-x-12 gap-y-5 lg:grid-cols-2 mt-8">
+                <div className="grid grid-cols-1 gap-x-12 gap-y-5 lg:grid-cols-2 mt-4">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Manage Park Branch</Label>
+                    <Label>Tên đầy đủ</Label>
+                    <Input 
+                      type="text" 
+                      value={formData?.fullName !== undefined ? formData.fullName : ""}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>Ngày sinh</Label>
+                    <Input 
+                      type="date" 
+                      value={formData?.dob !== undefined ? formData.dob : ""}
+                      onChange={(e) => setFormData({ ...formData, dob: e.target.value })}                      
+                    />
+                  </div>                                    
+                </div>
+
+                <div className="grid grid-cols-1 gap-x-12 gap-y-5 lg:grid-cols-2 mt-4">  
+                  {(user?.roles?.[0]?.roleName === "MANAGER") && (                
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>Quản lý chi nhánh</Label>
                     <select            
-                      value={formData?.parkBranchId !== undefined ? formData.parkBranchId : ''}            
+                      value={formData?.parkBranchId !== undefined ? formData.parkBranchId : ""}            
                       className="block w-full rounded-md border border-gray-300 bg-white px-3 py-[12px] text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      onChange={(e) => setFormData({ ...formData, parkBranchId: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, parkBranchId: Number(e.target.value) })}
                     >
                       <option value="" disabled>
-                        -- Select a park branch --
+                        -- Chọn 1 chi nhánh --
                       </option>
 
                       {parkBranches.map(branch => (
@@ -183,21 +252,32 @@ export default function UserDetailInfoCard() {
                       </option>
                       ))}
                     </select>
-                  </div>                                                    
+                  </div>
+                  )} 
+                                    
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>SĐT</Label>
+                    <Input 
+                      type="text" 
+                      value={formData?.phoneNumber !== undefined ? formData.phoneNumber : ""}
+                      onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}   
+                      placeholder="0912345678"                   
+                    />
+                  </div>                  
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
+                Đóng
               </Button>
               <Button size="sm" onClick={handleSave}>
-                Save Changes
+                Lưu thay đổi
               </Button>
             </div>
           </form>
         </div>
       </Modal>
     </div>
-  );
+  );  
 }

@@ -24,6 +24,11 @@ public class ParkBranchController {
         return ResponseEntity.ok(parkBranchService.getAllBranchPark());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ParkBranchResponse> getParkBranchById(@PathVariable Long id) {
+        return ResponseEntity.ok(parkBranchService.getParkBranchById(id));
+    }
+
     @PostMapping
     public ResponseEntity<ParkBranchResponse> createBranchPark(@RequestBody ParkBranchRequest request) {
         return ResponseEntity.ok(parkBranchService.createBranchPark(request));

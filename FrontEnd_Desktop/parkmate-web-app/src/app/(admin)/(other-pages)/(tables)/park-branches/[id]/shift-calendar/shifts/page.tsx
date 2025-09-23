@@ -67,11 +67,14 @@ export default function Shifts() {
       <Toaster
         reverseOrder={false}
         toastOptions={{
-          style: {
-            marginTop: '70px',            
+          style: {                      
             zIndex: 100000, // cao hơn modal
           },
-      }}/>
+        }}
+        containerStyle={{
+          top: 80, // sets spacing from top for the whole stack
+        }}
+      />
       <ComponentCard title={"Ca làm ngày " + formattedDate + " của " + branchInfo?.name}>
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-5 space-y-6">

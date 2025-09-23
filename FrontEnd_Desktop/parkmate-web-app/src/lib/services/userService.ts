@@ -12,37 +12,38 @@ export type CreateUserResponse = {
 }
 
 export type UserResponse = {
-  id: string;
+  id: number;
   username: string;
   email: string;
   password: string;
   parkBranch?: {
-    id: string;
+    id: number;
     name: string;
   }
-  userRoles?: {
-    id: string;
-    role?: {
-      id: string;
-      name: string;
-    };
+  roles?: {
+    id: number;
+    roleId: number;
+    roleName: string;
   } [];
   wallet?: {
-    id: string;
+    id: number;
     balance: number;
   }
   createdAt: string;
   updatedAt: string;
+  fullName: string;
+  phoneNumber: string;
+  dob: string;
 }
 
 const userService = {
   login: async (
-    username: string,
+    email: string,
     password: string
   ): Promise<LoginResponse> => {
     try {
       const res = await axiosClient.post<LoginResponse>("/users/login", {
-        username,
+        email,
         password,
       });
       return res.data;
@@ -79,7 +80,7 @@ const userService = {
 
   createUser: async (model?: userCreateModel): Promise<CreateUserResponse> => {
     try {
-      const res = await axiosClient.post<CreateUserResponse>("/users/register", model);
+      const res = await axiosClient.post<CreateUserResponse>("/users/register/staff", model);
       return res.data;
     } catch (error) {
       console.error("❌ Error create user:", error);

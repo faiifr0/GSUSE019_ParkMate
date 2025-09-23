@@ -18,11 +18,14 @@ export default function ParkBranchesList() {
       <Toaster 
         reverseOrder={false}
         toastOptions={{
-          style: {
-            marginTop: '70px',            
+          style: {                       
             zIndex: 100000, // cao hơn modal
-          },
-      }}/>
+          }
+        }}
+        containerStyle={{
+          top: 80, // sets spacing from top for the whole stack
+        }}
+      />
       <div className="space-y-6">
         <ParkBranchTable></ParkBranchTable>
       </div>

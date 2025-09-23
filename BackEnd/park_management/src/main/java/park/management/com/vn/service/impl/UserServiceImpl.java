@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
     }
 
     UserEntity userEntity = userMapper.toEntity(request);
-    userEntity.setUsername(request.getEmail());
+    userEntity.setUsername(request.getUsername());
     userEntity.setEmail(request.getEmail());
     userEntity.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
 

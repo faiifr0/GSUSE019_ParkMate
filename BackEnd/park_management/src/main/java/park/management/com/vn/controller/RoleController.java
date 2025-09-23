@@ -19,7 +19,7 @@ public class RoleController {
   private final RoleService roleService;
 
   @GetMapping
-  @PreAuthorize(PermissionConstant.VIEW_ROLE)
+  //@PreAuthorize(PermissionConstant.VIEW_ROLE)
   public ResponseEntity<List<RoleResponse>> getAllRole() {
     return ResponseEntity.ok(roleService.getAllRole());
   }

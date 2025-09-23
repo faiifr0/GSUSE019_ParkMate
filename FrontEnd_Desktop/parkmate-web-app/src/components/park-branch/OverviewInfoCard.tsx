@@ -207,7 +207,8 @@ export default function OverviewInfoCard () {
                     <Input
                       type="text"
                       defaultValue={formData?.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      // onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      disabled
                     />
                   </div>
 

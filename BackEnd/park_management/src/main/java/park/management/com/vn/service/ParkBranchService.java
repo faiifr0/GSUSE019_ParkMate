@@ -14,6 +14,8 @@ public interface ParkBranchService {
 
   List<ParkBranchResponse> getAllBranchPark();
 
+  ParkBranchResponse getParkBranchById(Long id);
+
   ParkBranchResponse createBranchPark(ParkBranchRequest request);
 
   ParkBranchResponse updateBranchPark(Long id, ParkBranchRequest request);

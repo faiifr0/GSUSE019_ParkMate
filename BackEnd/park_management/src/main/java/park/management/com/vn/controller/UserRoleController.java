@@ -20,7 +20,7 @@ public class UserRoleController {
   private final UserRoleService userRoleService;
 
   @PostMapping
-  @PreAuthorize(PermissionConstant.ASSIGN_ROLE)
+  //@PreAuthorize(PermissionConstant.ASSIGN_ROLE)
   public ResponseEntity<?> updateRole(@RequestBody @Valid UpdateUserRoleRequest request) {
     userRoleService.updateRole(request);
     return ResponseEntity.ok().build();

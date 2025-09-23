@@ -36,8 +36,8 @@ public class UserController {
 
   @PostMapping("/register/staff")
   public ResponseEntity<RegisterUserResponse> registerRoleStaff(
-      @RequestBody @Valid RegisterUserRequest request) {
-    return ResponseEntity.ok(userService.createUser(request));
+      @RequestBody @Valid RegisterUserRequest request) {    
+    return ResponseEntity.ok(userService.createUserRoleStaff(request));
   }
 
   @PostMapping("/login")

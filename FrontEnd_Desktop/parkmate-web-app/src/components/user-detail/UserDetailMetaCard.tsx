@@ -10,6 +10,8 @@ import { useParams } from "next/navigation";
 import roleService, { RoleResponse } from "@/lib/services/roleService";
 import { userRoleUpdateModel } from "@/lib/model/userRoleUpdateModel";
 import userRoleService from "@/lib/services/userRoleService";
+import { notFound } from "next/navigation";
+import toast from "react-hot-toast";
 
 
 export default function UserDetailMetaCard() {
@@ -20,8 +22,7 @@ export default function UserDetailMetaCard() {
 
   const [user, setUser] = useState<UserResponse>();
   const [roles, setRoles] = useState<RoleResponse[]>([]);
-  const [formData, setFormData] = useState<userRoleUpdateModel>();
-  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<userRoleUpdateModel>();  
 
   // Fetch Current User
   const fetchUser = async () => {
@@ -30,18 +31,22 @@ export default function UserDetailMetaCard() {
       setUser(response);
     } catch (err) {
       console.log(err);
+      notFound();
     } finally {
-      // do something for example setLoading
+      // do something
     }
   }
 
   // Fetch Current User
   const fetchRoles = async () => {
     try {
-      const response = await roleService.getAll();
+      var response = await roleService.getAll();
+      // Can't update a staff/admin/manager to customer and vice versa
+      response = response.filter(r => r.name !== "CUSTOMER"); 
       setRoles(response);
     } catch (err) {
       console.log(err);
+      notFound();
     } finally {
       // do something for example setLoading
     }
@@ -54,14 +59,22 @@ export default function UserDetailMetaCard() {
 
   const openEditModal = () => {      
       setFormData({        
-        userId: id,
-        roleIds: [],
+        userId: Number(id),
+        roleIds: user?.roles?.[0]?.roleId !== undefined ? [user.roles[0].roleId] : []
     });
     openModal();
   };
 
   const handleSave = async () => {
     await userRoleService.updateUserRole(id, formData);
+    fetchUser();
+
+    const message = 'Cập nhật vai trò người dùng thành công!';
+    toast.success(message, {
+      duration: 3000,
+      position: 'top-right',
+    });
+
     closeModal();
   };
   
@@ -84,15 +97,17 @@ export default function UserDetailMetaCard() {
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {user?.userRoles?.[0]?.role?.name}
+                  {user?.roles?.[0]?.roleName}
                 </p>
                 <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Ho Chi Minh City, Viet Nam
+                  Thành Phố Hồ Chí Minh, Việt Nam
                 </p>
               </div>
             </div>
           </div>
+
+          {user?.roles?.[0].roleName !== "CUSTOMER" && 
           <button
             onClick={openEditModal}
             className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
@@ -112,18 +127,19 @@ export default function UserDetailMetaCard() {
                 fill=""
                 />
             </svg>
-            <span className="whitespace-nowrap">Edit Role</span>
+            <span className="whitespace-nowrap">Cập nhật vai trò</span>
           </button>
+          }
         </div>
       </div>
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[450px] m-4">
         <div className="no-scrollbar relative w-full max-w-[450px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Role
+              Cập nhật vai trò
             </h4>
             <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update this user's role in the system
+              Cập nhật vai trò của người dùng này trong hệ thống
             </p>
           </div>
           <form 
@@ -135,12 +151,12 @@ export default function UserDetailMetaCard() {
               <div>
                 <Label>Role</Label>
                 <select            
-                  value={formData?.roleIds?.[0] !== undefined ? formData.roleIds[0] : ''}            
+                  value={formData?.roleIds?.[0] !== undefined ? formData.roleIds[0] : ""}            
                   className="block w-full rounded-md border border-gray-300 bg-white px-3 py-[12px] text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  onChange={(e) => setFormData({ ...formData, roleIds: [e.target.value] })}
+                  onChange={(e) => setFormData({ ...formData, roleIds: [Number(e.target.value)] })}
                 >
                   <option value="" disabled>
-                    -- Select a role --
+                    -- Chọn 1 vai trò --
                   </option>
 
                   {roles.map(role => (
@@ -154,10 +170,10 @@ export default function UserDetailMetaCard() {
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
+                Đóng
               </Button>
               <Button size="sm" onClick={handleSave}>
-                Save Changes
+                Lưu thay đổi
               </Button>
             </div>
           </form>

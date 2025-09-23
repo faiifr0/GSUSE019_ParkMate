@@ -83,11 +83,14 @@ export default function ShiftTakeAttendance() {
       <Toaster
         reverseOrder={false}
         toastOptions={{
-          style: {
-            marginTop: '70px',            
+          style: {                       
             zIndex: 100000, // cao hơn modal
           },
-      }}/>
+        }}
+        containerStyle={{
+          top: 80, // sets spacing from top for the whole stack
+        }}
+      />
       <ComponentCard title={"Điểm danh ca làm của nhân viên (10h - 22h) ngày " + formattedDate}>
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-6 space-y-6">

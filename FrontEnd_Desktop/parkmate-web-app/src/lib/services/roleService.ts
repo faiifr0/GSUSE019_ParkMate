@@ -1,7 +1,7 @@
 import axiosClient from "../axiosClient";
 
 export type RoleResponse = {
-  id: string;
+  id: number;
   name: string;
   description: string;
 };

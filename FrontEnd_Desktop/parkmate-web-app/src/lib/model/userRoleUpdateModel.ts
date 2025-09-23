@@ -1,4 +1,4 @@
 export type userRoleUpdateModel = {
-  userId?: string;
-  roleIds?: string[];
+  userId?: number;
+  roleIds?: number[];
 }

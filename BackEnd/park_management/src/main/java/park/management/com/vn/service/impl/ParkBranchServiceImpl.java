@@ -47,6 +47,13 @@ public class ParkBranchServiceImpl implements ParkBranchService {
     }
 
     @Override
+    public ParkBranchResponse getParkBranchById(Long id) {
+        ParkBranch pb = parkBranchRepository.findById(id)
+                .orElseThrow(() -> new ParkBranchNotFoundException(id));
+        return mapper.toResponse(pb);
+    }
+
+    @Override
     public ParkBranchResponse createBranchPark(ParkBranchRequest request) {
         ParkBranch entity = mapper.toEntity(request);
         ParkBranch saved = parkBranchRepository.save(entity);
