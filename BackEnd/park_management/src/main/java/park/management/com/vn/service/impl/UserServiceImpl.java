@@ -16,7 +16,6 @@ import park.management.com.vn.entity.UserRole;
 import park.management.com.vn.entity.Role;
 import park.management.com.vn.entity.Wallet;
 import park.management.com.vn.exception.user.UserNotFoundException;
-import park.management.com.vn.mapper.RoleMapper;
 import park.management.com.vn.mapper.UserMapper;
 import park.management.com.vn.mapper.UserRoleMapper;
 import park.management.com.vn.model.request.LoginRequest;
@@ -24,7 +23,6 @@ import park.management.com.vn.model.request.RegisterUserRequest;
 import park.management.com.vn.model.request.UserRequest;
 import park.management.com.vn.model.response.LoginResponse;
 import park.management.com.vn.model.response.RegisterUserResponse;
-import park.management.com.vn.model.response.RoleResponse;
 import park.management.com.vn.model.response.UserResponse;
 import park.management.com.vn.repository.ParkBranchRepository;
 import park.management.com.vn.repository.RoleRepository;
@@ -32,7 +30,6 @@ import park.management.com.vn.repository.UserRepository;
 import park.management.com.vn.repository.UserRoleRepository;
 import park.management.com.vn.repository.WalletRepository;
 import park.management.com.vn.service.ParkBranchService;
-import park.management.com.vn.service.RoleService;
 import park.management.com.vn.service.UserService;
 import park.management.com.vn.utils.JWTTokenUtils;
 
@@ -49,7 +46,6 @@ public class UserServiceImpl implements UserService {
   private final UserRoleMapper userRoleMapper;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
   private final JWTTokenUtils jwtTokenUtils;
-  private final ParkBranchService parkBranchService;
   private final BigDecimal STAFF_WALLET_BALANCE = BigDecimal.valueOf(100000000);
 
   @Override
@@ -71,7 +67,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public RegisterUserResponse createUser(RegisterUserRequest request) {
     if (userRepository.existsByEmail(request.getEmail())) {
-      throw new RuntimeException("Email already exists");
+      throw new RuntimeException("EMAIL_HAS_ALREADY_EXISTED");
     }
 
     UserEntity userEntity = userMapper.toEntity(request);
@@ -84,7 +80,7 @@ public class UserServiceImpl implements UserService {
 
     // Lưu user role
     Role customerRole = roleRepository.findById(Long.valueOf(UserRoleConstant.CUSTOMER.getCode()))
-                                      .orElseThrow(() -> new RuntimeException("Customer role not found!"));;
+                                      .orElseThrow(() -> new RuntimeException("CUSTOMER_ROLE_NOT_FOUND!"));;
     UserRole userRole = new UserRole();
     userRole.setRole(customerRole);
     userRole.setUserEntity(userEntity);  
@@ -103,7 +99,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public RegisterUserResponse createUserRoleStaff(RegisterUserRequest request) {
     if (userRepository.existsByEmail(request.getEmail())) {
-      throw new RuntimeException("Email already exists");
+      throw new RuntimeException("EMAIL_HAS_ALREADY_EXISTED");
     }
 
     UserEntity userEntity = userMapper.toEntity(request);
@@ -116,7 +112,7 @@ public class UserServiceImpl implements UserService {
 
     // Lưu staff role
     Role staffRole = roleRepository.findById(Long.valueOf(UserRoleConstant.STAFF.getCode()))
-                                      .orElseThrow(() -> new RuntimeException("Staff role not found!"));;
+                                      .orElseThrow(() -> new RuntimeException("STAFF_ROLE_NOT_FOUND"));;
     UserRole userRole = new UserRole();
     userRole.setRole(staffRole);
     userRole.setUserEntity(userEntity);  
@@ -159,6 +155,15 @@ public class UserServiceImpl implements UserService {
     // ### still wrong
     if (updatedUser.getPassword() != null)  
       currUser.setPassword(bCryptPasswordEncoder.encode(updatedUser.getPassword()));
+
+    if (updatedUser.getFullName() != null)
+      currUser.setFullName(updatedUser.getFullName());
+
+    if (updatedUser.getDob() != null)
+      currUser.setDob(updatedUser.getDob());
+
+    if (updatedUser.getPhoneNumber() != null)
+      currUser.setPhoneNumber(updatedUser.getPhoneNumber());
 
     UserEntity saved = userRepository.save(currUser);
 

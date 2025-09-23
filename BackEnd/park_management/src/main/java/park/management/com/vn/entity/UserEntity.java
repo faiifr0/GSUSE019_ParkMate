@@ -1,6 +1,8 @@
 package park.management.com.vn.entity;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,6 +39,16 @@ public class UserEntity extends BaseEntity {
 
   @OneToOne(mappedBy = "userEntity", cascade = CascadeType.ALL)
   private Wallet wallet;
-public String getUsername() { return username != null ? username : email; }
+
+  @Column(nullable = true)
+  private String fullName;
+
+  @Column(nullable = true)
+  private String phoneNumber;
+
+  @Column(nullable = true)
+  private LocalDate dob;  
+
+  public String getUsername() { return username != null ? username : email; }
 
 }
