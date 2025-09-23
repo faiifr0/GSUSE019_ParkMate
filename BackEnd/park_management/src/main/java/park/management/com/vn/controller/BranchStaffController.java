@@ -36,6 +36,12 @@ public class BranchStaffController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PutMapping
+    public ResponseEntity<BranchStaffResponse> updateBranchStaff(@PathVariable Long id, @Valid @RequestBody BranchStaffRequest request) {
+        BranchStaffResponse response = branchStaffService.updateBranchStaff(id, request);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBranchStaff(@PathVariable Long id) {
         branchStaffService.deleteBranchStaff(id);

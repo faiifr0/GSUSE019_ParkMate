@@ -37,6 +37,7 @@ public class BranchStaffServiceImpl implements BranchStaffService {
         branchStaff.setUserEntity(userEntity);
         branchStaff.setParkBranch(branch);
         branchStaff.setRole(request.getRole());
+        branchStaff.setDescription(request.getDescription());
 
         return mapper.toResponse(branchStaffRepository.save(branchStaff));
     }
@@ -58,8 +59,28 @@ public class BranchStaffServiceImpl implements BranchStaffService {
     @Override
     public void deleteBranchStaff(Long id) {
         if (!branchStaffRepository.existsById(id)) {
-            throw new EntityNotFoundException("BranchStaff ID " + id + " not found");
+            throw new EntityNotFoundException("BRANCH_STAFF_NOT_FOUND");
         }
         branchStaffRepository.deleteById(id);
+    }
+
+    @Override
+    public BranchStaffResponse updateBranchStaff(Long id, BranchStaffRequest request) {
+        BranchStaff branchStaff = branchStaffRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("BRANCH_STAFF_NOT_FOUND"));
+
+        UserEntity userEntity = usersRepository.findById(request.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User ID " + request.getUserId() + " not found"));
+
+        ParkBranch branch = parkBranchRepository.findById(request.getParkBranchId())
+                .orElseThrow(() -> new EntityNotFoundException("Branch ID " + request.getParkBranchId() + " not found"));
+                
+        branchStaff.setRole(request.getRole());
+        branchStaff.setDescription(request.getDescription());
+
+        if (branchStaff.isStatus() != request.isStatus()) 
+            branchStaff.setStatus(request.isStatus());
+
+        return mapper.toResponse(branchStaffRepository.save(branchStaff));
     }
 }

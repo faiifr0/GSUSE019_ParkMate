@@ -18,4 +18,5 @@ public class BranchStaffResponse {
     private String parkBranchName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Boolean status;
 }

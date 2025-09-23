@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface BranchStaffRepository extends JpaRepository<BranchStaff, Long> {
     List<BranchStaff> findByParkBranch_Id(Long branchId);
-    long countByParkBranch_Id(Long parkBranchId);
+    long countByParkBranch_IdAndStatusTrue(Long parkBranchId); 
 }

@@ -14,4 +14,6 @@ public interface BranchStaffService {
     BranchStaffResponse getBranchStaffById(Long id);
 
     void deleteBranchStaff(Long id);
+
+    BranchStaffResponse updateBranchStaff(Long id, BranchStaffRequest request);
 }
