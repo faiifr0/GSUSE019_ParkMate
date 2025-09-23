@@ -75,6 +75,15 @@ public class UserServiceImpl implements UserService {
     userEntity.setEmail(request.getEmail());
     userEntity.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
 
+    if (request.getFullName() != null)
+      userEntity.setFullName(request.getFullName());
+
+    if (request.getDob() != null)
+      userEntity.setDob(request.getDob());
+
+    if (request.getPhoneNumber() != null)
+      userEntity.setPhoneNumber(request.getPhoneNumber());
+
     // Lưu user trước
     UserEntity saved = userRepository.save(userEntity);
 
