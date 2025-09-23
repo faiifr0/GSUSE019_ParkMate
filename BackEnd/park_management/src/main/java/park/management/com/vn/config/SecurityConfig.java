@@ -146,8 +146,11 @@ public class SecurityConfig {
     cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS","HEAD"));
     cfg.setAllowedHeaders(List.of("*"));
     cfg.setExposedHeaders(List.of("Authorization", "Location"));
-    cfg.setAllowCredentials(true);
+    // when allow all origin allow credentials must be false
+    //cfg.setAllowCredentials(true);
+    cfg.setAllowCredentials(false);
     cfg.setMaxAge(3600L);
+
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", cfg);
