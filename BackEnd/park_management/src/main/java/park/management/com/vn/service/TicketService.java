@@ -1,6 +1,7 @@
 package park.management.com.vn.service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
@@ -26,6 +27,8 @@ public interface TicketService {
     Long createTicketOrder(@Valid TicketRequest ticketRequest, Long userId);
 
     TicketResponse getTicketResponseById(Long ticketId);
+
+    List<TicketResponse> getTicketOrdersOfUser(Long userId);
 
     //TicketResponse getTicketResponseByID(Long id);
 

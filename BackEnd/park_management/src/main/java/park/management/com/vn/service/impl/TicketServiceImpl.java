@@ -35,6 +35,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketDetailRepository ticketDetailRepository;
     private final DailyTicketInventoryRepository dailyTicketInventoryRepository;
     private final BulkPricingRuleRepository bulkPricingRuleRepository;
+    private final TicketOrderRepository ticketOrderRepository;
 
     private final WalletRepository walletRepository;
     private final TransactionRecordRepository transactionRecordRepository;
@@ -140,6 +141,7 @@ public class TicketServiceImpl implements TicketService {
         BigDecimal netAfterVoucher = total.subtract(voucherDiscount);
         if (netAfterVoucher.signum() < 0) netAfterVoucher = BigDecimal.ZERO;
 
+        // ### LEGACY CODE ###
         // 4) Branch promotion (if you still keep it)
         // Optional<BranchPromotion> promotion = Optional.empty();
         // Long promoId = ticketRequest.getPromotionId();
@@ -281,5 +283,20 @@ public class TicketServiceImpl implements TicketService {
             .multiply(BigDecimal.valueOf(quantity))
             .multiply(BigDecimal.valueOf(100 - discountPercent))
             .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN);
+    }
+
+    @Override
+    public List<TicketResponse> getTicketOrdersOfUser(Long userId) {
+        List<TicketOrder> ticketOrders = ticketOrderRepository.findByUserEntity_Id(userId);
+
+        List<TicketResponse> responses = new ArrayList<TicketResponse>();
+
+        for (TicketOrder order : ticketOrders) {
+            Long ticketId = order.getId();
+            TicketResponse response = getTicketResponseById(ticketId);
+            responses.add(response);
+        }
+
+        return responses;
     }
 }
