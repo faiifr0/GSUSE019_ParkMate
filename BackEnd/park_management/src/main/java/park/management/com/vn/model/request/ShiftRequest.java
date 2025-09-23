@@ -22,4 +22,7 @@ public class ShiftRequest {
 
     @NotNull
     private String description;
+
+    @NotNull
+    private String daysOfWeek;
 }

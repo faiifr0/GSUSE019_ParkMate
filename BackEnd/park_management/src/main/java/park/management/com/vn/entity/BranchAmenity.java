@@ -17,10 +17,11 @@ public class BranchAmenity extends BaseEntity {
   @JoinColumn(name = "amenity_type_id", nullable = false)
   private AmenityType amenityType;
 
+  // Do not need this anymore
   // Game replaces Product as the related content for the amenity (optional)
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "game_id")
-  private Game game;
+  // @ManyToOne(fetch = FetchType.LAZY)
+  // @JoinColumn(name = "game_id")
+  // private Game game;
 
   @Column(name = "name", nullable = false, unique = true, length = 255)
   private String name;

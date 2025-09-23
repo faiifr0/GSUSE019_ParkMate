@@ -2,7 +2,7 @@ package park.management.com.vn.service;
 
 import jakarta.validation.Valid;
 import park.management.com.vn.model.request.CreatePermissionResponse;
-import park.management.com.vn.model.response.CreatePermissionRequest;
+import park.management.com.vn.model.request.CreatePermissionRequest;
 
 public interface PermissionService {
 

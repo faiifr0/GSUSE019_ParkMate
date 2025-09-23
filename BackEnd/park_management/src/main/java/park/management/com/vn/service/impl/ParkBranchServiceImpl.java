@@ -10,8 +10,9 @@ import park.management.com.vn.exception.parkbranch.ParkBranchNotFoundException;
 import park.management.com.vn.mapper.ParkBranchMapper;
 import park.management.com.vn.model.request.ParkBranchRequest;
 import park.management.com.vn.model.response.ParkBranchResponse;
-import park.management.com.vn.repository.BranchPromotionRepository;
+//import park.management.com.vn.repository.BranchPromotionRepository;
 import park.management.com.vn.repository.ParkBranchRepository;
+import park.management.com.vn.repository.TicketTypeRepository;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.service.ParkBranchService;
 
@@ -19,8 +20,9 @@ import park.management.com.vn.service.ParkBranchService;
 @RequiredArgsConstructor
 public class ParkBranchServiceImpl implements ParkBranchService {
 
-    private final BranchPromotionRepository branchPromotionRepository;
+    //private final BranchPromotionRepository branchPromotionRepository;
     private final ParkBranchRepository parkBranchRepository;
+    private final TicketTypeRepository ticketTypeRepository;
     private final ParkBranchMapper mapper;
 
     @Override
@@ -59,6 +61,17 @@ public class ParkBranchServiceImpl implements ParkBranchService {
                     // switched to LocalTime fields
                     branch.setOpenTime(request.getOpenTime());
                     branch.setCloseTime(request.getCloseTime());
+
+                    // When update park branch status to true it must have at least 1 ticket type
+                    if (request.isStatus()) {
+                        if (ticketTypeRepository.countByParkBranch_IdAndStatusTrue(id) == 0)
+                            throw new RuntimeException("Can't update status! Park branch has no active ticket type!");
+                    } else {
+                        // When update park branch status to false
+                        // Either refund all active ticket order (status: PAID && date > today)
+                        // Or just disable it
+                    }
+                    
                     return parkBranchRepository.save(branch);
                 })
                 .orElseThrow(() -> new RuntimeException("Branch not found with id: " + id));

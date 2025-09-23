@@ -8,6 +8,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import park.management.com.vn.constant.UserRoleConstant;
 import park.management.com.vn.entity.Permission;
 import park.management.com.vn.entity.Role;
 import park.management.com.vn.entity.UserEntity;
@@ -32,24 +34,34 @@ public class AdminSeeder implements CommandLineRunner {
   @Transactional
   public void run(String... args) {
     // 1) Ensure base Role + Permission exist
-    Role adminRole = getOrCreateRole("ADMIN");
+    Role adminRole = getOrCreateRole(UserRoleConstant.ADMIN.toString());
+    Role managerRole = getOrCreateRole(UserRoleConstant.MANAGER.toString());
+    Role staffRole = getOrCreateRole(UserRoleConstant.STAFF.toString());
+    Role customerRole = getOrCreateRole(UserRoleConstant.CUSTOMER.toString());
+    
     Permission permCreateNotif = getOrCreatePermission("NOTIFICATION_CREATE");
 
     // 2) Ensure join: ADMIN -> NOTIFICATION_CREATE (idempotent)
     upsertRolePermission(adminRole.getId(), permCreateNotif.getId());
 
     // 3) Ensure admin user exists
-    UserEntity adminUser = users.findByUsername("admin").orElseGet(() -> {
+    UserEntity adminUser = users.findByUsername("admin").orElse(null);
+    Boolean adminExisted = true;
+
+    if (adminUser == null) {
+      adminExisted = false;
+
       UserEntity u = new UserEntity();
       u.setUsername("admin");
       u.setEmail("admin@local");
       u.setPassword(encoder.encode("Admin@1234"));
       // If you have an "enabled/active" flag, set it here (e.g., u.setActive(true))
-      return users.save(u);
-    });
+      adminUser = users.save(u);
+    }
 
     // 4) Ensure join: admin user -> ADMIN role (idempotent)
-    upsertUserRole(adminUser.getId(), adminRole.getId());
+    if (!adminExisted)
+      upsertUserRole(adminUser.getId(), adminRole.getId());
   }
 
   private Role getOrCreateRole(String name) {

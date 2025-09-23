@@ -34,6 +34,12 @@ public class UserController {
     return ResponseEntity.ok(userService.createUser(request));
   }
 
+  @PostMapping("/register/staff")
+  public ResponseEntity<RegisterUserResponse> registerRoleStaff(
+      @RequestBody @Valid RegisterUserRequest request) {
+    return ResponseEntity.ok(userService.createUser(request));
+  }
+
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(
       @RequestBody @Valid LoginRequest request) {
@@ -41,8 +47,9 @@ public class UserController {
   }
 
   @GetMapping
-  public ResponseEntity<List<UserEntity>> getAllUsers() {
-    return ResponseEntity.ok(userService.getAllUsers());
+  public ResponseEntity<List<UserResponse>> getAllUsers() {
+    //return ResponseEntity.ok(userService.getAllUsers());
+    return ResponseEntity.ok(userService.getAllUsersDetail());
   }
 
   @GetMapping("/{id}")
@@ -51,8 +58,8 @@ public class UserController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<UserEntity> updateUser(@PathVariable Long id, @RequestBody UserRequest users) {
-    return ResponseEntity.ok(userService.updateUser(id, users));
+  public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRequest request) {
+    return ResponseEntity.ok(userService.updateUser(id, request));
   }
 
   @DeleteMapping("/{id}")

@@ -17,7 +17,7 @@ public class Shift extends BaseEntity {
   @Column(name = "end_time", nullable = false)
   private LocalTime endTime = LocalTime.of(22, 0);   // default 22:00
 
-  // CSV like "MON,TUE,WED", or adapt to your enum/list later
+  // CSV like "Monday,Tuesday,Wednesday", or adapt to your enum/list later
   @Column(name = "days_of_week", length = 50)
   private String daysOfWeek;
 

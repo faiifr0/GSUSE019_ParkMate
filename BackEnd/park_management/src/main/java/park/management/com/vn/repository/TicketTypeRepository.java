@@ -10,4 +10,5 @@ public interface TicketTypeRepository extends JpaRepository<TicketType, Long> {
   List<TicketType> findAllByStatusTrue();
   List<TicketType> findByParkBranch_Id(Long branchId);
   List<TicketType> findByParkBranch_IdAndStatusTrue(Long branchId);
+  long countByParkBranch_IdAndStatusTrue(Long parkBranchId); 
 }

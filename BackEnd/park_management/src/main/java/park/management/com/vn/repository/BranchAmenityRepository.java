@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface BranchAmenityRepository extends JpaRepository<BranchAmenity, Long> {
-    List<BranchAmenity> findByParkBranch_Id(Long branchId);
+    List<BranchAmenity> findByParkBranch_Id(Long branchId);    
 }

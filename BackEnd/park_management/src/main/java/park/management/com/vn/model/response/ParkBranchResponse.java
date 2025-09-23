@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Builder
 @Setter
@@ -16,8 +17,9 @@ public class ParkBranchResponse {
     private String name;
     private String address;
     private String location;
-    private LocalDateTime open;
-    private LocalDateTime close;
+    private LocalTime openTime;
+    private LocalTime closeTime;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean status;
 }

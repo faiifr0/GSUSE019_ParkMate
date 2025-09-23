@@ -1,4 +1,4 @@
-package park.management.com.vn.model.response;
+package park.management.com.vn.model.request;
 
 import lombok.Data;
 

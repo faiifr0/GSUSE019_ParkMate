@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import park.management.com.vn.model.request.CreatePermissionResponse;
-import park.management.com.vn.model.response.CreatePermissionRequest;
+import park.management.com.vn.model.request.CreatePermissionRequest;
 import park.management.com.vn.service.PermissionService;
 
 @RestController

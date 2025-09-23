@@ -15,13 +15,17 @@ public interface UserService {
 
   List<UserEntity> getAllUsers();
 
+  List<UserResponse> getAllUsersDetail();
+
   Optional<UserEntity> findUserById(Long id);
 
   UserEntity getUserById(Long id);
 
   RegisterUserResponse createUser(RegisterUserRequest request);
 
-  UserEntity updateUser(Long id, UserRequest userRequest);
+  RegisterUserResponse createUserRoleStaff(RegisterUserRequest request);
+
+  UserResponse updateUser(Long id, UserRequest userRequest);
 
   void deleteUser(Long id);
 

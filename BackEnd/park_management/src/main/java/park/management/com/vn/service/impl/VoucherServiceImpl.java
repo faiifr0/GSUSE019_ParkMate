@@ -3,13 +3,22 @@ package park.management.com.vn.service.impl;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import park.management.com.vn.entity.ParkBranch;
+import park.management.com.vn.entity.Voucher;
 import park.management.com.vn.entity.Voucher;
 import park.management.com.vn.entity.VoucherUsage;
+import park.management.com.vn.mapper.ParkBranchMapper;
+import park.management.com.vn.mapper.VoucherMapper;
+import park.management.com.vn.model.request.VoucherRequest;
+import park.management.com.vn.model.response.VoucherResponse;
+import park.management.com.vn.repository.ParkBranchRepository;
 import park.management.com.vn.repository.VoucherRepository;
 import park.management.com.vn.repository.VoucherUsageRepository;
 import park.management.com.vn.service.VoucherService;
@@ -24,6 +33,8 @@ public class VoucherServiceImpl implements VoucherService {
 
     private final VoucherRepository voucherRepo;
     private final VoucherUsageRepository usageRepo;
+    private final ParkBranchRepository parkBranchRepo;
+    private final VoucherMapper mapper;    
 
     @Override
     @Transactional
@@ -78,5 +89,65 @@ public class VoucherServiceImpl implements VoucherService {
         u.setOrderId(orderId);
         u.setUsedAt(LocalDateTime.now(HCMC));
         usageRepo.save(u);
+    }
+
+    @Override
+    public VoucherResponse createVoucher(VoucherRequest request) {  
+        ParkBranch pb = parkBranchRepo.findById(request.getParkBranchId())
+                .orElseThrow(() -> new RuntimeException("Park Branch not found"));
+        
+        Voucher existVoucher = voucherRepo.findByCodeIgnoreCase(request.getCode())
+                .orElseThrow(() -> new RuntimeException("Voucher Code already existed!"));
+
+        Voucher newVoucher = mapper.toEntity(request);
+        newVoucher.setParkBranch(pb);
+        return mapper.toResponse(voucherRepo.save(newVoucher));
+    }
+
+    @Override
+    public VoucherResponse getVoucherById(Long id) {
+        Voucher entity = voucherRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+        return mapper.toResponse(entity);
+    }
+
+    @Override
+    public List<VoucherResponse> getAllVouchers() {
+        return voucherRepo.findAll().stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public VoucherResponse updateVoucher(Long id, VoucherRequest request) {
+        Voucher existing = voucherRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+
+        Voucher updated = mapper.toEntity(request);
+        updated.setId(id);                
+        
+        // get from existingVoucher since voucher code maybe updated
+        long voucherUsedCount = usageRepo.countByVoucher_CodeIgnoreCase(existing.getCode());
+        if (voucherUsedCount == 0) {
+            updated.setPercent(request.getPercent());
+            updated.setMaxDiscount(request.getMaxDiscount());
+            updated.setStartAt(request.getStartAt());
+            updated.setEndAt(request.getEndAt());            
+        }
+
+        // active status can be updated whether its used before or not
+        updated.setActive(request.getActive());
+
+        return mapper.toResponse(voucherRepo.save(updated));
+    }
+
+    @Override
+    public void deleteVoucherById(Long id) {
+        Voucher existing = voucherRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Voucher not found"));
+
+        // if voucher was used before it can't be deleted
+        long voucherUsedCount = usageRepo.countByVoucher_CodeIgnoreCase(existing.getCode());
+        if (voucherUsedCount > 0) voucherRepo.deleteById(id);        
     }
 }

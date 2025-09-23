@@ -19,6 +19,10 @@ import java.time.LocalDateTime;
 @Getter @Setter
 public class Voucher extends BaseEntity {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "park_branch_id")
+    private ParkBranch parkBranch;
+
     @NotBlank
     @Column(nullable = false, unique = true, length = 64)
     private String code;

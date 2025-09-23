@@ -11,5 +11,7 @@ import park.management.com.vn.model.response.BranchStaffResponse;
 public interface BranchStaffMapper {
     BranchStaff toEntity(BranchStaffRequest request);
 
+    @Mapping(target = "userFullName", source = "userEntity.username")
+    @Mapping(target = "parkBranchName", source = "parkBranch.name")
     BranchStaffResponse toResponse(BranchStaff entity);
 }

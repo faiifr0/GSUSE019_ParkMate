@@ -136,10 +136,12 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration cfg = new CorsConfiguration();
-    cfg.setAllowedOriginPatterns(List.of(
-      "http://localhost:5173",
-      "http://127.0.0.1:5173"
-    ));
+    // cfg.setAllowedOriginPatterns(List.of(
+    //   "http://localhost:5173",
+    //   "http://127.0.0.1:5173"
+    // ));
+    // Allow all origins
+    cfg.setAllowedOrigins(List.of("*"));
     // FIX: removed stray comma after POST
     cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS","HEAD"));
     cfg.setAllowedHeaders(List.of("*"));

@@ -6,5 +6,5 @@ import park.management.com.vn.entity.Game;
 import java.util.List;
 
 public interface GameRepository extends JpaRepository<Game, Long> {
-    List<Game> findByParkBranch_Id(Long branchId);
+    List<Game> findByParkBranch_Id(Long branchId);    
 }

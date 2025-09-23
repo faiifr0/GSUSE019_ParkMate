@@ -3,11 +3,16 @@ package park.management.com.vn.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import park.management.com.vn.entity.BranchAmenity;
+import park.management.com.vn.model.request.BranchAmenityRequest;
 import park.management.com.vn.model.request.UpdateImageRequest;
+import park.management.com.vn.model.response.BranchAmenityResponse;
 import park.management.com.vn.repository.BranchAmenityRepository;
+import park.management.com.vn.service.BranchAmenityService;
 
 import java.util.List;
 
@@ -17,12 +22,13 @@ import java.util.List;
 @Tag(name = "branch-amenity-controller")
 public class BranchAmenityController {
 
+  private final BranchAmenityService branchAmenityService;
   private final BranchAmenityRepository branchAmenityRepository;
 
   @GetMapping
   public ResponseEntity<List<BranchAmenity>> list() {
     return ResponseEntity.ok(branchAmenityRepository.findAll());
-  }
+  }  
 
   // NEW: getAll...ofBranch
   @GetMapping("/of-branch/{branchId}")
@@ -38,6 +44,23 @@ public class BranchAmenityController {
         .orElseThrow(() -> new RuntimeException("AMENITY_NOT_FOUND"));
     a.setImageUrl(req.getImageUrl()); // đảm bảo entity có field imageUrl
     branchAmenityRepository.save(a);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok(null);
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<BranchAmenityResponse> getBranchAmenityById(@PathVariable Long id) {
+    return ResponseEntity.ok(branchAmenityService.getBranchAmenityById(id));
+  }
+
+  @PostMapping
+  public ResponseEntity<BranchAmenityResponse> createBranchAmenity(@Valid @RequestBody BranchAmenityRequest request) {
+    BranchAmenityResponse response = branchAmenityService.createBranchAmenity(request);
+    return new ResponseEntity<>(response, HttpStatus.CREATED);
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<BranchAmenityResponse> updateBranchAmenity(@PathVariable Long id, @Valid @RequestBody BranchAmenityRequest request) {
+    BranchAmenityResponse response = branchAmenityService.updateBranchAmenity(id, request);
+    return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
 }

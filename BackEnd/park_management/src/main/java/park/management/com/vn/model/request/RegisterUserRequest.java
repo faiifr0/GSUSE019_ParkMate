@@ -12,6 +12,8 @@ import lombok.Data;
 
 public class RegisterUserRequest {
   @NotNull
+  private String username;
+  @NotNull
   private String email;
   @NotNull
   private String password;

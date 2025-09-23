@@ -25,4 +25,6 @@ public class ParkBranchRequest {
 
     @NotNull
     private LocalTime closeTime;
+    
+    private boolean status;
 }

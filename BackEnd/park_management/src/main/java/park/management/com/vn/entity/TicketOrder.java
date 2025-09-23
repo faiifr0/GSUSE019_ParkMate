@@ -45,9 +45,9 @@ public class TicketOrder extends BaseEntity {
     @JoinColumn(name = "park_branch_id", nullable = false)
     private ParkBranch parkBranch;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "promotion_id")
-    private BranchPromotion promotion;
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "promotion_id")
+    // private BranchPromotion promotion;
 
     @OneToMany(mappedBy = "ticketOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TicketDetail> details;
@@ -57,13 +57,13 @@ public class TicketOrder extends BaseEntity {
     private Integer customerAge;
     private String customerEmail;
     private String customerPhone;
-@ManyToOne(fetch = FetchType.LAZY)
-@JoinColumn(name = "voucher_id")
-private Voucher voucher;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "voucher_id")
+    private Voucher voucher;
 
-@Column(name = "discount_amount", precision = 12, scale = 0)
-private java.math.BigDecimal discountAmount;
-    // (Optional later) voucher snapshot fields:
-    // private String voucherCode;
-    // private BigDecimal discountAmount;
+    @Column(name = "discount_amount", precision = 12, scale = 0)
+    private java.math.BigDecimal discountAmount;
+        // (Optional later) voucher snapshot fields:
+        // private String voucherCode;
+        // private BigDecimal discountAmount;
 }

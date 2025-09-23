@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,8 +45,14 @@ public class JWTTokenUtils {
     Instant exp = now.plusSeconds(jwtConfigModel.getExpireTime());
 
     Map<String, Object> claims = new HashMap<>();
+
+    List<String> roleNames = userEntity.getUserRoles().stream()
+    .map(userRole -> userRole.getRole().getName())
+    .collect(Collectors.toList());
+
     // put roles if you have them; empty list is fine
-    claims.put("roles", List.of());
+    //claims.put("roles", List.of());
+    claims.put("roles", roleNames);
 
     return Jwts.builder()
         .setSubject(userEntity.getUsername())

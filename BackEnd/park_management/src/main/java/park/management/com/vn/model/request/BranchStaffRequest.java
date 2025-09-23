@@ -23,4 +23,5 @@ public class BranchStaffRequest {
     @NotNull
     private String description;
 
+    private boolean status;
 }

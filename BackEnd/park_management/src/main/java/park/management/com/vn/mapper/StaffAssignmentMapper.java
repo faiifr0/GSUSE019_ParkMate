@@ -10,5 +10,7 @@ import park.management.com.vn.model.response.StaffAssignmentResponse;
 public interface StaffAssignmentMapper {
     StaffAssignment toEntity(StaffAssignmentRequest request);
 
+    @Mapping(target = "staffName", source = "staff.userEntity.username")
+    @Mapping(target = "shiftId", source = "shift.id")
     StaffAssignmentResponse toResponse(StaffAssignment entity);
 }

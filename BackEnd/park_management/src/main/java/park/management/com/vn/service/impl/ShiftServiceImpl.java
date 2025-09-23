@@ -48,6 +48,7 @@ public class ShiftServiceImpl implements ShiftService {
         shift.setStartTime(request.getStartTime());
         shift.setEndTime(request.getEndTime());
         shift.setDescription(request.getDescription());
+        shift.setDaysOfWeek(request.getDaysOfWeek());
 
         Shift updated = shiftRepository.save(shift);
         return mapper.toResponse(updated);

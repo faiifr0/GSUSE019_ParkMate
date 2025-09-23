@@ -1,7 +1,11 @@
 package park.management.com.vn.service;
 
 import java.math.BigDecimal;
+import java.util.List;
+
 import park.management.com.vn.entity.Voucher;
+import park.management.com.vn.model.request.VoucherRequest;
+import park.management.com.vn.model.response.VoucherResponse;
 
 public interface VoucherService {
 
@@ -21,4 +25,14 @@ public interface VoucherService {
     void recordUsageIfNeeded(Long orderId, Long userId, String guestEmail, Voucher voucher);
 
     record Result(BigDecimal discountAmount, Voucher voucher) {}
+
+    VoucherResponse getVoucherById(Long id);
+
+    List<VoucherResponse> getAllVouchers();
+
+    VoucherResponse createVoucher(VoucherRequest request);
+
+    VoucherResponse updateVoucher(Long id, VoucherRequest request);
+
+    void deleteVoucherById(Long id);
 }

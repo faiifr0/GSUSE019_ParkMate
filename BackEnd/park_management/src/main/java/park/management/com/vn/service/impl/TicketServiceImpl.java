@@ -11,12 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
-import park.management.com.vn.constant.DiscountType;
 import park.management.com.vn.constant.TicketStatus;
 import park.management.com.vn.entity.*;
-import park.management.com.vn.exception.promotion.InvalidPromotionBranchException;
-import park.management.com.vn.exception.promotion.PromotionExpiredException;
-import park.management.com.vn.exception.promotion.PromotionNotActiveException;
 import park.management.com.vn.exception.ticket.DailyTicketInventoryExceedException;
 import park.management.com.vn.exception.ticket.DailyTicketInventoryNotFoundException;
 import park.management.com.vn.exception.ticket.TicketNotFoundException;
@@ -25,7 +21,6 @@ import park.management.com.vn.mapper.TicketMapper;
 import park.management.com.vn.model.request.TicketRequest;
 import park.management.com.vn.model.response.TicketResponse;
 import park.management.com.vn.repository.*;
-import park.management.com.vn.service.BranchPromotionService;
 import park.management.com.vn.service.ParkBranchService;
 import park.management.com.vn.service.TicketService;
 import park.management.com.vn.service.UserService;
@@ -45,7 +40,7 @@ public class TicketServiceImpl implements TicketService {
     private final TransactionRecordRepository transactionRecordRepository;
 
     private final ParkBranchService parkBranchService;
-    private final BranchPromotionService branchPromotionService; // optional; still supported
+    //private final BranchPromotionService branchPromotionService; // optional; still supported
     private final UserService userService;
 
     private final VoucherService voucherService;                 // << NEW
@@ -146,34 +141,34 @@ public class TicketServiceImpl implements TicketService {
         if (netAfterVoucher.signum() < 0) netAfterVoucher = BigDecimal.ZERO;
 
         // 4) Branch promotion (if you still keep it)
-        Optional<BranchPromotion> promotion = Optional.empty();
-        Long promoId = ticketRequest.getPromotionId();
-        if (promoId != null) {
-            promotion = branchPromotionService.findBranchPromotionById(promoId);
-        }
+        // Optional<BranchPromotion> promotion = Optional.empty();
+        // Long promoId = ticketRequest.getPromotionId();
+        // if (promoId != null) {
+        //     promotion = branchPromotionService.findBranchPromotionById(promoId);
+        // }
 
-        BigDecimal promotionDiscount = BigDecimal.ZERO;
-        if (promotion.isPresent()) {
-            BranchPromotion promo = promotion.get();
-            // changed to status (Boolean)
-            if (!Boolean.TRUE.equals(promo.getStatus())) throw new PromotionNotActiveException(promo.getId());
+        // BigDecimal promotionDiscount = BigDecimal.ZERO;
+        // if (promotion.isPresent()) {
+        //     BranchPromotion promo = promotion.get();
+        //     // changed to status (Boolean)
+        //     if (!Boolean.TRUE.equals(promo.getStatus())) throw new PromotionNotActiveException(promo.getId());
 
-            if (ticketDate.isBefore(promo.getValidFrom().toLocalDate())
-             || ticketDate.isAfter(promo.getValidUntil().toLocalDate()))
-                throw new PromotionExpiredException(promo.getId());
+        //     if (ticketDate.isBefore(promo.getValidFrom().toLocalDate())
+        //      || ticketDate.isAfter(promo.getValidUntil().toLocalDate()))
+        //         throw new PromotionExpiredException(promo.getId());
 
-            if (promo.getParkBranch() != null && !promo.getParkBranch().getId().equals(branch.getId())) {
-                throw new InvalidPromotionBranchException(promo.getId());
-            }
+        //     if (promo.getParkBranch() != null && !promo.getParkBranch().getId().equals(branch.getId())) {
+        //         throw new InvalidPromotionBranchException(promo.getId());
+        //     }
 
-            promotionDiscount = (promo.getDiscountType() == DiscountType.FIXED_AMOUNT)
-                ? promo.getDiscountValue()
-                : netAfterVoucher.multiply(promo.getDiscountValue()).divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN);
-        }
+        //     promotionDiscount = (promo.getDiscountType() == DiscountType.FIXED_AMOUNT)
+        //         ? promo.getDiscountValue()
+        //         : netAfterVoucher.multiply(promo.getDiscountValue()).divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN);
+        // }
 
-        BigDecimal net = netAfterVoucher.subtract(promotionDiscount);
-        if (net.signum() < 0) net = BigDecimal.ZERO;
-        net = net.setScale(0, RoundingMode.HALF_EVEN); // VND integer
+        BigDecimal net = netAfterVoucher;//.subtract(promotionDiscount);
+        //if (net.signum() < 0) net = BigDecimal.ZERO;
+        //net = net.setScale(0, RoundingMode.HALF_EVEN); // VND integer
 
         // 5) Persist ORDER first (PENDING) so we have ID
         TicketOrder order = TicketOrder.builder()
@@ -185,7 +180,7 @@ public class TicketServiceImpl implements TicketService {
             .finalAmount(net)
             .voucher(appliedVoucher)             // << voucher (single per order)
             .discountAmount(voucherDiscount)     // << store voucher discount
-            .promotion(promotion.orElse(null))   // optional: keep your branch promotion link
+            //.promotion(promotion.orElse(null))   // optional: keep your branch promotion link
             .customerName(ticketRequest.getCustomerName())
             .customerAge(ticketRequest.getCustomerAge())
             .customerEmail(guestEmail)

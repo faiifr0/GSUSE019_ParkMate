@@ -8,13 +8,17 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
+
 @Builder
 @Data
 public class StaffAssignmentResponse {
     private Long id;
-    private String staffName;
-    private String shiftCode;
+    private String shiftId;
+    private String staffName;    
     private LocalDate assignedDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime scanInAt;
+    private LocalDateTime scanOutAt;
 }

@@ -17,9 +17,7 @@ public class TicketRequest {
     @NotEmpty
     private List<TicketDetailRequest> details;
 
-    private Long branchId;
-
-    private Long promotionId;
+    private Long branchId;    
 
     @NotNull
     @FutureOrPresent

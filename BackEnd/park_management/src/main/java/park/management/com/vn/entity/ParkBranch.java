@@ -30,5 +30,5 @@ public class ParkBranch extends BaseEntity {
   private String imageUrl;
 
   @Column(nullable = false)
-  private Boolean status = true;
+  private Boolean status = false;
 }

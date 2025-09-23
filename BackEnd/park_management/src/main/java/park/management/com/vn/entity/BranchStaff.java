@@ -28,5 +28,8 @@ public class BranchStaff extends BaseEntity {
     @Column(name = "description")
     private String description;
 
+    // default is true
+    @Column(name = "status")
+    private boolean status = true;
 }
 
