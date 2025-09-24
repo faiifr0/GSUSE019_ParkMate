@@ -16,13 +16,13 @@ export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   
-  const [username, setUsername] = useState("admin");
+  const [email, setEmail] = useState("admin@local");
   const [password, setPassword] = useState("Admin@1234");
 
   const handleLogin = async () => {
     try {      
       const response = await userService.login( 
-        username, 
+        email, 
         password 
       );      
       
@@ -128,8 +128,8 @@ export default function SignInForm() {
                   <Input 
                     placeholder="info@gmail.com" 
                     type="email" 
-                    onChange={(e) => setUsername(e.target.value)}
-                    defaultValue="admin"
+                    onChange={(e) => setEmail(e.target.value)}
+                    defaultValue="admin@local"
                   >
                     
                   </Input>

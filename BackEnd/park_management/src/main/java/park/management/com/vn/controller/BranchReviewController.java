@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import park.management.com.vn.model.request.BranchReviewRequest;
 import park.management.com.vn.model.response.BranchReviewResponse;
@@ -18,6 +19,7 @@ public class BranchReviewController {
 
     private final BranchReviewService reviewService;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping
     public ResponseEntity<List<BranchReviewResponse>> getAllReviews() {
         return ResponseEntity.ok(reviewService.getAllReviews());

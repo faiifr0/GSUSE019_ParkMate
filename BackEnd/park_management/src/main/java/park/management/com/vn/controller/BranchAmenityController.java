@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import park.management.com.vn.entity.BranchAmenity;
 import park.management.com.vn.model.request.BranchAmenityRequest;
@@ -31,12 +32,14 @@ public class BranchAmenityController {
   }  
 
   // NEW: getAll...ofBranch
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @GetMapping("/of-branch/{branchId}")
   public ResponseEntity<List<BranchAmenity>> ofBranch(@PathVariable Long branchId) {
     return ResponseEntity.ok(branchAmenityRepository.findByParkBranch_Id(branchId));
   }
 
   // NEW: update ảnh riêng
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @PutMapping("/{id}/image")
   public ResponseEntity<Void> updateImage(@PathVariable Long id,
                                           @RequestBody @Valid UpdateImageRequest req) {
@@ -52,12 +55,14 @@ public class BranchAmenityController {
     return ResponseEntity.ok(branchAmenityService.getBranchAmenityById(id));
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @PostMapping
   public ResponseEntity<BranchAmenityResponse> createBranchAmenity(@Valid @RequestBody BranchAmenityRequest request) {
     BranchAmenityResponse response = branchAmenityService.createBranchAmenity(request);
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @PutMapping("/{id}")
   public ResponseEntity<BranchAmenityResponse> updateBranchAmenity(@PathVariable Long id, @Valid @RequestBody BranchAmenityRequest request) {
     BranchAmenityResponse response = branchAmenityService.updateBranchAmenity(id, request);

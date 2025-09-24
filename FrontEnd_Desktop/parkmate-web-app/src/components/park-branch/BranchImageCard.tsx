@@ -23,13 +23,13 @@ const BranchImageCard = () => {
             className="w-full h-auto rounded shadow"
           />
         </div>
-        <div className="flex justify-end items-center gap-2">
-          <label className="flex flex-col items-end">
+        <div className="flex justify-center">
+          <label className="flex flex-col border-2 rounded-lg px-2 pb-2">
             <input
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className="mt-2 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="mt-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-2 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
           </label>
         </div>      
