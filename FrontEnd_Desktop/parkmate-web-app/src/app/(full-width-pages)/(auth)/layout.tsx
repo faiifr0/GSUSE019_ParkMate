@@ -28,8 +28,14 @@ export default function AuthLayout({
                     layout="intrinsic"
                   />
                 </Link>
-                <p className="text-center text-gray-400 dark:text-white/60">
-                  Welcome to ParkMate Manager!
+                <p className="text-center text-gray-100 dark:text-white/60 font-bold">
+                  Welcome to ParkMate!
+                </p>
+                <p className="text-center text-gray-200 dark:text-white/60 mt-7">
+                  HỆ THỐNG QUẢN LÝ CÔNG VIÊN GIẢI TRÍ
+                </p>
+                <p className="text-center text-gray-200 dark:text-white/60">
+                  TP HỒ CHÍ MINH
                 </p>
               </div>
             </div>
