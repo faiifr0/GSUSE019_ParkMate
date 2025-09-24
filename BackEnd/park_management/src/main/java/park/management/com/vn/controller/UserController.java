@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import park.management.com.vn.entity.UserEntity;
 import park.management.com.vn.model.request.LoginRequest;
 import park.management.com.vn.model.request.RegisterUserRequest;
 import park.management.com.vn.model.request.UserRequest;

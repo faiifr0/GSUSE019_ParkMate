@@ -22,4 +22,5 @@ public class ParkBranchResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean status;
+    private String imageUrl;
 }
