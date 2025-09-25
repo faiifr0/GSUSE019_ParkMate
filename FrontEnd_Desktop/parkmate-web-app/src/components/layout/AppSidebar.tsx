@@ -20,7 +20,7 @@ import {
   TableIcon,
   UserCircleIcon,
   UserIcon,  
-} from "../../icons/index";
+} from "../icons/index";
 import { useAuth } from "@/components/context/AuthContext";
 
 type NavItem = {

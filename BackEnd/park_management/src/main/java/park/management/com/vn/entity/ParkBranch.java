@@ -14,10 +14,10 @@ public class ParkBranch extends BaseEntity {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @Column(name = "address")
+  @Column(name = "address", length = 500)
   private String address;
 
-  @Column(name = "location")
+  @Column(name = "location", length = 50)
   private String location;
 
   @Column(name = "open_time", nullable = false)
@@ -26,7 +26,7 @@ public class ParkBranch extends BaseEntity {
   @Column(name = "close_time", nullable = false)
   private LocalTime closeTime;
 
-  @Column(name = "image_url")
+  @Column(name = "image_url", length = 500)
   private String imageUrl;
 
   @Column(nullable = false)

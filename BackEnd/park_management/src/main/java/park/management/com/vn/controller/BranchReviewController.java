@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import park.management.com.vn.model.request.BranchReviewRequest;
 import park.management.com.vn.model.response.BranchReviewResponse;
@@ -18,11 +17,15 @@ import java.util.List;
 public class BranchReviewController {
 
     private final BranchReviewService reviewService;
-
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    
     @GetMapping
     public ResponseEntity<List<BranchReviewResponse>> getAllReviews() {
         return ResponseEntity.ok(reviewService.getAllReviews());
+    }
+
+    @GetMapping("/of-branch/{branchId}")
+    public ResponseEntity<List<BranchReviewResponse>> getAllOfBranch(@PathVariable Long branchId) {
+        return ResponseEntity.ok(reviewService.getAllOfBranch(branchId));
     }
 
     @GetMapping("/{id}")
@@ -36,5 +39,10 @@ public class BranchReviewController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<BranchReviewResponse> updateReview(@PathVariable Long id, @Valid @RequestBody BranchReviewRequest request) {
+        BranchReviewResponse response = reviewService.updateReview(id, request);
+        return ResponseEntity.ok(response);
+    }
 }
 

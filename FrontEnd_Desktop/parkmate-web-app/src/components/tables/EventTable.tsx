@@ -117,14 +117,14 @@ export default function EventTable() {
       setFormData(undefined);
       setFormData(form => ({ ...form, parkBranchId: id }));
       closeModal();
-      const message = "Xóa trò chơi của chi nhánh thành công!";
+      const message = "Xóa sự kiện của chi nhánh thành công!";
       toast.success(message, {
         duration: 3000,
         position: 'top-right',
       });
     } catch (err) {
       console.log(err);
-      const message = "Xóa trò chơi chi nhánh thất bại!";
+      const message = "Xóa sự kiện chi nhánh thất bại!";
       toast.error(message, {
         duration: 3000,
         position: 'top-right',

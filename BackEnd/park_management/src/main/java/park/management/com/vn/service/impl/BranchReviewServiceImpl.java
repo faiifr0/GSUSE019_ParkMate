@@ -48,9 +48,36 @@ public class BranchReviewServiceImpl implements BranchReviewService {
     }
 
     @Override
+    public List<BranchReviewResponse> getAllOfBranch(Long id) {
+        return reviewRepository.findByParkBranch_Id(id)
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public BranchReviewResponse getReviewById(Long id) {
         BranchReview review = reviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
         return mapper.toResponse(review);
+    }
+
+    @Override
+    public BranchReviewResponse updateReview(Long id, BranchReviewRequest request) {
+        BranchReview review = reviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        UserEntity userEntity = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        ParkBranch branch = branchRepository.findById(request.getBranchId())
+                .orElseThrow(() -> new RuntimeException("Branch not found"));
+        
+        review = mapper.toEntity(request);
+        review.setUserEntity(userEntity);
+        review.setParkBranch(branch);
+
+        BranchReview saved = reviewRepository.save(review);
+        return mapper.toResponse(saved);
     }
 }

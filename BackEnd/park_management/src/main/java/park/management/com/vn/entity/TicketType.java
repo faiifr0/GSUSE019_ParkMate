@@ -18,7 +18,7 @@ public class TicketType extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(length = 2000)
+    @Column(length = 500)
     private String description;
 
     @Column(nullable = false, precision = 18, scale = 0)

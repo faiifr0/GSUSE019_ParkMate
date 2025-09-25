@@ -18,7 +18,7 @@ import Button from "../ui/button/Button";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import { userCreateModel } from "@/lib/model/userCreateModel";
-import { EyeCloseIcon, EyeIcon } from "@/icons";
+import { EyeCloseIcon, EyeIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 // Handle what happens when you click on the pagination

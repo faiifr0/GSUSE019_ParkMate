@@ -88,14 +88,14 @@ export default function GameTable() {
       setFormData(undefined);
       setFormData(form => ({ ...form, branchId: id }));
       closeModal();
-      const message = mode + " tiện nghi chi nhánh thành công!";
+      const message = mode + " trò chơi chi nhánh thành công!";
       toast.success(message, {
         duration: 3000,
         position: 'top-right',
       });
     } catch (err) {
       console.log(err);
-      const message = mode + " tiện nghi chi nhánh thất bại!";
+      const message = mode + " trò chơi chi nhánh thất bại!";
       toast.error(message, {
         duration: 3000,
         position: 'top-right',
@@ -235,7 +235,7 @@ export default function GameTable() {
           <div className="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
             <div className="px-2 pr-14">
               <h4 className="mb-3 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
-                {mode === 'Cập Nhật' ? 'Cập Nhật Tiện Nghi' : 'Tạo Tiện Nghi Mới'}
+                {mode === 'Cập Nhật' ? 'Cập Nhật Trò Chơi' : 'Tạo Trò Chơi Mới'}
               </h4>
             </div>
             <form className="flex flex-col"

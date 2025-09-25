@@ -33,7 +33,7 @@ public class BranchReview extends BaseEntity {
   @Column(name = "rating")
   private Integer rating;
 
-  @Column(name = "comment")
+  @Column(name = "comment", length = 1000)
   private String comment;
 
   @Column(name = "approved")

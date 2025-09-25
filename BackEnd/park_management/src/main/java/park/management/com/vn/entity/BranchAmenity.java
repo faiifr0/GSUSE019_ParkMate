@@ -26,7 +26,7 @@ public class BranchAmenity extends BaseEntity {
   @Column(name = "name", nullable = false, unique = true, length = 255)
   private String name;
 
-  @Column(name = "description")
+  @Column(name = "description", length = 1000)
   private String description;
 
   @Column(name = "image_url")

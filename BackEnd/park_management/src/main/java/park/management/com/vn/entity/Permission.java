@@ -20,9 +20,9 @@ import jakarta.persistence.*;
 @AllArgsConstructor
 public class Permission extends BaseEntity {
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false, unique = true, length = 200)
   private String name;
 
-  @Column(name = "description")
+  @Column(name = "description", length = 500)
   private String description;
 }

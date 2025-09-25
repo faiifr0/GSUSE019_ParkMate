@@ -24,7 +24,7 @@ public class VoucherUsage extends BaseEntity {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "guest_email", length = 128)
+    @Column(name = "guest_email")
     private String guestEmail;
 
     @Column(name = "used_at", nullable = false)

@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class BranchReviewResponse {
     private Long id;
     private Long userId;
+    private String email;
     private Long branchId;
     private Integer rating;
     private String comment;
