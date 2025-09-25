@@ -4,11 +4,7 @@ export type shiftResponse = {
   id: number;
   startTime: string;      
   endTime: string;       
-  description: string;
-  createdAt: string;       
-  updatedAt: string;      
-  createdBy: string;
-  updatedBy: string;
+  description: string;  
   daysOfWeek: string;
 };
 

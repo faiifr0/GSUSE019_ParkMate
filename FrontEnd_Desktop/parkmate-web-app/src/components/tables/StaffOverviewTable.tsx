@@ -10,12 +10,11 @@ import {
 } from "../ui/table";
 import branchStaffService, { branchStaffResponse } from "@/lib/services/branchStaffService";
 import Button from "../ui/button/Button";
-import staffAssignmentService from "@/lib/services/staffAssignementService";
+import staffAssignmentService, { staffAssignmentResponse } from "@/lib/services/staffAssignementService";
 import { enUS, vi } from "date-fns/locale";
 import { format, parseISO } from "date-fns";
 import toast from "react-hot-toast";
 import shiftService, { shiftResponse } from "@/lib/services/shiftService";
-import { staffAssignmentCreateModel } from "@/lib/model/staffAssignmentCreateModel";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -41,14 +40,15 @@ export default function StaffOverviewTable() {
 
   const [staffs, setStaffs] = useState<branchStaffResponse[]>([]);
   const [shifts, setShifts] = useState<shiftResponse[]>([]);  
+  const [staffAssignments, setStaffAssignments] = useState<staffAssignmentResponse[]>([]);
 
   // Fetch Staffs List
   const fetchStaffs = async () => {
     try {
       const response = await branchStaffService.getAll();     
-                                                                      
-      setStaffs(response.filter(staff => staff.parkBranchId === Number(id) && staff.status === true));
-
+                               
+      // Filter Staff Of This Branch and status must be true
+      setStaffs(response.filter(staff => staff.status === true && staff.parkBranchId === Number(id) && staff.username != null));
     } catch (err) {
       console.log(err);
     } finally {
@@ -62,7 +62,19 @@ export default function StaffOverviewTable() {
       const response = await shiftService.getAll();     
                                                                       
       setShifts(response);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      // do something
+    }
+  }
 
+  // Fetch Staff Assignments List
+  const fetchStaffAssignments = async () => {
+    try {
+      const response = await staffAssignmentService.getAll();     
+                                                                      
+      setStaffAssignments(response);
     } catch (err) {
       console.log(err);
     } finally {
@@ -73,6 +85,7 @@ export default function StaffOverviewTable() {
   useEffect(() => {    
     fetchStaffs();
     fetchShifts();
+    fetchStaffAssignments();
   }, [])
 
   const handleAssigning = async (staffId: number) => {
@@ -138,18 +151,23 @@ export default function StaffOverviewTable() {
                   >
                     Mô tả
                   </TableCell>
+                  {new Date(rawDate!) >= new Date() && (
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                   >
                     Action
-                  </TableCell>                                     
+                  </TableCell>                         
+                  )}            
                 </TableRow>
               </TableHeader>
 
               {/* Table Body */}
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {staffs.map((staff, index) => (
+                {/* Branch staffs are sorted in ascending order by username */}
+                {[...staffs]
+                  .sort((a, b) => a.username.localeCompare(b.username))
+                  .map((staff, index) => (
                   <TableRow key={staff.id}>                  
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {index + 1}
@@ -162,10 +180,11 @@ export default function StaffOverviewTable() {
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
                       {staff.description}
-                    </TableCell>
+                    </TableCell>                                        
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       <Button 
                         size="sm"
+                        disabled={staffAssignments.some(sa => sa.staffName === staff.username)}
                         onClick={() => { handleAssigning(staff.id); }}
                       >
                         Phân ca

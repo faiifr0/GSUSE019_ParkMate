@@ -1,26 +1,41 @@
 'use client'
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import React, { useEffect, useState } from "react";
-import ParkBranchTicketTable from "@/components/tables/ParkBranchTicketTable";
-import { useParams, useRouter } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import ComponentCard from "@/components/common/ComponentCard";
 import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
 import { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
+import branchAmenityService, { branchAmenityResponse } from "@/lib/services/branchAmenityService";
+import AmenityImageCard from "@/components/park-branch/amenity/AmenityImageCard";
 
-export default function TicketsList() {
+export default function AmenityImage() {
   const { currUser } = useAuth();
   const router = useRouter();
   const params = useParams();
   const branchId = params.id ? Number(params.id) : 0;
+  const amenityId = params['amenity-id'] ? String(params['amenity-id']) : null;    
 
   const [branchInfo, setBranchInfo] = useState<parkBranchResponse>(); 
+  const [amenityInfo, setAmenityInfo] = useState<branchAmenityResponse>();
+
   const fetchParkBranch = async () => {
     try {
       const response = await parkBranchService.getParkBranchById(String(branchId));
       setBranchInfo(response);  
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const fetchAmenity = async () => {
+    try {
+      const response = await branchAmenityService.getBranchAmenityById(amenityId!);
+      setAmenityInfo(response);  
+    } catch (err) {
+      console.log(err);
+      notFound();
     }
   };
 
@@ -41,8 +56,12 @@ export default function TicketsList() {
   useEffect(() => {
     if (branchId !== 0) {
       fetchParkBranch();
-    }
+    }    
   }, [branchId]);
+
+  useEffect(() => {
+    fetchAmenity();    
+  }, [amenityId]);
 
   if (!currUser) return null;
 
@@ -54,18 +73,23 @@ export default function TicketsList() {
 
   if (!isAuthorized) {
     return null; // prevent rendering before redirect
-  } 
+  }
+  
+  if (amenityId === null) {
+    notFound();
+  }
 
   const breadcrumbItems = currUser.roles.includes("MANAGER")
   ? []
   : [
       { name: "Danh sách chi nhánh", path: "/park-branches" },
       { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + branchId },
+      { name: "Các tiện nghi của chi nhánh", path: "/park-branches/" + branchId + "/amenities"}
     ];
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Các loại vé" items={breadcrumbItems}/>
+      <PageBreadcrumb pageTitle="Ảnh của tiện nghi" items={breadcrumbItems}/>
       <Toaster
         reverseOrder={false}
         toastOptions={{
@@ -77,9 +101,9 @@ export default function TicketsList() {
           top: 80, // sets spacing from top for the whole stack
         }}
       />
-      <ComponentCard title={"Các loại vé của " + branchInfo?.name}>
+      <ComponentCard title={"Ảnh của tiện nghi " + amenityInfo?.name + " của " + branchInfo?.name}>
         <div className="space-y-6">
-          <ParkBranchTicketTable></ParkBranchTicketTable>
+          <AmenityImageCard></AmenityImageCard>
         </div>
       </ComponentCard>
     </div>

@@ -3,22 +3,22 @@ import axiosClient from "../axiosClient";
 import {parkBranchUpdateModel} from "@/lib/model/parkBranchUpdateModel";
 
 export type branchTicketTypeResponse = {
+  id: string;
+  parkBranchId: string;
   name: string;
   description: string;
   basePrice: number;
-  isCancelable: boolean;
-  startTime: string;
-  endTime: string;
+  status: boolean;
 };
 
 const branchTicketTypeService = {
-  getAll: async(): 
+  getAllOfBranch: async (id: string): 
     Promise<branchTicketTypeResponse[]> => {
     try {
-      const res = await axiosClient.get<branchTicketTypeResponse[]>("/ticket-types");
+      const res = await axiosClient.get<branchTicketTypeResponse[]>(`/ticket-types/of-branch/${id}`);
       return res.data;
     } catch (error) {
-      console.error("❌ Error get all branch ticket type:", error);
+      console.error("❌ Error get all branch ticket types:", error);
       throw error;
     }
   },
@@ -50,7 +50,7 @@ const branchTicketTypeService = {
     model?: parkBranchUpdateModel
   ): Promise<branchTicketTypeResponse> => {
     try {
-      const res = await axiosClient.put<branchTicketTypeResponse>(`/ticket-type/${id}`, model);
+      const res = await axiosClient.put<branchTicketTypeResponse>(`/ticket-types/${id}`, model);
       return res.data;
     } catch (error) {
       console.error("❌ Error update branch ticket type id {" + id + "} :", error);

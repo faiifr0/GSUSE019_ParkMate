@@ -44,9 +44,11 @@ export default function ParkBranchOverview() {
     <div>
       <PageBreadcrumb 
         pageTitle="Thông tin chung của chi nhánh" 
-        items={[
-          { name: "Danh sách chi nhánh", path: "/park-branches" },          
-        ]}
+        items={
+          currUser.roles.includes("MANAGER")
+            ? []
+            : [{ name: "Danh sách chi nhánh", path: "/park-branches" }]
+        }
       />
       <Toaster
         reverseOrder={false}

@@ -1,14 +1,15 @@
 'use client'
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import React, { useEffect, useState } from "react";
-import ParkBranchTicketTable from "@/components/tables/ParkBranchTicketTable";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import ComponentCard from "@/components/common/ComponentCard";
 import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
 import { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
+import AmenityTable from "@/components/tables/AmenityTable";
 
-export default function TicketsList() {
+export default function AmenitiesList() {
   const { currUser } = useAuth();
   const router = useRouter();
   const params = useParams();
@@ -65,7 +66,7 @@ export default function TicketsList() {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="Các loại vé" items={breadcrumbItems}/>
+      <PageBreadcrumb pageTitle="Các tiện nghi của chi nhánh" items={breadcrumbItems}/>
       <Toaster
         reverseOrder={false}
         toastOptions={{
@@ -77,9 +78,9 @@ export default function TicketsList() {
           top: 80, // sets spacing from top for the whole stack
         }}
       />
-      <ComponentCard title={"Các loại vé của " + branchInfo?.name}>
+      <ComponentCard title={"Các tiện nghi của " + branchInfo?.name}>
         <div className="space-y-6">
-          <ParkBranchTicketTable></ParkBranchTicketTable>
+          <AmenityTable></AmenityTable>
         </div>
       </ComponentCard>
     </div>

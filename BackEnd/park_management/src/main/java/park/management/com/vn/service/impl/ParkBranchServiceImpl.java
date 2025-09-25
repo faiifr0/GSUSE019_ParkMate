@@ -77,10 +77,12 @@ public class ParkBranchServiceImpl implements ParkBranchService {
                             throw new RuntimeException("UPDATE_STATUS_FAILED_NO_ACTIVE_TICKET_TYPE");
                         if (branchStaffRepository.countByParkBranch_IdAndStatusTrue(id) == 0)
                             throw new RuntimeException("UPDATE_STATUS_FAILED_NO_ACTIVE_BRANCH_STAFF");
+                        branch.setStatus(request.isStatus());
                     } else {
                         // When update park branch status to false
                         // Either refund all active ticket order (status: PAID && date > today)
                         // Or just disable it
+                        branch.setStatus(request.isStatus());
                     }
                     
                     return parkBranchRepository.save(branch);

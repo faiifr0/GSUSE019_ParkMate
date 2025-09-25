@@ -82,11 +82,13 @@ export default function Shifts() {
 
   if (!isAuthorized) return null; // prevent rendering before redirect    
 
-  const breadcrumbItems = [
-    { name: "Danh sách chi nhánh", path: "/park-branches" },
-    { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + branchId },
-    { name: "Lịch làm việc", path: "/park-branches/" + branchId + "/shift-calendar"} 
-  ];
+  const breadcrumbItems = currUser.roles.includes("MANAGER")
+  ? [{ name: "Lịch làm việc", path: "/park-branches/" + branchId + "/shift-calendar"}]
+  : [
+      { name: "Danh sách chi nhánh", path: "/park-branches" },
+      { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + branchId },
+      { name: "Lịch làm việc", path: "/park-branches/" + branchId + "/shift-calendar"} 
+    ];
 
   return (
     <div>
@@ -104,14 +106,21 @@ export default function Shifts() {
       />
       <ComponentCard title={"Ca làm ngày " + formattedDate + " của " + branchInfo?.name}>
         <div className="grid grid-cols-12 gap-6">
+          {new Date(rawDate!) > new Date() && (
           <div className="col-span-6 space-y-6">
             <ComponentCard title="Nhân viên chi nhánh">
+              {new Date(rawDate!) >= new Date() && (
               <div>                
                 <StaffOverviewTable></StaffOverviewTable>
               </div>
+              )}
             </ComponentCard>
           </div>
+          )} 
 
+          {new Date(rawDate!) <= new Date() && (
+          <div className="col-span-3 space-y-6"></div>  
+          )}
           <div className="col-span-6 space-y-6">
             <ComponentCard title={"Ca " + weekdayVN + " ngày " + formattedDate + " (10h-22h)"}>
               <div>
@@ -119,6 +128,9 @@ export default function Shifts() {
               </div>
             </ComponentCard>
           </div>
+          {new Date(rawDate!) <= new Date() && (
+          <div className="col-span-3 space-y-6"></div>  
+          )}
         </div>
       </ComponentCard>      
     </div>

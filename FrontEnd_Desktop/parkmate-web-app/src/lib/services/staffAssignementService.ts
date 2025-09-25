@@ -9,6 +9,8 @@ export type staffAssignmentResponse = {
   assignedDate: string;
   createdAt: string;        
   updatedAt: string; 
+  scanInAt: string;
+  scanOutAt: string;
 };
 
 const staffAssignmentService = {

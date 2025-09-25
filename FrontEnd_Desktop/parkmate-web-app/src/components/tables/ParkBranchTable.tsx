@@ -50,7 +50,7 @@ export default function ParkBranchTable() {
   useEffect(() => {    
     fetchParkBranches();
     
-    setFormData(form => ({ ...form, location: "test location" }));
+    setFormData(form => ({ ...form, location: "106.623738 : 10.800662" }));
     setFormData(form => ({ ...form, openTime: "10:00:00" })); // default openTime 10:00 AM
     setFormData(form => ({ ...form, closeTime: "22:00:00" })); // default closeTime 10:00 PM
     setFormData(form => ({ ...form, status: false}));
@@ -229,19 +229,7 @@ export default function ParkBranchTable() {
                       />
                     </div>
                     <div className="col-span-2"></div>
-                  </div>
-
-                  <div className="grid grid-cols-12 my-9">                    
-                    <div className="col-span-12">
-                      <Label>Vị Trí</Label>
-                      <Input
-                        type="text"                        
-                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        disabled
-                        defaultValue="test location"
-                      />
-                    </div>                                        
-                  </div>                  
+                  </div>                                  
 
                   <div className="grid grid-cols-12 my-7 gap-x-4">                    
                     <div className="col-span-6">

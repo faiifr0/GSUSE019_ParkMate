@@ -132,13 +132,13 @@ export default function StaffJoinShiftTable() {
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                   >
                     Điểm Danh Về
-                  </TableCell>
+                  </TableCell>                  
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                   >
                     Action
-                  </TableCell>                                     
+                  </TableCell>                                             
                 </TableRow>
               </TableHeader>
 
@@ -153,12 +153,13 @@ export default function StaffJoinShiftTable() {
                       {assignment.staffName}
                     </TableCell>                         
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
-                      Chưa điểm danh
+                      {assignment?.scanInAt ? assignment.scanInAt : "Chưa điểm danh"}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
-                      Chưa điểm danh
+                      {assignment?.scanInAt ? assignment.scanInAt : "Chưa điểm danh"}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400 flex justify-center items-center gap-2">
+                      {new Date(rawDate!) > new Date() && (
                       <Button 
                         size="sm" 
                         variant="danger" 
@@ -166,6 +167,10 @@ export default function StaffJoinShiftTable() {
                       >
                         Hủy Ca
                       </Button>
+                      )}
+
+                      {/* Take attendance on same day or future (test) */}
+                      {new Date(rawDate!) >= new Date(new Date().toISOString().split("T")[0]) && (
                       <Button 
                         size="sm" 
                         variant="primary"
@@ -173,6 +178,7 @@ export default function StaffJoinShiftTable() {
                       >
                         Điểm Danh
                       </Button>
+                      )}
                     </TableCell>                                                  
                   </TableRow>
                 ))}

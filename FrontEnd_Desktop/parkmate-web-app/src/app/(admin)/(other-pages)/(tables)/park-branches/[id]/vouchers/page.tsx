@@ -9,7 +9,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useAuth } from "@/components/context/AuthContext";
 import { useRouter } from "next/navigation";
 
-export default function ParkBranchTicketsList() {
+export default function VouchersList() {
   const { currUser } = useAuth();
   const router = useRouter();
   const params = useParams();
@@ -57,10 +57,12 @@ export default function ParkBranchTicketsList() {
     return null; // prevent rendering before redirect
   } 
 
-  const breadcrumbItems = [
-    { name: "Danh sách chi nhánh", path: "/park-branches" },
-    { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + branchId } 
-  ];
+  const breadcrumbItems = currUser.roles.includes("MANAGER")
+  ? []
+  : [
+      { name: "Danh sách chi nhánh", path: "/park-branches" },
+      { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + branchId },
+    ];
 
   return (
     <div>
@@ -76,7 +78,7 @@ export default function ParkBranchTicketsList() {
           top: 80, // sets spacing from top for the whole stack
         }}
       />
-      <ComponentCard title={"Vouchers of " + branchInfo?.name}>
+      <ComponentCard title={"Vouchers của " + branchInfo?.name}>
         <div className="space-y-6">
           <ParkBranchVoucherTable></ParkBranchVoucherTable>
         </div>

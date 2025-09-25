@@ -57,10 +57,12 @@ export default function ShiftCalendar() {
     return null; // prevent rendering before redirect
   }   
 
-  const breadcrumbItems = [
-    { name: "Danh sách chi nhánh", path: "/park-branches" },
-    { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + branchId } 
-  ];
+  const breadcrumbItems = currUser.roles.includes("MANAGER")
+  ? []
+  : [
+      { name: "Danh sách chi nhánh", path: "/park-branches" },
+      { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + branchId },
+    ];
 
   return (
     <div>
