@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "This is Next.js Error 404 page for ParkMate",
 };
 
-export default function Error404() {
+export default function Error403() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1">
       <GridShape />

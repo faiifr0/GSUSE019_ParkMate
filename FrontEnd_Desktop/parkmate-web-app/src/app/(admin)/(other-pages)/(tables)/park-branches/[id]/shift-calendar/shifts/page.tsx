@@ -2,7 +2,7 @@
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
-import { useParams, notFound, useSearchParams } from "next/navigation";
+import { useParams, notFound, useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { format, parseISO } from 'date-fns';
 import StaffOverviewTable from "@/components/tables/StaffOverviewTable";
@@ -10,10 +10,26 @@ import StaffJoinShiftTable from "@/components/tables/StaffJoinShiftTable";
 import { vi, enUS } from 'date-fns/locale';
 import { Toaster } from "react-hot-toast";
 import shiftService, { shiftResponse } from "@/lib/services/shiftService";
+import { useAuth } from "@/components/context/AuthContext";
 
 export default function Shifts() {  
+  const { currUser } = useAuth();
+  const router = useRouter();
   const params = useParams();
-  const id = params.id ? String(params.id) : null;
+  const branchId = params.id ? Number(params.id) : 0;
+
+  const [branchInfo, setBranchInfo] = useState<parkBranchResponse>();    
+  const [shifts, setShifts] = useState<shiftResponse[]>([]); 
+
+  const fetchParkBranch = async () => {
+    const response = await parkBranchService.getParkBranchById(String(branchId));
+    setBranchInfo(response);  
+  }
+
+  const fetchShifts = async () => {
+    const response = await shiftService.getAll();
+    setShifts(response);  
+  }
 
   const searchParams = useSearchParams();
   const rawDate = searchParams.get('date');
@@ -24,28 +40,29 @@ export default function Shifts() {
 
   const formattedDate = isValidISODate(rawDate) ? format(parseISO(rawDate!), 'dd/MM/yyyy') : null;
 
-  if (!formattedDate || id === null) {
+  if (!formattedDate) {
     notFound();
   }
 
   const weekdayVN = format(rawDate!, 'EEEE', { locale: vi });
   const weekdayEN = format(rawDate!, 'EEEE', { locale: enUS });
 
-  const [branchInfo, setBranchInfo] = useState<parkBranchResponse>();    
-  const [shifts, setShifts] = useState<shiftResponse[]>([]); 
+  useEffect(() => {
+    if (!currUser) return;
 
-  const fetchParkBranch = async () => {
-    const response = await parkBranchService.getParkBranchById(id);
-    setBranchInfo(response);  
-  }
+    const isAdmin = currUser.roles?.includes("ADMIN");
+    const isManager = currUser.roles?.includes("MANAGER");
+    const isBranchMatch = branchId !== 0 && currUser.parkBranchId !== 0 && branchId === currUser.parkBranchId;
 
-  const fetchShifts = async () => {
-    const response = await shiftService.getAll();
-    setShifts(response);  
-  }
+    const isAuthorized = isAdmin || (isManager && isBranchMatch);
+
+    if (!isAuthorized) {
+      router.replace("/error-403");
+    }
+  }, [currUser, branchId, router]);
 
   // Fetch Park Branch Overview Info
-    useEffect(() => {
+  useEffect(() => {
     try {
       fetchParkBranch();  
       fetchShifts();
@@ -55,10 +72,20 @@ export default function Shifts() {
     } 
   }, [])
 
+  if (!currUser) return null;
+
+  const isAdmin = currUser?.roles?.includes("ADMIN");
+  const isManager = currUser?.roles?.includes("MANAGER");
+  const isBranchMatch = branchId !== 0 && currUser?.parkBranchId !== 0 && branchId === currUser?.parkBranchId;
+
+  const isAuthorized = isAdmin || (isManager && isBranchMatch);
+
+  if (!isAuthorized) return null; // prevent rendering before redirect    
+
   const breadcrumbItems = [
     { name: "Danh sách chi nhánh", path: "/park-branches" },
-    { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + id },
-    { name: "Lịch làm việc", path: "/park-branches/" + id + "/shift-calendar"} 
+    { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + branchId },
+    { name: "Lịch làm việc", path: "/park-branches/" + branchId + "/shift-calendar"} 
   ];
 
   return (

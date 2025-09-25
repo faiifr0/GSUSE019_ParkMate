@@ -222,7 +222,7 @@ export default function UserTable() {
                       <div className="relative">
                         <Input
                           type={showPassword ? "text" : "password"}
-                          placeholder="Enter your password"
+                          placeholder="Nhập mật khẩu"
                           onChange={(e) => setFormData({ ...formData, password: e.target.value })}                        
                         >
                         </Input>
@@ -256,10 +256,10 @@ export default function UserTable() {
               </div>
               <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
                 <Button size="sm" variant="outline" onClick={closeModal}>
-                  Close
+                  Đóng
                 </Button>
                 <Button size="sm" onClick={handleSave}>
-                  Save Changes
+                  Lưu thay đổi
                 </Button>
               </div>
             </form>

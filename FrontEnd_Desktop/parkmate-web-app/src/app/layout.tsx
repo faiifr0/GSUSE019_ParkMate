@@ -2,6 +2,7 @@ import { Quicksand } from 'next/font/google';
 import './globals.css';
 
 import { SidebarProvider } from '@/components/context/SidebarContext';
+import { AuthProvider } from '@/components/context/AuthContext';
 
 const outfit = Quicksand ({
   subsets: ["vietnamese"],
@@ -18,8 +19,12 @@ export default function RootLayout({
       <head>
         <meta charSet="UTF-8" />
       </head>
-      <body className={`${outfit.className} dark:bg-gray-900`}>        
-        <SidebarProvider>{children}</SidebarProvider>                
+      <body className={`${outfit.className} dark:bg-gray-900`}> 
+        <AuthProvider>       
+          <SidebarProvider>
+            {children}
+          </SidebarProvider>                
+        </AuthProvider>
       </body>      
     </html>
   );

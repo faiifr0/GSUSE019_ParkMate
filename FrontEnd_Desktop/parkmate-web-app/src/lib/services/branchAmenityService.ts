@@ -1,6 +1,6 @@
 import { branchAmenityCreateModel } from "@/lib/model/branchAmenityCreateModel";
 import axiosClient from "../axiosClient";
-import { branchPromotionUpdateModel } from "@/lib/model/branchPromotionUpdateModel";
+import { branchPromotionUpdateModel } from "@/lib/model/voucherUpdateModel";
 import { branchAmenityUpdateModel } from "@/lib/model/branchAmenityUpdateModel";
 
 export type branchAmenityResponse = {

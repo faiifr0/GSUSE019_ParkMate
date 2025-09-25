@@ -21,6 +21,7 @@ import {
   UserCircleIcon,
   UserIcon,  
 } from "../../icons/index";
+import { useAuth } from "@/components/context/AuthContext";
 
 type NavItem = {
   name: string;
@@ -33,6 +34,8 @@ const othersItems: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
+  const { currUser } = useAuth();  
+
   const params = useParams();
   const id = params.id ? String(params.id) : '0';
 
@@ -45,12 +48,17 @@ const AppSidebar: React.FC = () => {
       name: "Dashboard",
       path: "/",    
     },
-    {
+  ];
+  if (currUser?.roles?.includes("ADMIN")) {
+    navItems.push({
       icon: <UserCircleIcon />,
-      name: "Quản lý người dùng",    
-      path: "/users"    
-    },
-    {
+      name: "Quản lý người dùng",
+      path: "/users",
+    });
+  }
+    
+  if (currUser?.roles?.includes("ADMIN")) {
+    navItems.push({
       icon: <TableIcon />,
       name: "Quản lý Chi nhánh",      
       subItems: [             
@@ -64,9 +72,28 @@ const AppSidebar: React.FC = () => {
         { name: "Trò chơi", path: "/park-branches/" + id + "/games", pro: false, icon: <GameIcon />},
         { name: "Sự kiện", path: "/park-branches/" + id + "/events", pro: false, icon: <ShootingStarIcon /> },
         { name: "Đánh giá", path: "/park-branches/" + id + "/reviews", pro: false, icon: <PencilIcon/> },
-      ],
-    },   
-  ];
+        ],
+    });  
+  }
+
+  if (currUser?.roles?.includes("MANAGER") && currUser?.parkBranchId != 0) {
+    navItems.push({
+      icon: <TableIcon />,
+      name: "Quản lý Chi nhánh",      
+      subItems: [                     
+        { name: "Thông tin chung chi nhánh", path: "/park-branches/" + currUser?.parkBranchId, pro: false, icon: <FileIcon /> },
+        { name: "Nhân viên", path: "/park-branches/" + currUser?.parkBranchId + "/staffs", pro: false, icon: <UserIcon />},
+        { name: "Phân ca làm việc ", path: "/park-branches/" + currUser?.parkBranchId + "/shift-calendar", pro: false, icon: <CalenderIcon /> },
+        { name: "Các loại vé", path: "/park-branches/" + currUser?.parkBranchId + "/tickets", pro: false, icon: <ListIcon /> },
+        { name: "Vouchers", path: "/park-branches/" + currUser?.parkBranchId + "/vouchers", pro: false, icon: <ListIcon /> },            
+        { name: "Tiện nghi", path: "/park-branches/" + currUser?.parkBranchId + "/amenities", pro: false, icon: <BoltIcon /> },
+        { name: "Trò chơi", path: "/park-branches/" + currUser?.parkBranchId + "/games", pro: false, icon: <GameIcon />},
+        { name: "Sự kiện", path: "/park-branches/" + currUser?.parkBranchId + "/events", pro: false, icon: <ShootingStarIcon /> },
+        { name: "Đánh giá", path: "/park-branches/" + currUser?.parkBranchId + "/reviews", pro: false, icon: <PencilIcon/> },
+        ],
+    });  
+  }
+
 
   const renderMenuItems = (
     navItems: NavItem[],

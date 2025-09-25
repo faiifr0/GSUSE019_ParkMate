@@ -62,8 +62,7 @@ export default function UserDetailInfoCard() {
   const openEditModal = () => {      
       setFormData({        
         username: user?.username ?? "",
-        email: user?.email ?? "",
-        password: user?.password ?? "",
+        email: user?.email ?? "",        
         parkBranchId: user?.parkBranchId,        
         fullName: user?.fullName ?? "",
         dob: user?.dob ?? "",

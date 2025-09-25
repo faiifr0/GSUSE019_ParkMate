@@ -1,18 +1,26 @@
-//import ComponentCard from "@/components/common/ComponentCard";
+'use client'
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useAuth } from "@/components/context/AuthContext";
 import UserTable from "@/components/tables/UserTable";
-import { Metadata } from "next";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 
-export const metadata: Metadata = {
-  title: "Danh sách người dùng | ParkMate",
-  description:
-    "This is Next.js User List page for ParkMate",
-  // other metadata
-};
-
 export default function UsersList() {
+  const { currUser } = useAuth();
+  const router = useRouter();
+
+  // Authorization
+  useEffect(() => {
+    if (currUser && !currUser.roles?.includes("ADMIN")) {
+      router.replace("/error-403");
+    }
+  }, [currUser, router]);
+
+  if (!currUser || !currUser.roles?.includes("ADMIN")) {
+    return null; // prevent rendering before redirect
+  }
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Danh sách người dùng" />

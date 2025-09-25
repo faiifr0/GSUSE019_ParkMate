@@ -5,15 +5,15 @@ export async function middleware(req: NextRequest) {
   const pathName = req.nextUrl.pathname;
   const loginUrl = new URL("/signin", req.url);
 
-  // Optional: allow static assets
+  // Allow static assets
   const isStaticAsset = pathName.startsWith("/_next") || /\.(png|jpg|jpeg|svg|css|js|ico)$/.test(pathName);
 
-  //attempt to access signin page when already logged in will be redirected to dashboard
+  // Attempt to access signin page when already logged in will be redirected to dashboard
   if (token && pathName === "/signin" && !isStaticAsset) {
     return NextResponse.redirect(req.url);
   }
 
-  //exempt /signin/ page from redirecting to itself & if token expired return to signin page
+  // Exempt /signin/ page from redirecting to itself & if token expired return to signin page
   if (!token && pathName !== "/signin" && !isStaticAsset) {
     return NextResponse.redirect(loginUrl);
   }

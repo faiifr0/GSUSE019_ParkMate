@@ -244,7 +244,7 @@ export default function BranchStaffTable() {
                       </Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      <Button size="sm" onClick={() => openEditModal(staff)}>Edit</Button>
+                      <Button size="sm" onClick={() => openEditModal(staff)}>Cập Nhật</Button>
                     </TableCell>
                   </TableRow>                  
                 ))}
@@ -325,6 +325,7 @@ export default function BranchStaffTable() {
                     </div>                                        
                   </div> 
 
+                  { mode === 'edit' && (
                   <div className="grid grid-cols-6 my-9 gap-x-4">                                     
                     <div className="col-span-6 flex items-start gap-3">
                       <Label>Trạng thái</Label>
@@ -335,7 +336,8 @@ export default function BranchStaffTable() {
                         className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"            
                       />
                     </div>                                                                         
-                  </div>                                                                
+                  </div>
+                  )}                                                                
                 </div>              
               </div>
               <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
