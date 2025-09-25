@@ -1,6 +1,7 @@
 import { parkBranchCreateModel } from "@/lib/model/parkBranchCreateModel";
 import axiosClient from "../axiosClient";
 import {parkBranchUpdateModel} from "@/lib/model/parkBranchUpdateModel";
+import { updateImageModel } from "../model/updateImageModel";
 
 export type parkBranchResponse = {
   id: number;
@@ -13,7 +14,8 @@ export type parkBranchResponse = {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
-  updatedBy: string;  
+  updatedBy: string;
+  imageUrl: string;
 };
 
 const parkBranchService = {
@@ -59,6 +61,18 @@ const parkBranchService = {
       return res.data;
     } catch (error) {
       console.error("❌ Error update park branch id {" + id + "} :", error);
+      throw error;
+    }
+  },
+
+  updateParkBranchImage: async (
+    id: string, 
+    model?: updateImageModel
+  ): Promise<void> => {
+    try {
+      const res = await axiosClient.put<parkBranchResponse>(`/park-branch/${id}/image`, model);
+    } catch (error) {
+      console.error("❌ Error update park branch image :", error);
       throw error;
     }
   },

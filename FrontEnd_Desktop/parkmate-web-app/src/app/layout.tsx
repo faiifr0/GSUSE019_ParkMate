@@ -1,10 +1,11 @@
-import { Outfit } from 'next/font/google';
+import { Quicksand } from 'next/font/google';
 import './globals.css';
 
 import { SidebarProvider } from '@/components/context/SidebarContext';
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const outfit = Quicksand ({
+  subsets: ["vietnamese"],
+  weight: ['400', '700'],
 });
 
 export default function RootLayout({
