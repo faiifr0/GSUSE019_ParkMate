@@ -5,5 +5,6 @@ public record GameResponse(
     Long branchId,
     String name,
     String description,
-    String location
+    String imageUrl,
+    Boolean status
 ) {}

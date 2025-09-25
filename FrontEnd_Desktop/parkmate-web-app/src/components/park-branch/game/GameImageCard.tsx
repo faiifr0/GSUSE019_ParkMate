@@ -1,18 +1,19 @@
-import branchAmenityService, { branchAmenityResponse } from '@/lib/services/branchAmenityService';
+import gameService from '@/lib/services/gameService';
+import { GameResponse } from '@/lib/services/gameService';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-const AmenityImageCard = () => {
+const GameImageCard = () => {
   const params = useParams();
   const id = params.id ? String(params.id) : '0';
-  const amenityId = params['amenity-id'] ? String(params['amenity-id']) : null;
+  const gameId = params['game-id'] ? String(params['game-id']) : null;
 
-  const [amenityInfo, setAmenityInfo] = useState<branchAmenityResponse>();    
+  const [gameInfo, setGameInfo] = useState<GameResponse>();    
 
   const fetchAmenity = async () => {
-    const response = await branchAmenityService.getBranchAmenityById(amenityId!);
-    setAmenityInfo(response);  
+    const response = await gameService.getGameById(gameId!);
+    setGameInfo(response);  
   }
 
   // Fetch Park Branch Overview Info
@@ -60,16 +61,16 @@ const AmenityImageCard = () => {
       const imageUrl = data.secure_url;
       setUploadedUrl(imageUrl);
 
-      const message = 'Upload ảnh tiện nghi thành công!';
+      const message = 'Upload ảnh trò chơi thành công!';
       toast.success(message, {
         duration: 3000,
         position: 'top-right',
       });
       // update imageUrl to backend
-      branchAmenityService.updateBranchAmenityImage(amenityId!, imageUrl);
+      gameService.updateGameImage(gameId!, imageUrl);
     } catch (err) {
       console.error('Upload failed:', err);
-      const message = 'Upload ảnh tiện nghi thất bại!';
+      const message = 'Upload ảnh trò chơi thất bại!';
       toast.error(message, {
         duration: 3000,
         position: 'top-right',
@@ -85,7 +86,7 @@ const AmenityImageCard = () => {
       <div className="col-span-6 space-y-6">
         <div className="space-y-4">
             <img
-            src={imagePreview || amenityInfo?.imageUrl || '/images/stock/amusement-park-1.jpg'}
+            src={imagePreview || gameInfo?.imageUrl || '/images/stock/amusement-park-1.jpg'}
             alt="Ảnh tiện nghi"
             className="w-full h-auto rounded shadow"
             />
@@ -129,4 +130,4 @@ const AmenityImageCard = () => {
   );
 };
 
-export default AmenityImageCard;
+export default GameImageCard;

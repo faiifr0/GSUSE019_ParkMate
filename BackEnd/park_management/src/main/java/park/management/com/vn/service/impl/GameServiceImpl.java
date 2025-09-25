@@ -29,7 +29,8 @@ public class GameServiceImpl implements GameService {
         g.getParkBranch().getId(),
         g.getName(),
         g.getDescription(),
-        null // location removed from Game entity
+        g.getImageUrl(),
+        g.getStatus()
     );
   }
 
