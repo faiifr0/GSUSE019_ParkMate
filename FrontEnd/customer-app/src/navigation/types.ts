@@ -1,26 +1,28 @@
+// src/navigation/types.ts
 export type RootStackParamList = {
-  Home: undefined;
-  BranchList: undefined;
-  BranchDetail: { branchId: number };
-  BranchGameList: { branchId: number };
-  GameDetail: { gameId: number };
-  MainApp: undefined; // 👈 thêm
-  Notifications: undefined;
-  NotificationDetail: { notificationId: number };
-  Profile: undefined;
-  ForgotPassword: undefined;
-  Promotion: undefined;
-  QRCodeScanner: undefined;
-  TicketList: undefined;
-  TopUp: {
-    walletId: number;
-    amount: number;
-    checkoutUrl: string; // 👈 thêm dòng này
-  };
-  Event: undefined;
-  ChatBox: undefined;
+  MainApp: undefined;
   Login: undefined;
   Register: undefined;
+  Notifications: undefined;
+  NotificationDetail: { notificationId: number };
+  BranchDetail: { branchId: number };
+  GameDetail: { gameId: number };
   Wallet: { userId: number };
+  TopUp: { walletId: number; amount: number; checkoutUrl: string };
   Contact: undefined;
+  TicketList: undefined;
+  Profile: undefined;
+  Promotion: undefined;
+  ChatBox: undefined;
+  Event: undefined;
+  ForgotPassword: undefined;
+  Home: undefined;
+  QRCodeScanner: undefined;
+};
+
+export type BottomTabParamList = {
+  Home: undefined;
+  TicketList: undefined;
+  QRCodeScanner: undefined;
+  Profile: undefined;
 };

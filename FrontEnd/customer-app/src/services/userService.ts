@@ -1,16 +1,33 @@
-// src/services/authService.ts
+// src/services/userService.ts
 import axiosClient from "../api/axiosClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
+import { UserRequest, UserResponse } from "../types/User";
 
-// Đăng ký
-export const registerUser = (email: string, password: string) => {
-  return axiosClient.post("/users/register", { email, password });
+// ---------------- AUTH -----------------
+
+// Đăng ký user thường
+export const registerUser = (data: UserRequest) => {
+  return axiosClient.post<{ username: string; email: string }>(
+    "/users/register",
+    data
+  );
+};
+
+// Đăng ký staff
+export const registerStaff = (data: UserRequest) => {
+  return axiosClient.post<{ username: string; email: string }>(
+    "/users/register/staff",
+    data
+  );
 };
 
 // Đăng nhập
-export const loginUser = async (username: string, password: string) => {
-  const res = await axiosClient.post("/users/login", { username, password });
+export const loginUser = async (email: string, password: string) => {
+  const res = await axiosClient.post<{ accessToken: string }>("/users/login", {
+    email,
+    password,
+  });
 
   if (res.data?.accessToken) {
     if (Platform.OS === "web") {
@@ -32,15 +49,19 @@ export const logoutUser = async () => {
   }
 };
 
+// ---------------- USER -----------------
+
 // Lấy thông tin user theo ID
 export const getUserById = (id: number) => {
-  return axiosClient.get(`/users/${id}`);
+  return axiosClient.get<UserResponse>(`/users/${id}`);
 };
 
 // Cập nhật thông tin user
-export const updateUser = (
-  id: number,
-  data: { password?: string; parkBranchId?: number; roleId?: number }
-) => {
-  return axiosClient.put(`/users/${id}`, data);
+export const updateUser = (id: number, data: Partial<UserRequest>) => {
+  return axiosClient.put<UserResponse>(`/users/${id}`, data);
+};
+
+// Xóa user
+export const deleteUser = (id: number) => {
+  return axiosClient.delete(`/users/${id}`);
 };

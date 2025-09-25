@@ -1,4 +1,4 @@
-// src/navigation/AppNavigator.tsx
+// AppNavigator.tsx
 import React, { useEffect, useState, useRef } from "react";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -7,9 +7,10 @@ import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-cont
 import * as SystemUI from "expo-system-ui";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
-import { setCredentials } from "../redux/userSlice";
-import { getToken, decodeJWT } from "../api/axiosClient"; // sử dụng helper đã có
+import { setCredentials, logout } from "../redux/userSlice";
+import { getToken, decodeJWT } from "../api/axiosClient";
 
+// Screens
 import LoginScreen from "../screens/Auth/LoginScreen";
 import RegisterScreen from "../screens/Auth/RegisterScreen";
 import BottomTabNavigator from "./BottomTabNavigator";
@@ -18,8 +19,12 @@ import NotificationDetailScreen from "../screens/Notification/NotificationDetail
 import BranchDetailScreen from "../screens/Branch/BranchDetailScreen";
 import GamesScreen from "../screens/Branch/GamesScreen";
 import WalletScreen from "../screens/Wallet/WalletScreen";
+import ContactScreen from "../screens/Contact/ContactScreen";
 import TopUpConfirmScreen from "../screens/TopUp/TopUpConfirmScreen";
 import { RootStackParamList } from "./types";
+import AppHeader from "./AppHeader";
+import TicketListScreen from "../screens/Ticket/TicketListScreen";
+import ProfileScreen from "../screens/Profile/ProfileScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -34,7 +39,11 @@ function AuthStack() {
 
 function MainAppStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{
+        header: (props) => (Platform.OS === "web" ? <AppHeader {...props} /> : undefined),
+      }}
+    >
       <Stack.Screen name="MainApp" component={BottomTabNavigator} />
       <Stack.Screen name="Notifications" component={NotificationScreen} />
       <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} />
@@ -42,6 +51,9 @@ function MainAppStack() {
       <Stack.Screen name="GameDetail" component={GamesScreen} />
       <Stack.Screen name="Wallet" component={WalletScreen} />
       <Stack.Screen name="TopUp" component={TopUpConfirmScreen} />
+      <Stack.Screen name="Contact" component={ContactScreen} />
+      <Stack.Screen name="TicketList" component={TicketListScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
     </Stack.Navigator>
   );
 }
@@ -54,18 +66,17 @@ export default function AppNavigatorInnerBase() {
   const [checking, setChecking] = useState(true);
   const [isValid, setIsValid] = useState(false);
 
-  // refs để giữ timer id
   const expiryTimerRef = useRef<number | null>(null);
   const inactivityTimerRef = useRef<number | null>(null);
 
-  // cấu hình inactivity (phút)
-  const INACTIVITY_MINUTES = 30; // thay đổi nếu cần
+  const INACTIVITY_MINUTES = 30;
 
   useEffect(() => {
-    SystemUI.setBackgroundColorAsync("#FFFFFF");
+    if (Platform.OS !== "web") {
+      SystemUI.setBackgroundColorAsync("#FFFFFF");
+    }
   }, []);
 
-  // Clear timers helper
   const clearTimers = () => {
     if (expiryTimerRef.current) {
       clearTimeout(expiryTimerRef.current);
@@ -77,42 +88,26 @@ export default function AppNavigatorInnerBase() {
     }
   };
 
-  // Thực hiện logout: xóa storage + redux
   const doLogout = () => {
-    try {
-      if (Platform.OS === "web") {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("walletId");
-      }
-    } catch (e) {
-      // ignore
-    }
-    dispatch(setCredentials({ token: null, userInfo: null }));
+    dispatch(logout()); // ✅ Dùng action logout đã xoá cả Redux & localStorage
     clearTimers();
     setIsValid(false);
   };
 
-  // reset inactivity timer (web)
   const resetInactivityTimer = () => {
-    if (inactivityTimerRef.current) {
-      clearTimeout(inactivityTimerRef.current);
-    }
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     inactivityTimerRef.current = window.setTimeout(() => {
-      // auto logout on inactivity
       doLogout();
     }, INACTIVITY_MINUTES * 60 * 1000);
   };
 
-  // Kiểm tra token (từ storage hoặc redux)
   useEffect(() => {
     let mounted = true;
 
     const checkToken = async () => {
       setChecking(true);
 
-      // 1) lấy token từ storage nếu redux chưa có
-      let token = reduxToken ?? (await getToken()); // getToken trả về string|null
+      let token = reduxToken ?? (await getToken());
 
       if (!token) {
         if (mounted) {
@@ -122,13 +117,10 @@ export default function AppNavigatorInnerBase() {
         return;
       }
 
-      // 2) decode JWT để đọc exp (nếu không phải JWT thì không có exp)
       const payload = decodeJWT(token);
       const expSec = payload?.exp ?? null;
 
       if (!expSec) {
-        // Không có exp → không thể check expiry mà vẫn chấp nhận token (kém an toàn)
-        // Ở đây chọn: chấp nhận token nhưng không đặt expiry timer. Nếu muốn, có thể đặt TTL mặc định.
         dispatch(setCredentials({ token, userInfo: payload ?? null }));
         if (mounted) {
           setIsValid(true);
@@ -141,7 +133,6 @@ export default function AppNavigatorInnerBase() {
       const now = Date.now();
 
       if (expMs <= now) {
-        // hết hạn
         doLogout();
         if (mounted) {
           setIsValid(false);
@@ -150,28 +141,23 @@ export default function AppNavigatorInnerBase() {
         return;
       }
 
-      // token hợp lệ → set redux nếu chưa set
       dispatch(setCredentials({ token, userInfo: payload ?? null }));
       if (mounted) {
         setIsValid(true);
         setChecking(false);
       }
 
-      // set timer tự logout khi token hết hạn
       const msUntilExpiry = expMs - now;
       if (expiryTimerRef.current) clearTimeout(expiryTimerRef.current);
       expiryTimerRef.current = setTimeout(() => {
         doLogout();
       }, msUntilExpiry) as any as number;
 
-      // nếu chạy web: gắn listener để reset inactivity
       if (Platform.OS === "web") {
         resetInactivityTimer();
-        // events to consider activity
         const events = ["mousemove", "mousedown", "keydown", "touchstart"];
         const handler = () => resetInactivityTimer();
         events.forEach((ev) => window.addEventListener(ev, handler));
-        // cleanup: remove listeners on unmount (handled below)
         return () => {
           events.forEach((ev) => window.removeEventListener(ev, handler));
           clearTimers();
@@ -179,16 +165,12 @@ export default function AppNavigatorInnerBase() {
       }
     };
 
-    const cleanupPromise = checkToken();
+    checkToken();
 
     return () => {
-      // cleanup
       clearTimers();
-      // if checkToken returned a cleanup (for web) handle it (but we can't await)
-      // simple: just mark unmounted
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduxToken, dispatch]);
 
   if (checking) {
@@ -199,7 +181,6 @@ export default function AppNavigatorInnerBase() {
     );
   }
 
-  // Linking config cho web (giữ nguyên)
   const linking = {
     prefixes: ["/"],
     config: {
@@ -226,7 +207,6 @@ export default function AppNavigatorInnerBase() {
       },
     },
     getInitialURL: async () => {
-      // if navigating directly to /app/* and not valid -> send to /login
       const url = Platform.OS === "web" ? window.location.pathname : "";
       if (!isValid && typeof url === "string" && url.startsWith("/app")) {
         return "/login";
@@ -254,10 +234,14 @@ export function AppNavigator() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#fff" },
+  safeArea: { flex: 1 },
 });
 
 const LightTheme = {
   ...DefaultTheme,
-  colors: { ...DefaultTheme.colors, background: "#fff", text: "#000" },
+  colors: {
+    ...DefaultTheme.colors,
+    background: "transparent",
+    text: "#000",
+  },
 };

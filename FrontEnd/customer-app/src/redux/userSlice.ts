@@ -1,9 +1,8 @@
-// src/redux/userSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
-  token: string | null; // cho phép null
-  userInfo: any | null; // cho phép null
+  token: string | null;
+  userInfo: any | null;
 }
 
 const initialState: UserState = {
@@ -21,10 +20,28 @@ const userSlice = createSlice({
     ) => {
       state.token = action.payload.token;
       state.userInfo = action.payload.userInfo;
+
+      // 🔹 Lưu token & userInfo vào localStorage cho web
+      if (typeof window !== "undefined") {
+        if (action.payload.token) {
+          localStorage.setItem("token", action.payload.token);
+        }
+        if (action.payload.userInfo) {
+          localStorage.setItem("userInfo", JSON.stringify(action.payload.userInfo));
+        }
+      }
     },
     logout: (state) => {
       state.token = null;
       state.userInfo = null;
+
+      // 🔹 Xoá localStorage khi logout (web)
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userInfo");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("walletId");
+      }
     },
   },
 });

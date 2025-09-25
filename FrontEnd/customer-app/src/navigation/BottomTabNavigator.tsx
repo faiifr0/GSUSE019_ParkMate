@@ -1,5 +1,5 @@
 import React from "react";
-import { Platform, View } from "react-native";
+import { Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,37 +8,35 @@ import HomeScreen from "../screens/Home/HomeScreen";
 import TicketListScreen from "../screens/Ticket/TicketListScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
 import QRCodeScannerScreen from "../screens/QRCode/QRCodeScannerScreen";
-import AppHeader from "./AppHeader";
 
-// Các trang bổ sung
+// Bổ sung các trang cho web stack
 import BranchDetailScreen from "../screens/Branch/BranchDetailScreen";
 import PromotionScreen from "../screens/Promotion/PromotionScreen";
 import ChatBoxScreen from "../screens/ChatBox/ChatBox";
 import ContactScreen from "../screens/Contact/ContactScreen";
 
-import type { RootStackParamList } from "./types";
+import type { RootStackParamList, BottomTabParamList } from "./types";
 
-const Tab = createBottomTabNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// 👉 Web Navigator (stack)
 function WebNavigator() {
   return (
-    <View style={{ flex: 1 }}>
-      <AppHeader />
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="TicketList" component={TicketListScreen} />
-        <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="BranchDetail" component={BranchDetailScreen} />
-        <Stack.Screen name="Promotion" component={PromotionScreen} />
-        <Stack.Screen name="ChatBox" component={ChatBoxScreen} />
-        <Stack.Screen name="Contact" component={ContactScreen} />
-      </Stack.Navigator>
-    </View>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="TicketList" component={TicketListScreen} />
+      <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="BranchDetail" component={BranchDetailScreen} />
+      <Stack.Screen name="Promotion" component={PromotionScreen} />
+      <Stack.Screen name="ChatBox" component={ChatBoxScreen} />
+      <Stack.Screen name="Contact" component={ContactScreen} />
+    </Stack.Navigator>
   );
 }
 
+// 👉 Mobile Navigator (tab)
 export default function BottomTabNavigator() {
   if (Platform.OS === "web") return <WebNavigator />;
 

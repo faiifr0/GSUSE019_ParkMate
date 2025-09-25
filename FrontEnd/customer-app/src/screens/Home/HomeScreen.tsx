@@ -1,3 +1,4 @@
+// src/screens/Home/HomeScreen.tsx
 import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
@@ -17,68 +18,17 @@ import branchPromotionService from "../../services/branchPromotionService";
 import { BranchPromotion } from "../../types/BranchPromotion";
 import branchService from "../../services/branchService";
 import { Branch } from "../../types/Branch";
-import styles from "../../styles/HomeScreenStyles";
 import colors from "../../constants/colors";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Ionicons } from "@expo/vector-icons";
 import { walletService } from "../../services/walletService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import { RootStackParamList } from "../../navigation/types";
 
 // ------------ TYPES ------------
-type RootStackParamList = {
-  BranchDetail: { branchId: number };
-  Notifications: undefined;
-};
-
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
-
-// ------------ HEADER ------------
-function AppHeader({
-  coin,
-  onNotificationPress,
-}: {
-  coin: number;
-  onNotificationPress: () => void;
-}) {
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: colors.primary,
-      }}
-    >
-      <Text style={{ fontSize: 18, fontWeight: "bold", color: "white" }}>
-        🎡 ParkMate
-      </Text>
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <View
-          style={{
-            backgroundColor: "white",
-            paddingHorizontal: 10,
-            paddingVertical: 4,
-            borderRadius: 20,
-            marginRight: 12,
-          }}
-        >
-          <Text style={{ fontWeight: "bold", color: colors.primary }}>
-            🪙 {coin}
-          </Text>
-        </View>
-
-        <TouchableOpacity onPress={onNotificationPress}>
-          <Ionicons name="notifications-outline" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
 
 // ------------ MAIN SCREEN ------------
 export default function HomeScreen({ navigation }: HomeScreenProps) {
@@ -152,7 +102,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       }
 
       if (!userCoords) {
-        setError("⚠️ Vị trí không được cấp phép. Chỉ hiển thị chi nhánh và khuyến mãi.");
+        setError(
+          "⚠️ Vị trí không được cấp phép. Chỉ hiển thị chi nhánh và khuyến mãi."
+        );
       }
     } catch (err: any) {
       setError(err?.message ?? "Có lỗi khi tải dữ liệu.");
@@ -173,173 +125,190 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     fetchBranches();
   };
 
-  // ------------ WEB LANDING PAGE ------------
-  if (Platform.OS === "web") {
-    return (
-      <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
-        {/* Hero Section */}
-        <View
+// ------------ WEB LANDING PAGE ------------
+if (Platform.OS === "web") {
+  return (
+    <ScrollView
+      style={{ flex: 1, backgroundColor: "transparent" }}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: "transparent" }}
+    >
+      {/* Hero Section */}
+      <View
+        style={{
+          paddingVertical: 120,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundImage:
+            "linear-gradient(135deg, #FF9A8B, #FF6A88, #FF99AC, #FBC2EB)",
+        } as any}
+      >
+        <Text
           style={{
-            paddingVertical: 80,
-            alignItems: "center",
-            backgroundImage:
-              "linear-gradient(135deg, #FF9A8B, #FF6A88, #FF99AC)",
-          } as any}
+            fontSize: 52,
+            fontWeight: "900",
+            color: "white",
+            textAlign: "center",
+            letterSpacing: 1,
+          }}
+        >
+          KHU VUI CHƠI ĐẦY SẮC MÀU
+        </Text>
+        <TouchableOpacity
+          onPress={() => console.log("👉 KHÁM PHÁ NGAY")}
+          style={{
+            marginTop: 40,
+            backgroundColor: "white",
+            paddingVertical: 16,
+            paddingHorizontal: 50,
+            borderRadius: 30,
+            shadowColor: "#000",
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+          }}
         >
           <Text
             style={{
-              fontSize: 42,
+              color: "#FF6A88",
               fontWeight: "bold",
-              color: "white",
-              textAlign: "center",
+              fontSize: 18,
+              textTransform: "uppercase",
             }}
           >
-            KHU VUI CHƠI ĐẦY SẮC MÀU
+            Khám phá ngay
           </Text>
-          <TouchableOpacity
+        </TouchableOpacity>
+      </View>
+
+      {/* Các section */}
+      <View style={{ padding: 60, backgroundColor: "transparent" }}>
+        {/* Trò chơi hot */}
+        <View style={{ marginBottom: 60 }}>
+          <Text
             style={{
-              marginTop: 20,
-              backgroundColor: "#fff",
-              paddingVertical: 14,
-              paddingHorizontal: 28,
-              borderRadius: 30,
+              fontSize: 28,
+              fontWeight: "700",
+              marginBottom: 20,
+              color: colors.primary,
             }}
           >
-            <Text
-              style={{
-                color: "#FF6A88",
-                fontWeight: "bold",
-                fontSize: 16,
-              }}
-            >
-              KHÁM PHÁ NGAY
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Trò chơi hot */}
-        <View style={{ padding: 40, alignItems: "center" }}>
-          <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 20 }}>
             🎡 Trò chơi hot
           </Text>
-          {branches.length > 0 ? (
-            <FlatList
-              horizontal
-              data={branches.slice(0, 5)}
-              renderItem={({ item }) => (
-                <View
-                  style={{
-                    width: 250,
-                    marginHorizontal: 10,
-                    backgroundColor: "#f9f9f9",
-                    borderRadius: 12,
-                    padding: 12,
-                    shadowColor: "#000",
-                    shadowOpacity: 0.1,
-                    shadowRadius: 6,
-                  }}
-                >
-                  <Image
-                    source={{ uri: "https://via.placeholder.com/250x150" }}
-                    style={{ width: "100%", height: 150, borderRadius: 8 }}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "bold",
-                      marginTop: 10,
-                    }}
-                    numberOfLines={1}
-                  >
-                    {item.name}
-                  </Text>
-                  <Text style={{ color: "#555" }} numberOfLines={1}>
-                    {item.address}
-                  </Text>
-                </View>
-              )}
-              keyExtractor={(item) => item.id.toString()}
-              showsHorizontalScrollIndicator={false}
-            />
-          ) : (
-            <Text>Chưa có dữ liệu trò chơi</Text>
-          )}
-        </View>
-
-        {/* Khuyến mãi nổi bật */}
-        <View
-          style={{
-            padding: 40,
-            alignItems: "center",
-            backgroundColor: "#fff5f5",
-          }}
-        >
-          <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 20 }}>
-            🔥 Khuyến mãi nổi bật
-          </Text>
-          {promotions.length > 0 ? (
-            promotions.map((promo) => (
-              <View
-                key={promo.id}
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              gap: 20,
+            }}
+          >
+            {branches.slice(0, 4).map((item) => (
+              <TouchableOpacity
+                key={item.id}
                 style={{
-                  width: 600,
-                  backgroundColor: "white",
-                  borderRadius: 12,
-                  padding: 16,
-                  marginBottom: 20,
+                  width: 220,
+                  backgroundColor: "#fff", // chỉ card mới trắng
+                  borderRadius: 16,
+                  overflow: "hidden",
                   shadowColor: "#000",
                   shadowOpacity: 0.1,
                   shadowRadius: 6,
                 }}
               >
                 <Image
-                  source={{
-                    uri: promo.image || "https://via.placeholder.com/600x200",
-                  }}
-                  style={{ width: "100%", height: 200, borderRadius: 8 }}
+                  source={{ uri: "https://via.placeholder.com/220x140" }}
+                  style={{ width: "100%", height: 140 }}
                 />
-                <Text
+                <View style={{ padding: 12 }}>
+                  <Text style={{ fontSize: 16, fontWeight: "600" }}>
+                    {item.name}
+                  </Text>
+                  <Text style={{ fontSize: 14, color: "#666" }}>
+                    {item.address}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Khuyến mãi nổi bật */}
+        <View style={{ marginBottom: 60 }}>
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: "700",
+              marginBottom: 20,
+              color: "#e63946",
+            }}
+          >
+            🔥 Khuyến mãi nổi bật
+          </Text>
+          <View style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {promotions.length > 0 ? (
+              promotions.map((promo) => (
+                <TouchableOpacity
+                  key={promo.id}
                   style={{
-                    marginTop: 10,
-                    fontSize: 18,
-                    fontWeight: "bold",
+                    backgroundColor: "#fff", // box riêng
+                    borderRadius: 16,
+                    overflow: "hidden",
+                    shadowColor: "#000",
+                    shadowOpacity: 0.1,
+                    shadowRadius: 6,
                   }}
                 >
-                  {promo.description}
-                </Text>
-                <Text style={{ color: "#FF6A88", marginTop: 4 }}>
-                  Giảm {promo.discount}%
-                </Text>
-              </View>
-            ))
-          ) : (
-            <Text>Không có khuyến mãi</Text>
-          )}
+                  <Image
+                    source={{
+                      uri: promo.image || "https://via.placeholder.com/600x200",
+                    }}
+                    style={{ width: "100%", height: 160 }}
+                  />
+                  <View style={{ padding: 16 }}>
+                    <Text
+                      style={{ fontSize: 18, fontWeight: "600", marginBottom: 6 }}
+                    >
+                      {promo.description}
+                    </Text>
+                    <Text style={{ color: "#ff6a88", fontSize: 16 }}>
+                      Giảm {promo.discount}%
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text>Không có khuyến mãi</Text>
+            )}
+          </View>
         </View>
 
         {/* Chi nhánh gần bạn */}
-        <View style={{ padding: 40, alignItems: "center" }}>
-          <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 20 }}>
+        <View
+          style={{
+            backgroundColor: "#fff", // chỉ box riêng
+            borderRadius: 20,
+            padding: 30,
+            shadowColor: "#000",
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: "700",
+              marginBottom: 20,
+              color: "#1d3557",
+            }}
+          >
             📍 Chi nhánh gần bạn
           </Text>
           {nearestBranch ? (
-            <View
-              style={{
-                width: 600,
-                backgroundColor: "#f9f9f9",
-                borderRadius: 12,
-                padding: 16,
-                shadowColor: "#000",
-                shadowOpacity: 0.1,
-                shadowRadius: 6,
-              }}
-            >
-              <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+            <View>
+              <Text style={{ fontSize: 20, fontWeight: "600" }}>
                 {nearestBranch.name}
               </Text>
-              <Text style={{ marginTop: 4 }}>
-                {nearestBranch.address ?? "Chưa có địa chỉ"}
-              </Text>
+              <Text style={{ marginTop: 4 }}>{nearestBranch.address}</Text>
               <Text style={{ marginTop: 4 }}>
                 🕒 {nearestBranch.open ?? "?"} - {nearestBranch.close ?? "?"}
               </Text>
@@ -348,89 +317,51 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             <Text>Không tìm thấy chi nhánh gần bạn</Text>
           )}
         </View>
+      </View>
+    </ScrollView>
+  );
+}
 
-        {/* Tải ứng dụng */}
-        <View
-          style={{ alignItems: "center", padding: 40, backgroundColor: "#fafafa" }}
-        >
-          <Text
-            style={{ fontSize: 24, fontWeight: "bold", marginBottom: 12 }}
-          >
-            Tải ứng dụng:
-          </Text>
-          <View style={{ flexDirection: "row", gap: 15 }}>
-            <Image
-              source={{
-                uri: "https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg",
-              }}
-              style={{ width: 160, height: 50 }}
-            />
-            <Image
-              source={{
-                uri: "https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg",
-              }}
-              style={{ width: 180, height: 50 }}
-            />
-          </View>
-        </View>
-      </ScrollView>
-    );
-  }
+
 
   // ------------ APP HOME ------------
   return (
-    <View style={styles.container}>
-      <AppHeader
-        coin={coin}
-        onNotificationPress={() => navigation.navigate("Notifications")}
-      />
-
+    <View style={{ flex: 1 }}>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={{ padding: 16 }}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[colors.primary]}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
         }
       >
-        <Animatable.Text animation="fadeIn" style={styles.title}>
+        <Animatable.Text animation="fadeIn" style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
           🎡 Chào mừng đến với ParkMate
         </Animatable.Text>
 
         {loading ? (
-          <ActivityIndicator
-            size="large"
-            color={colors.primary}
-            style={styles.loader}
-          />
+          <ActivityIndicator size="large" color={colors.primary} />
         ) : (
           <>
-            {error && <Text style={styles.errorText}>{error}</Text>}
+            {error && <Text style={{ color: "red" }}>{error}</Text>}
 
             {/* Chi nhánh gần nhất */}
             {nearestBranch && (
               <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("BranchDetail", {
-                    branchId: nearestBranch.id,
-                  })
-                }
+                onPress={() => navigation.navigate("BranchDetail", { branchId: nearestBranch.id })}
               >
                 <Animatable.View
                   animation="bounceIn"
                   duration={900}
-                  style={styles.branchBox}
+                  style={{
+                    backgroundColor: "#f9f9f9",
+                    padding: 16,
+                    borderRadius: 12,
+                    marginBottom: 20,
+                  }}
                 >
-                  <Text style={styles.branchTitle}>Chi nhánh gần nhất</Text>
-                  <Text style={styles.text} numberOfLines={1}>
-                    {nearestBranch.name}
-                  </Text>
-                  <Text style={styles.text} numberOfLines={1}>
-                    {nearestBranch.address ?? "Chưa có địa chỉ"}
-                  </Text>
-                  <Text style={styles.text}>
+                  <Text style={{ fontWeight: "bold", fontSize: 18 }}>Chi nhánh gần nhất</Text>
+                  <Text>{nearestBranch.name}</Text>
+                  <Text>{nearestBranch.address ?? "Chưa có địa chỉ"}</Text>
+                  <Text>
                     🕒 {nearestBranch.open ?? "?"} - {nearestBranch.close ?? "?"}
                   </Text>
                 </Animatable.View>
@@ -438,80 +369,72 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             )}
 
             {/* Danh sách chi nhánh */}
-            <Animatable.Text animation="fadeIn" style={styles.sectionTitle}>
+            <Animatable.Text animation="fadeIn" style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16 }}>
               Danh sách chi nhánh
             </Animatable.Text>
-            {branches.length > 0 ? (
-              <FlatList
-                horizontal
-                data={branches}
-                renderItem={({ item, index }) => (
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate("BranchDetail", { branchId: item.id })
-                    }
-                  >
-                    <Animatable.View
-                      animation="fadeInUp"
-                      delay={index * 100}
-                      style={styles.branchCard}
-                    >
-                      <Image
-                        source={{ uri: "https://via.placeholder.com/150" }}
-                        style={styles.branchImage}
-                      />
-                      <Text style={styles.branchName} numberOfLines={1}>
-                        {item.name}
-                      </Text>
-                      <Text style={styles.branchAddress} numberOfLines={1}>
-                        {item.address ?? ""}
-                      </Text>
-                    </Animatable.View>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item) => item.id.toString()}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.flatListContent}
-              />
-            ) : (
-              <Text style={styles.text}>Không có chi nhánh</Text>
-            )}
-
-            {/* Khuyến mãi nổi bật */}
-            <Animatable.Text animation="fadeIn" style={styles.sectionTitle}>
-              Khuyến mãi nổi bật
-            </Animatable.Text>
-            {promotions.length > 0 ? (
-              <FlatList
-                horizontal
-                data={promotions}
-                renderItem={({ item, index }) => (
+            <FlatList
+              horizontal
+              data={branches}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => navigation.navigate("BranchDetail", { branchId: item.id })}>
                   <Animatable.View
                     animation="fadeInUp"
-                    delay={index * 150}
-                    style={styles.promoCard}
+                    style={{
+                      width: 150,
+                      marginRight: 12,
+                      backgroundColor: "#fff",
+                      borderRadius: 12,
+                      padding: 8,
+                      shadowColor: "#000",
+                      shadowOpacity: 0.05,
+                      shadowRadius: 4,
+                    }}
                   >
-                    <Image
-                      source={{
-                        uri: item.image || "https://via.placeholder.com/150",
-                      }}
-                      style={styles.promoImage}
-                    />
-                    <Text style={styles.promoText} numberOfLines={2}>
-                      {item.description}
+                    <Image source={{ uri: "https://via.placeholder.com/150" }} style={{ width: "100%", height: 100, borderRadius: 8 }} />
+                    <Text style={{ fontWeight: "bold", marginTop: 8 }} numberOfLines={1}>
+                      {item.name}
                     </Text>
-                    <Text style={styles.discountText}>
-                      🔥 Giảm {item.discount}%
+                    <Text style={{ color: "#555" }} numberOfLines={1}>
+                      {item.address ?? ""}
                     </Text>
                   </Animatable.View>
-                )}
-                keyExtractor={(item) => item.id.toString()}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.flatListContent}
-              />
-            ) : (
-              <Text style={styles.text}>Không có khuyến mãi</Text>
-            )}
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.id.toString()}
+              showsHorizontalScrollIndicator={false}
+            />
+
+            {/* Khuyến mãi nổi bật */}
+            <Animatable.Text animation="fadeIn" style={{ fontSize: 20, fontWeight: "bold", marginVertical: 16 }}>
+              Khuyến mãi nổi bật
+            </Animatable.Text>
+            <FlatList
+              horizontal
+              data={promotions}
+              renderItem={({ item }) => (
+                <Animatable.View
+                  animation="fadeInUp"
+                  style={{
+                    width: 150,
+                    marginRight: 12,
+                    backgroundColor: "#fff",
+                    borderRadius: 12,
+                    padding: 8,
+                    shadowColor: "#000",
+                    shadowOpacity: 0.05,
+                    shadowRadius: 4,
+                  }}
+                >
+                  <Image source={{ uri: item.image || "https://via.placeholder.com/150" }} style={{ width: "100%", height: 100, borderRadius: 8 }} />
+                  <Text style={{ fontWeight: "bold", marginTop: 8 }} numberOfLines={2}>
+                    {item.description}
+                  </Text>
+                  <Text style={{ color: "#FF6A88", marginTop: 4 }}>🔥 Giảm {item.discount}%</Text>
+                </Animatable.View>
+              )}
+              keyExtractor={(item) => item.id.toString()}
+              showsHorizontalScrollIndicator={false}
+            />
           </>
         )}
       </ScrollView>

@@ -36,7 +36,7 @@ async function removeToken() {
 const axiosClient = axios.create({
   baseURL:
     Platform.OS === "android"
-      ? "http://192.168.1.16:8080/api"
+      ? "http://192.168.1.38:8080/api"
       : "http://localhost:8080/api",
   headers: { "Content-Type": "application/json" },
 });
@@ -70,16 +70,29 @@ axiosClient.interceptors.request.use(
 );
 
 // Response interceptor → xử lý 401/403
+// Response interceptor → xử lý 401/403 + network error
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      await removeToken();
-      store.dispatch(logout());
+    if (error.response) {
+      // Nếu có response từ server
+      if (error.response.status === 401 || error.response.status === 403) {
+        await removeToken();
+        store.dispatch(logout());
+      }
+    } else if (error.request) {
+      // Không có response → lỗi kết nối
+      console.log("Lỗi kết nối server:", error.message);
+      alert("Hệ thống đang bảo trì hoặc không thể kết nối server. Vui lòng thử lại sau!");
+    } else {
+      // Lỗi khác
+      console.log("Error", error.message);
     }
+
     return Promise.reject(error);
   }
 );
+
 
 export { getToken, decodeJWT, removeToken }; // ✅ export thêm để import bên ngoài
 export default axiosClient;

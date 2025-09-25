@@ -1,3 +1,4 @@
+// src/navigation/AppHeader.tsx
 import React, { useState } from "react";
 import {
   View,
@@ -9,25 +10,20 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "./types";
-// import { useSelector } from "react-redux";
-// import { RootState } from "../redux/store";
+import { NativeStackHeaderProps } from "@react-navigation/native-stack";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/userSlice";
+import { persistor } from "../redux/store"; // ✅ import persistor
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-type Props = { coin?: number };
-
-export default function AppHeader({ coin = 0 }: Props) {
-  const navigation = useNavigation<NavigationProp>();
+export default function AppHeader(props: NativeStackHeaderProps) {
+  const { navigation } = props;
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === "web";
   const isMobileView = width < 768;
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // ✅ Lấy token từ redux để check login (giữ lại nhưng comment vì AppNavigator đã chặn)
-  // const { token } = useSelector((state: RootState) => state.user);
-  // const isLoggedIn = !!token;
+  const coin = 0;
+  const dispatch = useDispatch();
 
   // 👉 Mobile header
   if (!isWeb) {
@@ -42,12 +38,13 @@ export default function AppHeader({ coin = 0 }: Props) {
           backgroundColor: "transparent",
         }}
       >
-        <Text style={{ fontSize: 20, fontWeight: "bold", color: colors.primary }}>
-          🎡 ParkMate
-        </Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", color: colors.primary }}>
+            🎡 ParkMate
+          </Text>
+        </TouchableOpacity>
 
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          {/* Trước đây check login ở đây, giờ bỏ luôn */}
           <View
             style={{
               paddingHorizontal: 10,
@@ -56,11 +53,10 @@ export default function AppHeader({ coin = 0 }: Props) {
               marginRight: 12,
               borderWidth: 1.5,
               borderColor: colors.primary,
+              backgroundColor: "rgba(255,255,255,0.2)",
             }}
           >
-            <Text style={{ fontWeight: "bold", color: colors.primary }}>
-              🪙 {coin}
-            </Text>
+            <Text style={{ fontWeight: "bold", color: colors.primary }}>🪙 {coin}</Text>
           </View>
 
           <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
@@ -80,14 +76,17 @@ export default function AppHeader({ coin = 0 }: Props) {
         justifyContent: "space-between",
         paddingHorizontal: 32,
         paddingVertical: 12,
-        backgroundColor: "white",
-        borderBottomWidth: 1,
-        borderBottomColor: "#eee",
+        backgroundColor: "transparent",
+        borderBottomWidth: 0,
         height: 64,
+        position: "relative",
       }}
     >
       {/* Logo */}
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
+      <TouchableOpacity
+        style={{ flexDirection: "row", alignItems: "center" }}
+        onPress={() => navigation.navigate("Home")} // ✅ nhấn logo quay về Home
+      >
         <Image
           source={require("../../assets/icon.png")}
           style={{ width: 80, height: 80, resizeMode: "contain", marginRight: 8 }}
@@ -96,37 +95,103 @@ export default function AppHeader({ coin = 0 }: Props) {
           <Text style={{ color: colors.primary }}>PARK </Text>
           <Text style={{ color: colors.secondary }}>MATE</Text>
         </Text>
-      </View>
+      </TouchableOpacity>
 
-      {/* Menu */}
-      {!isMobileView ? (
-        <View style={{ flexDirection: "row", gap: 32, alignItems: "center" }}>
-          <TouchableOpacity onPress={() => navigation.navigate("Home")}>
-            <Text style={{ fontSize: 16, fontWeight: "500" }}>Trang chủ</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Contact")}>
-            <Text style={{ fontSize: 16, fontWeight: "500" }}>Liên hệ</Text>
-          </TouchableOpacity>
+      {/* Menu + coin + user */}
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 24 }}>
+        {!isMobileView && (
+          <>
+            <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+              <Text style={{ fontSize: 16, fontWeight: "500" }}>Trang chủ</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Contact")}>
+              <Text style={{ fontSize: 16, fontWeight: "500" }}>Liên hệ</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("TicketList")}
+              style={{
+                backgroundColor: colors.primary,
+                paddingHorizontal: 20,
+                paddingVertical: 10,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "600", fontSize: 16 }}>
+                ĐẶT VÉ NGAY
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate("TicketList")}
-            style={{
-              backgroundColor: colors.primary,
-              paddingHorizontal: 20,
-              paddingVertical: 10,
-              borderRadius: 8,
-            }}
-          >
-            <Text style={{ color: "white", fontWeight: "600", fontSize: 16 }}>
-              ĐẶT VÉ NGAY
-            </Text>
-          </TouchableOpacity>
+        {/* Coin */}
+        <View
+          style={{
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 20,
+            borderWidth: 1.5,
+            borderColor: colors.primary,
+            backgroundColor: "rgba(255,255,255,0.2)",
+          }}
+        >
+          <Text style={{ fontWeight: "bold", color: colors.primary }}>🪙 {coin}</Text>
         </View>
-      ) : (
-        <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)}>
-          <Ionicons name="menu" size={28} color={colors.primary} />
+
+        {/* Notifications */}
+        <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
+          <Ionicons name="notifications-outline" size={26} color={colors.primary} />
         </TouchableOpacity>
-      )}
+
+        {/* User avatar + dropdown */}
+        <View style={{ position: "relative" }}>
+          <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)}>
+            <Ionicons name="person-circle-outline" size={28} color={colors.primary} />
+          </TouchableOpacity>
+
+          {menuOpen && (
+            <View
+              style={{
+                position: "absolute",
+                top: 36,
+                right: 0,
+                backgroundColor: "white",
+                borderWidth: 1,
+                borderColor: "#ddd",
+                borderRadius: 8,
+                paddingVertical: 8,
+                width: 150,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                elevation: 5,
+                zIndex: 10,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => {
+                  setMenuOpen(false);
+                  navigation.navigate("Profile");
+                }}
+                style={{ paddingVertical: 8, paddingHorizontal: 12 }}
+              >
+                <Text>Profile</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={async () => {
+                  setMenuOpen(false);
+                  dispatch(logout());       // xóa Redux state
+                  await persistor.flush(); // xóa persisted state ngay lập tức
+                }}
+                style={{ paddingVertical: 8, paddingHorizontal: 12 }}
+              >
+                <Text>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </View>
     </View>
   );
 }

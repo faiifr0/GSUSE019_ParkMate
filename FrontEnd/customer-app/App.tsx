@@ -6,6 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { store, persistor } from "./src/redux/store";
 import AppNavigator from "./src/navigation/AppNavigator";
 import FontProvider from "./src/providers/FontProvider";
+import { Platform } from "react-native";
 
 SplashScreen.preventAutoHideAsync(); // Giữ splash screen đến khi app sẵn sàng
 
@@ -24,7 +25,16 @@ export default function App() {
     // Ẩn splash khi load xong
     const timer = setTimeout(() => {
       SplashScreen.hideAsync();
-    }, 800); // bạn có thể chỉnh thời gian hoặc gắn vào logic load font/api
+    }, 800);
+
+    // 👉 Set background toàn bộ web
+    if (Platform.OS === "web") {
+      document.body.style.margin = "0";
+      document.body.style.minHeight = "100vh";
+      document.body.style.background =
+        "linear-gradient(135deg, #FF6B6B, #FFD93D, #4ECDC4)";
+      document.body.style.backgroundAttachment = "fixed";
+    }
 
     return () => clearTimeout(timer);
   }, []);

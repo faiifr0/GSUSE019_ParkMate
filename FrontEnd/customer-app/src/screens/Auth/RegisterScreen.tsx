@@ -1,79 +1,105 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { registerUser, loginUser } from '../../services/userService';
-import { walletService } from '../../services/walletService';
-import { decodeJWT, setUserId } from '../../api/axiosClient';
+import React, { useState } from "react";
+import { View, StyleSheet, Text } from "react-native";
+import { TextInput, Button } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import AuthLayout from "../../components/AuthLayout";
+import colors from "../../constants/colors";
+import { useRegister } from "../../hooks/useRegister";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../redux/userSlice";
+import { UserRequest } from "../../types/User";
 
-export default function RegisterScreen({ navigation }: any) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [busy, setBusy] = useState(false);
+export default function RegisterScreen() {
+  const { handleRegister, loading } = useRegister();
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
-  const handleRegister = async () => {
-    if (!email || !password) {
-      Alert.alert('Vui lòng nhập đầy đủ thông tin');
-      return;
-    }
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [dob, setDob] = useState("");
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
+  const [snackbarColor, setSnackbarColor] = useState(colors.error);
 
-    setBusy(true);
-    try {
-      // 1️⃣ Đăng ký user
-      await registerUser(email, password);
+  const onRegisterPress = async () => {
+    const payload: UserRequest = {
+      username: email.split("@")[0],
+      email,
+      password,
+      fullName,
+      phoneNumber: phone,
+      dob,
+    };
 
-      // 2️⃣ Login ngay để lấy token
-      const res = await loginUser(email, password);
-      const token = res.data?.accessToken;
-      if (!token) throw new Error("Login failed");
+    const result = await handleRegister(payload, confirmPassword);
 
-      // 3️⃣ Lưu token & userId vào storage
-      const payload = decodeJWT(token);
-      const userId = payload?.sub || payload?.userId;
-      if (!userId) throw new Error("Invalid token payload");
-      await setUserId(userId);
-
-      // 4️⃣ Tạo ví (ensureWallet) **sau khi token + userId đã lưu**
-      await walletService.ensureWallet();
-
-      Alert.alert('Thành công', 'Bạn đã đăng ký và ví đã được tạo.');
-      navigation.navigate('Login');
-    } catch (err: any) {
-      console.error(err);
-      Alert.alert('Lỗi', err?.response?.data?.message || err.message || 'Có lỗi xảy ra.');
-    } finally {
-      setBusy(false);
+    if (result.success && result.data) {
+      dispatch(
+        setCredentials({
+          token: result.data.token,
+          userInfo: result.data.userInfo,
+        })
+      );
+      setSnackbarMsg("🎉 Đăng ký thành công!");
+      setSnackbarColor(colors.success);
+      setSnackbarVisible(true);
+      setTimeout(() => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "Home" as never }],
+        });
+      }, 1500);
+    } else {
+      setSnackbarMsg(result.errors?.join("\n") || "❌ Đăng ký thất bại");
+      setSnackbarColor(colors.error);
+      setSnackbarVisible(true);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Đăng ký</Text>
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        style={styles.input}
-        editable={!busy}
-      />
-      <TextInput
-        placeholder="Mật khẩu"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-        editable={!busy}
-      />
-      <Button title={busy ? 'Đang xử lý...' : 'Đăng ký'} onPress={handleRegister} disabled={busy} />
-      <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
-        Đã có tài khoản? Đăng nhập
-      </Text>
-    </View>
+    <AuthLayout
+      title="ĐĂNG KÝ"
+      subtitle="Tạo tài khoản mới ✨"
+      snackbar={{ visible: snackbarVisible, msg: snackbarMsg, color: snackbarColor }}
+      setSnackbarVisible={setSnackbarVisible}
+    >
+      <View style={styles.form}>
+        <TextInput label="Email" value={email} onChangeText={setEmail} mode="outlined" style={styles.input} keyboardType="email-address"/>
+        <TextInput label="Mật khẩu" value={password} onChangeText={setPassword} secureTextEntry mode="outlined" style={styles.input}/>
+        <TextInput label="Xác nhận mật khẩu" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry mode="outlined" style={styles.input}/>
+        <TextInput label="Họ và tên" value={fullName} onChangeText={setFullName} mode="outlined" style={styles.input}/>
+        <TextInput label="Số điện thoại" value={phone} onChangeText={setPhone} mode="outlined" style={styles.input} keyboardType="phone-pad"/>
+        <TextInput label="Ngày sinh (yyyy-mm-dd)" value={dob} onChangeText={setDob} mode="outlined" style={styles.input}/>
+        <Button mode="contained" onPress={onRegisterPress} loading={loading} style={styles.button}>
+          {loading ? "Đang đăng ký..." : "Đăng ký"}
+        </Button>
+        <Text style={styles.linkText} onPress={() => navigation.navigate("Login" as never)}>
+          Đã có tài khoản? Đăng nhập
+        </Text>
+      </View>
+    </AuthLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 16 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, marginBottom: 12, padding: 8 },
-  link: { marginTop: 16, textAlign: 'center', color: 'blue' },
+  form: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+  },
+  input: {
+    marginBottom: 16,
+  },
+  button: {
+    marginTop: 8,
+    paddingVertical: 4,
+  },
+  linkText: {
+    marginTop: 16,
+    textAlign: "center",
+    color: colors.primary,
+    fontWeight: "500",
+  },
 });
