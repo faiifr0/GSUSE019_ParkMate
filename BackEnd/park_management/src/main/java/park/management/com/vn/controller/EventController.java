@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import park.management.com.vn.model.request.EventRequest;
+import park.management.com.vn.model.request.UpdateImageRequest;
 import park.management.com.vn.model.response.EventResponse;
 import park.management.com.vn.service.EventService;
 
@@ -52,5 +53,13 @@ public class EventController {
     @GetMapping("/of-branch/{branchId}")
     public ResponseEntity<List<EventResponse>> listOfBranch(@PathVariable Long branchId) {
         return ResponseEntity.ok(service.listOfBranch(branchId));
+    }
+
+    // NEW: update ảnh riêng của sự kiện
+    @PutMapping("/{id}/image")
+    public ResponseEntity<Void> updateImage(@PathVariable Long id,
+                                            @RequestBody @Valid UpdateImageRequest req) {
+        service.updateImage(id, req.getImageUrl());
+        return ResponseEntity.noContent().build();
     }
 }

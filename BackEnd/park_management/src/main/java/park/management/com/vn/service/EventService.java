@@ -14,4 +14,5 @@ public interface EventService {
 
   // <<< NEW >>>
   List<EventResponse> listOfBranch(Long branchId);
+  void updateImage(Long id, String imageUrl);
 }

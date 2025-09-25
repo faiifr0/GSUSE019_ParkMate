@@ -1,25 +1,24 @@
-import gameService from '@/lib/services/gameService';
-import { GameResponse } from '@/lib/services/gameService';
+import eventService, { EventResponse } from '@/lib/services/eventService';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
-const GameImageCard = () => {
+const EventImageCard = () => {
   const params = useParams();
   const id = params.id ? String(params.id) : '0';
-  const gameId = params['game-id'] ? String(params['game-id']) : null;
+  const eventId = params['event-id'] ? String(params['event-id']) : null;
 
-  const [gameInfo, setGameInfo] = useState<GameResponse>();    
+  const [eventInfo, setEventInfo] = useState<EventResponse>();    
 
-  const fetchGame = async () => {
-    const response = await gameService.getGameById(gameId!);
-    setGameInfo(response);  
+  const fetchEvent = async () => {
+    const response = await eventService.getEventById(eventId!);
+    setEventInfo(response);  
   }
 
   // Fetch Park Branch Overview Info
     useEffect(() => {
     try {
-      fetchGame();  
+      fetchEvent();  
     } catch (err) {
       console.log(err);
     } finally {
@@ -61,16 +60,16 @@ const GameImageCard = () => {
       const imageUrl = data.secure_url;
       setUploadedUrl(imageUrl);
 
-      const message = 'Upload ảnh trò chơi thành công!';
+      const message = 'Upload ảnh sự kiện thành công!';
       toast.success(message, {
         duration: 3000,
         position: 'top-right',
       });
       // update imageUrl to backend
-      gameService.updateGameImage(gameId!, imageUrl);
+      eventService.updateEventImage(eventId!, imageUrl);
     } catch (err) {
       console.error('Upload failed:', err);
-      const message = 'Upload ảnh trò chơi thất bại!';
+      const message = 'Upload ảnh sự kiện thất bại!';
       toast.error(message, {
         duration: 3000,
         position: 'top-right',
@@ -86,7 +85,7 @@ const GameImageCard = () => {
       <div className="col-span-6 space-y-6">
         <div className="space-y-4">
             <img
-            src={imagePreview || gameInfo?.imageUrl || '/images/stock/amusement-park-1.jpg'}
+            src={imagePreview || eventInfo?.imageUrl || '/images/stock/amusement-park-1.jpg'}
             alt="Ảnh tiện nghi"
             className="w-full h-auto rounded shadow"
             />
@@ -130,4 +129,4 @@ const GameImageCard = () => {
   );
 };
 
-export default GameImageCard;
+export default EventImageCard;
