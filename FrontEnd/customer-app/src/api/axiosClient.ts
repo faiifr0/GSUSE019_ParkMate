@@ -4,16 +4,13 @@ import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { store } from "../redux/store";
 import { logout } from "../redux/userSlice";
+import { jwtDecode } from "jwt-decode";
 
 function decodeJWT(token: string): any | null {
   try {
-    const payload = token.split(".")[1];
-    const decoded =
-      Platform.OS === "web"
-        ? atob(payload) // web
-        : Buffer.from(payload, "base64").toString("utf-8"); // native
-    return JSON.parse(decoded);
-  } catch {
+    return jwtDecode(token);
+  } catch (err) {
+    console.error("JWT decode error:", err);
     return null;
   }
 }
@@ -36,7 +33,7 @@ async function removeToken() {
 const axiosClient = axios.create({
   baseURL:
     Platform.OS === "android"
-      ? "http://192.168.1.38:8080/api"
+      ? "http://192.168.88.207:8080/api" //"http://192.168.1.38:8080/api"
       : "http://localhost:8080/api",
   headers: { "Content-Type": "application/json" },
 });

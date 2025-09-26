@@ -109,25 +109,26 @@ export default function AppNavigatorInnerBase() {
 
       let token = reduxToken ?? (await getToken());
 
-      if (!token) {
-        if (mounted) {
+      if (!token) {               
+        if (mounted) {          
           setIsValid(false);
           setChecking(false);
-        }
-        return;
+          return;
+        }         
       }
 
-      const payload = decodeJWT(token);
-      const expSec = payload?.exp ?? null;
+      const payload = decodeJWT(token!);       
 
-      if (!expSec) {
-        dispatch(setCredentials({ token, userInfo: payload ?? null }));
+      const expSec = payload?.exp ?? null;
+      
+      if (!expSec) {        
+        dispatch(setCredentials({ token, userInfo: payload ?? null }));        
         if (mounted) {
           setIsValid(true);
           setChecking(false);
-        }
+        }      
         return;
-      }
+      }      
 
       const expMs = expSec * 1000;
       const now = Date.now();
@@ -141,11 +142,12 @@ export default function AppNavigatorInnerBase() {
         return;
       }
 
-      dispatch(setCredentials({ token, userInfo: payload ?? null }));
-      if (mounted) {
+      // After all checks passed
+      if (mounted) {        
+        dispatch(setCredentials({ token, userInfo: payload ?? null }));     
         setIsValid(true);
         setChecking(false);
-      }
+      } 
 
       const msUntilExpiry = expMs - now;
       if (expiryTimerRef.current) clearTimeout(expiryTimerRef.current);
@@ -163,7 +165,7 @@ export default function AppNavigatorInnerBase() {
           clearTimers();
         };
       }
-    };
+    };    
 
     checkToken();
 

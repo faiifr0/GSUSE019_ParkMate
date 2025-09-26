@@ -10,13 +10,14 @@ import {
   Platform,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { persistor, RootState } from "../../redux/store";
 import { logout } from "../../redux/userSlice";
 import { getUserById } from "../../services/userService";
 import { Ionicons } from "@expo/vector-icons";
 import { walletService } from "../../services/walletService";
 import colors from "../../constants/colors";
 import styles from "../../styles/ProfileScreenStyles";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ProfileScreen({ navigation }: any) {
   const dispatch = useDispatch();
@@ -25,10 +26,10 @@ export default function ProfileScreen({ navigation }: any) {
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchUserInfo(user.id);
-      fetchWalletBalance(user.id);
+  useEffect(() => {    
+    if (user?.userId) {
+      fetchUserInfo(user.userId);
+      fetchWalletBalance(user.userId);
     }
   }, [user]);
 
@@ -37,6 +38,8 @@ export default function ProfileScreen({ navigation }: any) {
       setLoading(true);
       const res = await getUserById(id);
       setUserData(res.data || null);
+      console.log("Fetched user data:", res.data);
+      console.log("----------------------");
     } catch (error) {
       console.error("Lỗi khi lấy thông tin user:", error);
     } finally {
@@ -54,9 +57,12 @@ export default function ProfileScreen({ navigation }: any) {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    console.log("Logout button pressed");
     // ✅ Chỉ dispatch logout, AppNavigator sẽ tự render Login
-    dispatch(logout());
+    dispatch(logout());        
+    persistor.purge();
+    await AsyncStorage.removeItem("token"); // Clear JWT Token
   };
 
   if (loading) {
