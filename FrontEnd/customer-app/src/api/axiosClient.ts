@@ -33,7 +33,7 @@ async function removeToken() {
 const axiosClient = axios.create({
   baseURL:
     Platform.OS === "android"
-      ? "http://192.168.88.207:8080/api" //"http://192.168.1.38:8080/api"
+      ? "http://192.168.1.38:8080/api"
       : "http://localhost:8080/api",
   headers: { "Content-Type": "application/json" },
 });
