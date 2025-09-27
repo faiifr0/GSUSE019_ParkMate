@@ -138,9 +138,7 @@ if (Platform.OS === "web") {
         style={{
           paddingVertical: 120,
           alignItems: "center",
-          justifyContent: "center",
-          backgroundImage:
-            "linear-gradient(135deg, #FF9A8B, #FF6A88, #FF99AC, #FBC2EB)",
+          justifyContent: "center"
         } as any}
       >
         <Text

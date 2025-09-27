@@ -7,6 +7,8 @@ import { store, persistor } from "./src/redux/store";
 import AppNavigator from "./src/navigation/AppNavigator";
 import FontProvider from "./src/providers/FontProvider";
 import { Platform } from "react-native";
+import colors from "./src/constants/colors";
+
 
 SplashScreen.preventAutoHideAsync(); // Giữ splash screen đến khi app sẵn sàng
 
@@ -31,8 +33,8 @@ export default function App() {
     if (Platform.OS === "web") {
       document.body.style.margin = "0";
       document.body.style.minHeight = "100vh";
-      document.body.style.background =
-        "linear-gradient(135deg, #FF6B6B, #FFD93D, #4ECDC4)";
+      document.body.style.background = 
+      `linear-gradient(135deg, ${colors.gradientStart}, ${colors.gradientMid}, ${colors.gradientEnd})`;
       document.body.style.backgroundAttachment = "fixed";
     }
 

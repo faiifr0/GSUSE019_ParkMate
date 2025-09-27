@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, Platform } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import AuthLayout from "../../components/AuthLayout";
@@ -30,15 +30,24 @@ export default function LoginScreen() {
 
   return (
     <AuthLayout
-      title="ĐĂNG NHẬP"
-      subtitle="Chào mừng quay trở lại 👋"
-      snackbar={{ visible: snackbarVisible, msg: snackbarMsg, color: snackbarColor }}
+      snackbar={{
+        visible: snackbarVisible,
+        msg: snackbarMsg,
+        color: snackbarColor,
+      }}
       setSnackbarVisible={setSnackbarVisible}
     >
+      {/* Logo + Tên ứng dụng */}
       <View style={styles.logoWrapper}>
-        <Image source={{ uri: images.logo }} style={styles.logo} resizeMode="contain" />
+        <Image
+          source={{ uri: images.logo }}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.appSubtitle}>Bắt đầu hành trình kỷ niệm 🌈</Text>
       </View>
 
+      {/* Form */}
       <View style={styles.form}>
         <TextInput
           label="Email"
@@ -46,7 +55,6 @@ export default function LoginScreen() {
           value={email}
           onChangeText={setEmail}
           mode="outlined"
-          dense={false}
           style={styles.input}
           keyboardType="email-address"
           outlineColor="#FF6B6B"
@@ -54,32 +62,44 @@ export default function LoginScreen() {
         />
         <TextInput
           label="Mật khẩu"
-          placeholder="••••••••"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
           mode="outlined"
-          dense={false}
           style={styles.input}
           outlineColor="#FF6B6B"
           activeOutlineColor="#673AB7"
         />
+
         <Button
           mode="contained"
           onPress={onLoginPress}
           loading={loading}
-          style={styles.button}
+          style={[styles.button, Platform.OS === "web" && styles.buttonWeb]}
           labelStyle={{ fontSize: 16, fontWeight: "600" }}
           buttonColor="#FF6B6B"
         >
           {loading ? "Đang đăng nhập..." : "Đăng nhập"}
         </Button>
+
+        {/* Quên mật khẩu */}
+        <View style={styles.linkRow}>
+        <Text
+          style={styles.forgotPassword}
+          onPress={() => navigation.navigate("ForgotPassword" as never)}
+        >
+          Quên mật khẩu?
+        </Text>
+
+        {/* Đăng ký */}
         <Text
           style={styles.linkText}
           onPress={() => navigation.navigate("Register" as never)}
         >
-          Chưa có tài khoản? <Text style={{ color: "#673AB7" }}>Đăng ký</Text>
+          Chưa có tài khoản?{" "}
+          <Text style={{ color: "#673AB7", fontWeight: "600" }}>Đăng ký</Text>
         </Text>
+        </View>
       </View>
     </AuthLayout>
   );
@@ -88,20 +108,23 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   logoWrapper: {
     alignItems: "center",
-    marginBottom: 28,
+    marginBottom: 20,
   },
   logo: {
-    width: 160,
-    height: 160,
-    marginBottom: 8,
+    width: 240,
+    height: 240,
+    marginBottom: 6,
+  },
+  appSubtitle: {
+    fontSize: 24,
+    color: "#666",
   },
   form: {
     paddingHorizontal: 24,
     paddingTop: 16,
   },
   input: {
-    marginBottom: 16,
-    backgroundColor: "#FFFFFF",
+    marginBottom: 14,
   },
   button: {
     marginTop: 8,
@@ -113,8 +136,23 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 3,
   },
+  buttonWeb: {
+    boxShadow: "0px 3px 6px rgba(255, 107, 107, 0.25)",
+  },
+  forgotPassword: {
+    marginTop: 12,
+    textAlign: "center",
+    color: "#673AB7",
+    fontWeight: "500",
+  },
+  linkRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginTop: 18,
+  paddingHorizontal: 12, 
+},
   linkText: {
-    marginTop: 18,
+    marginTop: 12,
     textAlign: "center",
     color: "#FF6B6B",
     fontWeight: "500",

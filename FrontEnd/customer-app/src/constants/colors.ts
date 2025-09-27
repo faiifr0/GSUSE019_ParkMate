@@ -4,10 +4,9 @@ const colors = {
   secondary: "#4ECDC4",   // Xanh ngọc - vui tươi, nổi bật
   accent: "#673AB7",      // Tím - điểm nhấn hiện đại
 
-  // Gradient (cho nền)
-  gradientStart: "#FF6B6B", // Hồng cam
-  gradientMid: "#FFD93D",   // Vàng nắng
-  gradientEnd: "#4ECDC4",   // Xanh ngọc
+gradientStart: "#FFD93D",  // Vàng nắng
+gradientMid: "#FF9F68",    // Cam san hô (bổ sung)
+gradientEnd: "#FF6B6B",    // Hồng cam
 
   // Nền & chữ
   background: "#F5F7FA",  // Nền sáng

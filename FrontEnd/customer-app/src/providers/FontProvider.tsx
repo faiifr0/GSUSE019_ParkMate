@@ -11,7 +11,7 @@ export default function FontProvider({ children }: { children: React.ReactNode }
   });
 
   if (!fontsLoaded) {
-    return <AppLoading />; // chờ load font
+    return <AppLoading />; 
   }
 
   return <>{children}</>;

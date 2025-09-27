@@ -106,6 +106,6 @@ const webStyles: Record<string, React.CSSProperties> = {
   container: { display: "flex", flexDirection: "row", height: "100vh", width: "100%" },
   left: { flex: 1, display: "flex", justifyContent: "center", alignItems: "center", padding: "40px" },
   right: { flex: 1, overflow: "hidden" },
-  card: { width: "100%", maxWidth: "400px", background: "#fff", padding: "30px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" },
+  card: { width: "100%", maxWidth: "400px", background: "rgba(255,255,255,0.7)", padding: "20px",margin:"40px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" },
   image: { width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.5s ease-in-out" },
 };
