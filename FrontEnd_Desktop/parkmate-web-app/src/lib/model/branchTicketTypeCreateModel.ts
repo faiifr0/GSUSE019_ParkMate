@@ -1,7 +1,7 @@
 export type branchTicketTypeCreateModel = {
+  parkBranchId?: string;
   name?: string;
   description?: string;
-  basePrice?: number;
-  isCancelable?: boolean;  
-  //status: string; // ### doesn't have this yet
+  basePrice?: number; 
+  status?: boolean;   
 }

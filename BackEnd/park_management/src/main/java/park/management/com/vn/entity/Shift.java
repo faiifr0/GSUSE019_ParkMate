@@ -21,6 +21,6 @@ public class Shift extends BaseEntity {
   @Column(name = "days_of_week", length = 50)
   private String daysOfWeek;
 
-  @Column(name = "description")
+  @Column(name = "description", length = 500)
   private String description;
 }

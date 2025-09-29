@@ -28,24 +28,26 @@ public class TicketTypeController {
   private TicketTypeResponse toResp(TicketType t) {
     return TicketTypeResponse.builder()
       .id(t.getId())
+      .parkBranchId(t.getParkBranch().getId())
       .name(t.getName())
       .description(t.getDescription())
       .basePrice(t.getBasePrice())
       .createdAt(t.getCreatedAt())
       .updatedAt(t.getUpdatedAt())
+      .status(t.getStatus())
       .build();
   }
 
   private void apply(TicketType t, TicketTypeRequest req) {
     t.setName(req.getName());
     t.setDescription(req.getDescription());
-    t.setBasePrice(req.getBasePrice());
+    t.setBasePrice(req.getBasePrice());    
     if (req.getParkBranchId() != null) {
       var b = parkBranchRepository.findById(req.getParkBranchId())
           .orElseThrow(() -> new RuntimeException("BRANCH_NOT_FOUND"));
       t.setParkBranch(b);
-    }
-    if (req.getStatus() != null) t.setStatus(req.getStatus());
+    }    
+    if (req.getStatus() != null) t.setStatus(req.getStatus());    
   }
 
   // --- Endpoints ---
@@ -61,7 +63,7 @@ public class TicketTypeController {
   // Lấy tất cả ticket type của 1 chi nhánh
   @GetMapping("/of-branch/{branchId}")
   public ResponseEntity<List<TicketTypeResponse>> getAllOfBranch(@PathVariable Long branchId) {
-    List<TicketTypeResponse> out = ticketTypeRepository.findByParkBranch_IdAndStatusTrue(branchId)
+    List<TicketTypeResponse> out = ticketTypeRepository.findByParkBranch_Id(branchId)
       .stream().map(this::toResp).toList();
     return ResponseEntity.ok(out);
   }
@@ -97,8 +99,8 @@ public class TicketTypeController {
                                                    @RequestBody @Valid TicketTypeRequest req) {
     TicketType t = ticketTypeRepository.findById(id)
       .orElseThrow(() -> new RuntimeException("TICKET_TYPE_NOT_FOUND"));
-    apply(t, req);
-    TicketType saved = ticketTypeRepository.save(t);
+    apply(t, req);    
+    TicketType saved = ticketTypeRepository.save(t);    
     return ResponseEntity.ok(toResp(saved));
   }
 

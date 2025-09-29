@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
     // Tạo ví gắn user ngay lập tức
     Wallet wallet = Wallet.builder()
         .userEntity(saved)
-        .balance(STAFF_WALLET_BALANCE)
+        .balance(BigDecimal.ZERO)
         .build();
     walletRepository.save(wallet);
 
@@ -115,6 +115,8 @@ public class UserServiceImpl implements UserService {
     userEntity.setEmail(request.getEmail());
     userEntity.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
 
+    //if (request != null) throw new RuntimeException(request.getPassword() + " - " +userEntity.getPassword());
+    
     // Lưu staff trước
     UserEntity saved = userRepository.save(userEntity);
 
@@ -129,7 +131,7 @@ public class UserServiceImpl implements UserService {
     // Tạo ví gắn user ngay lập tức
     Wallet wallet = Wallet.builder()
         .userEntity(saved)
-        .balance(BigDecimal.ZERO)
+        .balance(STAFF_WALLET_BALANCE)
         .build();
     walletRepository.save(wallet);
 

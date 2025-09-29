@@ -20,6 +20,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
 import { toast } from "react-hot-toast";
+import { branchTicketTypeUpdateModel } from "@/lib/model/branchTicketTypeUpdateModel";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -32,11 +33,13 @@ export default function ParkBranchTicketTable() {
 
   const [ticketTypes, setTicketTypes] = useState<branchTicketTypeResponse[]>([]);
   const [formData, setFormData] = useState<branchTicketTypeCreateModel>();
+  const [selectedTicket, setSelectedTicket] = useState<branchTicketTypeResponse | null>(null);
+  const [mode, setMode] = useState<'Tạo mới' | 'Cập Nhật'>('Tạo mới');
 
   // Fetch Park Branches List
   const fetchBranchTicketTypes = async () => {
     try {
-      const response = await branchTicketTypeService.getAll();
+      const response = await branchTicketTypeService.getAllOfBranch(id);
       setTicketTypes(response);
 
       setFormData(prev => ({
@@ -57,18 +60,55 @@ export default function ParkBranchTicketTable() {
 
   useEffect(() => {    
     fetchBranchTicketTypes();
+    setFormData
   }, [])
+
+  const openCreateModal = () => {
+      setMode('Tạo mới');
+      setFormData({
+        parkBranchId: id,
+        basePrice: undefined,
+        description: undefined,
+        name: undefined,
+        status: true
+      });
+      setSelectedTicket(null);
+      openModal();
+    };
+  
+    const openEditModal = (ticket: branchTicketTypeResponse) => {
+      setMode('Cập Nhật');
+      setSelectedTicket(ticket);
+      setFormData({
+        parkBranchId: id,
+        basePrice: ticket.basePrice,
+        description: ticket.description,
+        name: ticket.name,
+        status: ticket.status,
+      });
+      openModal();
+    };
 
   // Handle save logic here
   const handleSave = async () => {        
     try {      
-      await branchTicketTypeService.createTicketType(formData);
+      if (mode === 'Cập Nhật' && selectedTicket) {
+        await branchTicketTypeService.updateTicketType(selectedTicket.id, formData as branchTicketTypeUpdateModel);
+      } else {
+        await branchTicketTypeService.createTicketType(formData);
+      }
       fetchBranchTicketTypes();      
       setFormData(undefined);
+      setFormData(form => ({ ...form, parkBranchId: id }));
       closeModal();
+      const message = mode + " loại vé thành công!";
+      toast.success(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     } catch (err) {
       console.log(err);
-      const message = 'Tạo loại vé mới thất bại!';
+      const message = mode + " loại vé thất bại!";
       toast.error(message, {
         duration: 3000,
         position: 'top-right',
@@ -82,7 +122,7 @@ export default function ParkBranchTicketTable() {
         <button 
           className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition 
                      px-4 py-3 mb-6 mx-6 text-sm bg-brand-500 text-white hover:bg-brand-600"
-          onClick={openModal}>
+          onClick={openCreateModal}>
             Tạo loại vé mới +
         </button>
       </div>
@@ -117,18 +157,18 @@ export default function ParkBranchTicketTable() {
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
                     Giả cơ bản (vnđ)
-                  </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
-                  >
-                    Được hủy vé?
-                  </TableCell>                  
+                  </TableCell>                                    
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                   >
                     Trạng thái
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
+                  >
+                    Action
                   </TableCell>
                 </TableRow>
               </TableHeader>
@@ -148,25 +188,21 @@ export default function ParkBranchTicketTable() {
                     </TableCell>                  
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {ticketType.basePrice}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {ticketType.isCancelable}
-                    </TableCell>                                                                          
+                    </TableCell>                                                                                              
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       <Badge
-                        size="sm"
-                        color="error"
-                        // color={
-                        //   branch.status === "Active"
-                        //     ? "success"
-                        //     : branch.status === "Pending"
-                        //     ? "warning"
-                        //     : "error"
-                        // }
+                        size="sm"                        
+                        color={
+                          ticketType.status === true
+                            ? "success"
+                            : "error"                            
+                        }
                       >
-                        {/* {branch.status} */}
-                        Dubious
+                        {ticketType.status ? "Đang hoạt động" : "Ngừng hoạt động"}                                                
                       </Badge>
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
+                      <Button size="sm" onClick={() => openEditModal(ticketType)}>Cập Nhật</Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -179,7 +215,7 @@ export default function ParkBranchTicketTable() {
           <div className="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
             <div className="px-2 pr-14">
               <h4 className="mb-9 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
-                Tạo loại vé mới
+                {mode === 'Cập Nhật' ? 'Cập Nhật Loại Vé' : 'Tạo Loại Vé Mới'}
               </h4>
             </div>
             <form className="flex flex-col"
@@ -192,7 +228,8 @@ export default function ParkBranchTicketTable() {
                     <div className="col-span-6">
                       <Label>Tên vé</Label>
                       <Input
-                        type="text"                                                
+                        type="text"   
+                        value={formData?.name !== undefined ? formData.name : ''}                                             
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}                      
                       />
                     </div>                    
@@ -201,7 +238,7 @@ export default function ParkBranchTicketTable() {
                       <Label>Giá cơ bản (vnđ)</Label>
                       <Input
                         type="number"                        
-                        defaultValue={1000}
+                        value={formData?.basePrice !== undefined ? formData.basePrice : 1000}
                         min={1000}
                         max={5000000}
                         step={1000}
@@ -215,25 +252,26 @@ export default function ParkBranchTicketTable() {
                     <div className="col-span-12">
                       <Label>Mô tả</Label>
                       <Input
-                        type="text"                        
+                        type="text"    
+                        value={formData?.description !== undefined ? formData.description : ''}                    
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}                   
                       />
                     </div>                                        
-                  </div>                 
+                  </div>
 
-                  <div className="grid grid-cols-12 my-9 gap-x-4">
-                    <div className="col-span-4"></div>                   
-                    <div className="col-span-4 flex items-center gap-2">
-                      <Label>Được hủy vé?</Label>
+                  { mode === 'Cập Nhật' && (
+                  <div className="grid grid-cols-12 my-9 gap-x-4">                                          
+                    <div className="col-span-6">
+                      <Label>Trạng thái</Label>
                       <input
                         type="checkbox"
-                        checked={formData?.isCancelable ?? false}                     
-                        onChange={(e) => setFormData({ ...formData, isCancelable: e.target.checked })} 
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer mb-2"            
+                        checked={formData?.status ?? false}                     
+                        onChange={(e) => setFormData({ ...formData, status: e.target.checked })} 
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"            
                       />
-                    </div>                                       
-                    <div className="col-span-4"></div>                   
-                  </div>                                                                
+                    </div>                                      
+                  </div>                
+                  )}                                                                                                   
                 </div>              
               </div>
 

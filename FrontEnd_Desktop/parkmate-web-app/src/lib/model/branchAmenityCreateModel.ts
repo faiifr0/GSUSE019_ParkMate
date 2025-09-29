@@ -1,3 +1,7 @@
 export type branchAmenityCreateModel = {
-  // ### STILL EMPTY
+  parkBranchId?: string;
+  amenityTypeId?: string;  
+  name?: string;
+  description?: string;  
+  status?: boolean;
 }

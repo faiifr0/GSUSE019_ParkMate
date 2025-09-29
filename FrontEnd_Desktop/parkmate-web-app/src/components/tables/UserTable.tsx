@@ -18,7 +18,7 @@ import Button from "../ui/button/Button";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import { userCreateModel } from "@/lib/model/userCreateModel";
-import { EyeCloseIcon, EyeIcon } from "@/icons";
+import { EyeCloseIcon, EyeIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
 // Handle what happens when you click on the pagination
@@ -222,7 +222,7 @@ export default function UserTable() {
                       <div className="relative">
                         <Input
                           type={showPassword ? "text" : "password"}
-                          placeholder="Enter your password"
+                          placeholder="Nhập mật khẩu"
                           onChange={(e) => setFormData({ ...formData, password: e.target.value })}                        
                         >
                         </Input>
@@ -256,10 +256,10 @@ export default function UserTable() {
               </div>
               <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
                 <Button size="sm" variant="outline" onClick={closeModal}>
-                  Close
+                  Đóng
                 </Button>
                 <Button size="sm" onClick={handleSave}>
-                  Save Changes
+                  Lưu thay đổi
                 </Button>
               </div>
             </form>

@@ -1,17 +1,26 @@
+'use client'
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import { Metadata } from "next";
 import ParkBranchTable from "@/components/tables/ParkBranchTable";
-import React from "react";
+import React, { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-
-export const metadata: Metadata = {
-  title: "Danh sách chi nhánh | ParkMate",
-  description:
-    "This is Next.js Park Branches List page for ParkMate",
-  // other metadata
-};
+import { useAuth } from "@/components/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function ParkBranchesList() {
+  const { currUser } = useAuth();
+  const router = useRouter();
+
+  // Authorization
+  useEffect(() => {
+    if (currUser && !currUser.roles?.includes("ADMIN")) {
+      router.replace("/error-403");
+    }
+  }, [currUser, router]);
+
+  if (!currUser || !currUser.roles?.includes("ADMIN")) {
+    return null; // prevent rendering before redirect
+  }
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Danh sách chi nhánh"/>

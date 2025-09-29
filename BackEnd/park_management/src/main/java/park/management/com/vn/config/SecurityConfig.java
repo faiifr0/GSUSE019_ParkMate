@@ -72,14 +72,14 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.POST, "/api/tickets").permitAll()
 
         // Ticket types admin
-        .requestMatchers(HttpMethod.POST,   "/api/ticket-types/**").hasAnyRole("MANAGER","ADMIN")
-        .requestMatchers(HttpMethod.PUT,    "/api/ticket-types/**").hasAnyRole("MANAGER","ADMIN")
-        .requestMatchers(HttpMethod.DELETE, "/api/ticket-types/**").hasAnyRole("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.POST,   "/api/ticket-types/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.PUT,    "/api/ticket-types/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.DELETE, "/api/ticket-types/**").hasAnyAuthority("MANAGER","ADMIN")
 
         // Events admin
-        .requestMatchers(HttpMethod.POST,   "/api/events/**").hasAnyRole("MANAGER","ADMIN")
-        .requestMatchers(HttpMethod.PUT,    "/api/events/**").hasAnyRole("MANAGER","ADMIN")
-        .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasAnyRole("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.POST,   "/api/events/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.PUT,    "/api/events/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasAnyAuthority("MANAGER","ADMIN")
 
         // Orders (other ops require auth)
         .requestMatchers(HttpMethod.GET,    "/api/orders/**").authenticated()
@@ -88,28 +88,52 @@ public class SecurityConfig {
 
         // Ticket pass endpoints
         .requestMatchers(HttpMethod.GET,  "/api/passes/*").permitAll()        // public QR check
-        .requestMatchers(HttpMethod.POST, "/api/passes/*/redeem").hasAuthority("TICKET_VALIDATE")
+        .requestMatchers(HttpMethod.POST, "/api/passes/*/redeem").hasAnyAuthority("STAFF")
 
         // Manager scope
         .requestMatchers("/api/manager/**").hasRole("MANAGER")
 
         // Games & game reviews
-        .requestMatchers(HttpMethod.GET,    "/api/games/**").authenticated()
-        .requestMatchers(HttpMethod.POST,   "/api/games/**").hasAnyRole("MANAGER","ADMIN")
-        .requestMatchers(HttpMethod.PUT,    "/api/games/**").hasAnyRole("MANAGER","ADMIN")
-        .requestMatchers(HttpMethod.DELETE, "/api/games/**").hasAnyRole("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.GET,    "/api/games/**").permitAll()
+        .requestMatchers(HttpMethod.POST,   "/api/games/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.PUT,    "/api/games/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.DELETE, "/api/games/**").hasAnyAuthority("MANAGER","ADMIN")
 
         .requestMatchers(HttpMethod.POST, "/api/game-reviews").authenticated()
-        .requestMatchers(HttpMethod.GET,  "/api/game-reviews/**").authenticated()
+        .requestMatchers(HttpMethod.GET,  "/api/game-reviews/**").permitAll()
+
+        // Branch Staffs
+        .requestMatchers(HttpMethod.GET,    "/api/branch-staff/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.POST,   "/api/branch-staff/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.PUT,    "/api/branch-staff/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.DELETE, "/api/branch-staff/**").hasAnyAuthority("MANAGER","ADMIN")
+
+        // Branch Vouchers
+        .requestMatchers(HttpMethod.GET,    "/api/vouchers/**").permitAll()
+        .requestMatchers(HttpMethod.POST,   "/api/vouchers/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.PUT,    "/api/vouchers/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.DELETE, "/api/vouchers/**").hasAnyAuthority("MANAGER","ADMIN")
+
+        // Branch Amenities
+        .requestMatchers(HttpMethod.GET,    "/api/branch-amenities/**").permitAll()
+        .requestMatchers(HttpMethod.POST,   "/api/branch-amenities/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.PUT,    "/api/branch-amenities/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.DELETE, "/api/branch-amenities/**").hasAnyAuthority("MANAGER","ADMIN")
+
+        // Park Branches
+        .requestMatchers(HttpMethod.GET,    "/api/park-branch/**").permitAll()
+        .requestMatchers(HttpMethod.POST,   "/api/park-branch/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.PUT,    "/api/park-branch/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(HttpMethod.DELETE, "/api/park-branch/**").hasAnyAuthority("MANAGER","ADMIN")
 
         // Notification admin
-        .requestMatchers(HttpMethod.POST,   "/api/notifications/**", "/api/notification/**").hasRole("ADMIN")
-        .requestMatchers(HttpMethod.PUT,    "/api/notifications/**", "/api/notification/**").hasRole("ADMIN")
-        .requestMatchers(HttpMethod.DELETE, "/api/notifications/**", "/api/notification/**").hasRole("ADMIN")
+        .requestMatchers(HttpMethod.POST,   "/api/notifications/**", "/api/notification/**").hasAnyAuthority("ADMIN")
+        .requestMatchers(HttpMethod.PUT,    "/api/notifications/**", "/api/notification/**").hasAnyAuthority("ADMIN")
+        .requestMatchers(HttpMethod.DELETE, "/api/notifications/**", "/api/notification/**").hasAnyAuthority("ADMIN")
         .requestMatchers(org.springframework.http.HttpMethod.GET,  "/api/ticket-types/**").permitAll()
-        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/ticket-types/**").hasAnyRole("MANAGER","ADMIN")
-        .requestMatchers(org.springframework.http.HttpMethod.PUT,  "/api/ticket-types/**").hasAnyRole("MANAGER","ADMIN")
-        .requestMatchers(org.springframework.http.HttpMethod.DELETE,"/api/ticket-types/**").hasAnyRole("MANAGER","ADMIN")
+        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/ticket-types/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(org.springframework.http.HttpMethod.PUT,  "/api/ticket-types/**").hasAnyAuthority("MANAGER","ADMIN")
+        .requestMatchers(org.springframework.http.HttpMethod.DELETE,"/api/ticket-types/**").hasAnyAuthority("MANAGER","ADMIN")
         .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
         .requestMatchers("/api/orders/**").authenticated()

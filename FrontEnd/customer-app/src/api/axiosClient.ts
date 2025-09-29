@@ -4,16 +4,13 @@ import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { store } from "../redux/store";
 import { logout } from "../redux/userSlice";
+import { jwtDecode } from "jwt-decode";
 
 function decodeJWT(token: string): any | null {
   try {
-    const payload = token.split(".")[1];
-    const decoded =
-      Platform.OS === "web"
-        ? atob(payload) // web
-        : Buffer.from(payload, "base64").toString("utf-8"); // native
-    return JSON.parse(decoded);
-  } catch {
+    return jwtDecode(token);
+  } catch (err) {
+    console.error("JWT decode error:", err);
     return null;
   }
 }

@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import park.management.com.vn.entity.ParkBranch;
 import park.management.com.vn.entity.Voucher;
-import park.management.com.vn.entity.Voucher;
 import park.management.com.vn.entity.VoucherUsage;
-import park.management.com.vn.mapper.ParkBranchMapper;
 import park.management.com.vn.mapper.VoucherMapper;
 import park.management.com.vn.model.request.VoucherRequest;
 import park.management.com.vn.model.response.VoucherResponse;
@@ -96,8 +94,8 @@ public class VoucherServiceImpl implements VoucherService {
         ParkBranch pb = parkBranchRepo.findById(request.getParkBranchId())
                 .orElseThrow(() -> new RuntimeException("Park Branch not found"));
         
-        Voucher existVoucher = voucherRepo.findByCodeIgnoreCase(request.getCode())
-                .orElseThrow(() -> new RuntimeException("Voucher Code already existed!"));
+        Voucher existVoucher = voucherRepo.findByCodeIgnoreCase(request.getCode()).orElse(null);
+        if (existVoucher != null) new RuntimeException("Voucher Code already existed!");
 
         Voucher newVoucher = mapper.toEntity(request);
         newVoucher.setParkBranch(pb);
@@ -137,6 +135,7 @@ public class VoucherServiceImpl implements VoucherService {
 
         // active status can be updated whether its used before or not
         updated.setActive(request.getActive());
+        updated.setParkBranch(existing.getParkBranch());
 
         return mapper.toResponse(voucherRepo.save(updated));
     }

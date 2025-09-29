@@ -3,7 +3,8 @@ import { amenityTypeCreateModel } from "@/lib/model/amenityTypeCreateModel";
 import { amenityTypeUpdateModel } from "@/lib/model/amenityTypeUpdateModel";
 
 export type amenityTypeResponse = {
-  // ### STILL EMPTY
+  id: string;
+  name: string;
 };
 
 const amenityTypeService = {

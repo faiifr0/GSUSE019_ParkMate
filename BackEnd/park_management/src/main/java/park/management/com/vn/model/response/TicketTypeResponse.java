@@ -13,8 +13,11 @@ public class TicketTypeResponse {
   private String name;
   private String description;
   private BigDecimal basePrice;
+  private Long parkBranchId;
 
   // from BaseEntity (if you want them in the response)
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
+
+  private boolean status;
 }

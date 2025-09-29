@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Platform } from "react-native";
 
 interface UserState {
   token: string | null;
@@ -22,7 +23,7 @@ const userSlice = createSlice({
       state.userInfo = action.payload.userInfo;
 
       // 🔹 Lưu token & userInfo vào localStorage cho web
-      if (typeof window !== "undefined") {
+      if (Platform.OS === "web") {
         if (action.payload.token) {
           localStorage.setItem("token", action.payload.token);
         }
@@ -32,11 +33,12 @@ const userSlice = createSlice({
       }
     },
     logout: (state) => {
+      console.log("Logout reducer triggered");
       state.token = null;
       state.userInfo = null;
 
       // 🔹 Xoá localStorage khi logout (web)
-      if (typeof window !== "undefined") {
+      if (Platform.OS === "web") {
         localStorage.removeItem("token");
         localStorage.removeItem("userInfo");
         localStorage.removeItem("userId");

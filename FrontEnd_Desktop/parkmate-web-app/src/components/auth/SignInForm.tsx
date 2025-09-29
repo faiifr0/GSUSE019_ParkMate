@@ -1,20 +1,15 @@
 "use client";
-import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
-import Link from "next/link";
+import { EyeCloseIcon, EyeIcon } from "@/components/icons";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import userService from "@/lib/services/userService";
 import Cookies from "js-cookie";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function SignInForm() {
-  const router = useRouter();
-
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
   
   const [email, setEmail] = useState("admin@local");
   const [password, setPassword] = useState("Admin@1234");
@@ -35,9 +30,13 @@ export default function SignInForm() {
         secure: false, // only over HTTPS
         sameSite: "strict",
       });
-      router.push("/");
+      window.location.href = "/";
     } catch (error) {
-      console.log(error);
+      const message = "Mật khẩu hoặc email không đúng!"
+      toast.error(message, {
+        duration: 3000,
+        position: 'bottom-left',
+      });
     } finally {
       //something here
     }
@@ -96,21 +95,7 @@ export default function SignInForm() {
                       )}
                     </span>
                   </div>
-                </div>
-                {/* <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={isChecked} onChange={setIsChecked} />
-                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                      Keep me logged in
-                    </span>
-                  </div>
-                  <Link
-                    href="/reset-password"
-                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                  >
-                    Forgot password?
-                  </Link>
-                </div> */}
+                </div>                
                 <div className="mt-9">
                   <Button 
                     className="w-full" 
@@ -121,19 +106,15 @@ export default function SignInForm() {
                   </Button>
                 </div>
               </div>
-            </form>
 
-            {/* <div className="mt-5">
-              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Don&apos;t have an account? {""}
-                <Link
-                  href="/signup"
-                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                >
-                  Sign Up
-                </Link>
-              </p>
-            </div> */}
+              <Toaster                
+                reverseOrder={false}                               
+                containerStyle={{                  
+                  marginLeft: '13rem',
+                  marginBottom: '8rem',
+                }}
+              />
+            </form>            
           </div>
         </div>
       </div>

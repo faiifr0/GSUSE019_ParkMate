@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.entity.Event;
+import park.management.com.vn.entity.Game;
 import park.management.com.vn.entity.ParkBranch;
 import park.management.com.vn.model.request.EventRequest;
 import park.management.com.vn.model.response.EventResponse;
@@ -99,5 +100,14 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventResponse> listOfBranch(Long branchId) {
         return eventRepository.findByParkBranch_Id(branchId).stream().map(this::toResp).toList();
+    }
+
+    @Override
+    @Transactional
+    public void updateImage(Long id, String imageUrl) {
+        Event e = eventRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("EVENT_NOT_FOUND"));
+        e.setImageUrl(imageUrl); // ensure Event has imageUrl field
+        eventRepository.save(e);
     }
 }

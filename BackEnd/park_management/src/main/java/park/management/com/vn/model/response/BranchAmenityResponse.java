@@ -10,10 +10,11 @@ import park.management.com.vn.entity.ParkBranch;
 @NoArgsConstructor @AllArgsConstructor
 
 public class BranchAmenityResponse {
+  private String id;
 
-  private ParkBranch parkBranch;
+  private String parkBranchId;
   
-  private AmenityType amenityType;
+  private String amenityTypeId;
   
   private String name;
 

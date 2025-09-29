@@ -3,5 +3,6 @@ export type parkBranchCreateModel = {
   address?: string;
   location?: string;
   openTime?: string;
-  closeTime?: string;  
+  closeTime?: string;
+  status?: boolean;
 }

@@ -23,10 +23,10 @@ import jakarta.persistence.*;
 @AllArgsConstructor
 public class Role extends BaseEntity {
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false, unique = true, length = 200)
   private String name;
 
-  @Column(name = "description")
+  @Column(name = "description", length = 500)
   private String description;
 
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)

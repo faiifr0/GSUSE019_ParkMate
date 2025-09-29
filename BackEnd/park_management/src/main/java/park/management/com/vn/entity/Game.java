@@ -17,7 +17,7 @@ public class Game extends BaseEntity {
   @JoinColumn(name = "park_branch_id", nullable = false)
   private ParkBranch parkBranch;
 
-  @Column(nullable = false, length = 128)
+  @Column(nullable = false)
   private String name;
 
   @Column(length = 2000)

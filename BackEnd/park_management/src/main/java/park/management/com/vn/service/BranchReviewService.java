@@ -10,4 +10,6 @@ public interface BranchReviewService {
     BranchReviewResponse createReview(BranchReviewRequest request);
     List<BranchReviewResponse> getAllReviews();
     BranchReviewResponse getReviewById(Long id);
+    BranchReviewResponse updateReview(Long id, BranchReviewRequest request);
+    List<BranchReviewResponse> getAllOfBranch(Long id);
 }

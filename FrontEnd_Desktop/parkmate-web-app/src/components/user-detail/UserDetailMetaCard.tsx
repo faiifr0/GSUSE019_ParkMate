@@ -66,8 +66,7 @@ export default function UserDetailMetaCard() {
   };
 
   const handleSave = async () => {
-    await userRoleService.updateUserRole(id, formData);
-    fetchUser();
+    await userRoleService.updateUserRole(id, formData);    
 
     const message = 'Cập nhật vai trò người dùng thành công!';
     toast.success(message, {
@@ -76,6 +75,10 @@ export default function UserDetailMetaCard() {
     });
 
     closeModal();
+
+    setTimeout(() => {
+    window.location.reload();
+    }, 1500);
   };
   
   return (

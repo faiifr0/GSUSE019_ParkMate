@@ -1,18 +1,27 @@
-//import UserAddressCard from "@/components/user-profile/UserAddressCard";
+'use client'
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useAuth } from "@/components/context/AuthContext";
 import UserDetailInfoCard from "@/components/user-detail/UserDetailInfoCard";
 import UserDetailMetaCard from "@/components/user-detail/UserDetailMetaCard";
-import { Metadata } from "next";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 
-export const metadata: Metadata = {
-  title: "Thông tin người dùng | ParkMate",
-  description:
-    "This is Next.js User Info page for ParkMate",
-};
+export default function UserDetails() {
+  const { currUser } = useAuth();
+  const router = useRouter();
 
-export default function Profile() {
+  // Authorization
+  useEffect(() => {
+    if (currUser && !currUser.roles?.includes("ADMIN")) {
+      router.replace("/error-403");
+    }
+  }, [currUser, router]);
+
+  if (!currUser || !currUser.roles?.includes("ADMIN")) {
+    return null; // prevent rendering before redirect
+  }
+  
   const breadcrumbItems = [
     { name: "Danh sách người dùng", path: "/users" },    
   ];

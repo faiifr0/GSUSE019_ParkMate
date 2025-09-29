@@ -26,7 +26,7 @@ public class Notification extends BaseEntity {
   @JoinColumn(name = "user_id")
   private UserEntity userEntity;
 
-  @Column(name = "message", nullable = false)
+  @Column(name = "message", nullable = false, length = 500)
   private String message;
 
   @Enumerated(EnumType.STRING)

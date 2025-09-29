@@ -22,7 +22,7 @@ import jakarta.persistence.*;
 @AllArgsConstructor
 public class UserEntity extends BaseEntity {
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false, unique = true, length = 50)
   private String username;
 
   @Column(nullable = false, unique = true)
@@ -43,7 +43,7 @@ public class UserEntity extends BaseEntity {
   @Column(nullable = true)
   private String fullName;
 
-  @Column(nullable = true)
+  @Column(nullable = true, length = 10)
   private String phoneNumber;
 
   @Column(nullable = true)

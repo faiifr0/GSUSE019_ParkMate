@@ -19,35 +19,30 @@ public class BranchStaffController {
 
     private final BranchStaffService branchStaffService;
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/{id}")
     public ResponseEntity<BranchStaffResponse> getBranchStaffById(@PathVariable Long id) {
         BranchStaffResponse response = branchStaffService.getBranchStaffById(id);
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping
     public ResponseEntity<List<BranchStaffResponse>> getAllBranchStaff() {
         List<BranchStaffResponse> responseList = branchStaffService.getAllBranchStaff();
         return ResponseEntity.ok(responseList);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping
     public ResponseEntity<BranchStaffResponse> createBranchStaff(@Valid @RequestBody BranchStaffRequest request) {
         BranchStaffResponse response = branchStaffService.createBranchStaff(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<BranchStaffResponse> updateBranchStaff(@PathVariable Long id, @Valid @RequestBody BranchStaffRequest request) {
         BranchStaffResponse response = branchStaffService.updateBranchStaff(id, request);
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBranchStaff(@PathVariable Long id) {
         branchStaffService.deleteBranchStaff(id);

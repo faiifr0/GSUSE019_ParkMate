@@ -24,6 +24,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.config.model.JWTConfigModel;
+import park.management.com.vn.entity.ParkBranch;
 import park.management.com.vn.entity.UserEntity;
 
 @Slf4j
@@ -50,9 +51,15 @@ public class JWTTokenUtils {
     .map(userRole -> userRole.getRole().getName())
     .collect(Collectors.toList());
 
+    ParkBranch pb = userEntity.getParkBranch();    
+
     // put roles if you have them; empty list is fine
     //claims.put("roles", List.of());
+    claims.put("userId", userEntity.getId());
     claims.put("roles", roleNames);
+    // can't set this to null somehow
+    claims.put("parkBranchId", (pb != null) ? pb.getId() : 0);
+    claims.put("email", userEntity.getEmail());   
 
     return Jwts.builder()
         .setSubject(userEntity.getUsername())

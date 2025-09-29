@@ -1,38 +1,67 @@
 'use client'
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ComponentCard from "@/components/common/ComponentCard";
 import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
 import BranchStaffTable from "@/components/tables/BranchStaffTable";
 import { Toaster } from "react-hot-toast";
+import { useAuth } from "@/components/context/AuthContext";
 
-export default function ParkBranchTicketsList() {
+export default function BranchStaffsList() {
+  const { currUser } = useAuth();
+  const router = useRouter();
   const params = useParams();
-  const id = params.id ? String(params.id) : '0';
+  const branchId = params.id ? Number(params.id) : 0;
 
-  const [branchInfo, setBranchInfo] = useState<parkBranchResponse>();    
-
+  const [branchInfo, setBranchInfo] = useState<parkBranchResponse>(); 
   const fetchParkBranch = async () => {
-    const response = await parkBranchService.getParkBranchById(id);
-    setBranchInfo(response);  
-  }
-
-  // Fetch Park Branch Overview Info
-    useEffect(() => {
     try {
-      fetchParkBranch();  
+      const response = await parkBranchService.getParkBranchById(String(branchId));
+      setBranchInfo(response);  
     } catch (err) {
       console.log(err);
-    } finally {
-      // do something
     }
-  }, [])
+  };
 
-  const breadcrumbItems = [
-    { name: "Danh sách chi nhánh", path: "/park-branches" },
-    { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + id } 
-  ];
+  useEffect(() => {
+    if (!currUser) return;
+
+    const isAdmin = currUser.roles?.includes("ADMIN");
+    const isManager = currUser.roles?.includes("MANAGER");
+    const isBranchMatch = branchId !== 0 && currUser.parkBranchId !== 0 && branchId === currUser.parkBranchId;
+
+    const isAuthorized = isAdmin || (isManager && isBranchMatch);
+
+    if (!isAuthorized) {
+      router.replace("/error-403");
+    }
+  }, [currUser, branchId, router]);
+
+  useEffect(() => {
+    if (branchId !== 0) {
+      fetchParkBranch();
+    }
+  }, [branchId]);
+
+  if (!currUser) return null;
+
+  const isAdmin = currUser?.roles?.includes("ADMIN");
+  const isManager = currUser?.roles?.includes("MANAGER");
+  const isBranchMatch = branchId !== 0 && currUser?.parkBranchId !== 0 && branchId === currUser?.parkBranchId;
+
+  const isAuthorized = isAdmin || (isManager && isBranchMatch);
+
+  if (!isAuthorized) {
+    return null; // prevent rendering before redirect
+  } 
+
+  const breadcrumbItems = currUser.roles.includes("MANAGER")
+  ? []
+  : [
+      { name: "Danh sách chi nhánh", path: "/park-branches" },
+      { name: "Thông tin chung của chi nhánh", path: "/park-branches/" + branchId },
+    ];
 
   return (
     <div>

@@ -18,7 +18,7 @@ public class Event extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "text", length = 2000)
     private String description;
 
     @Column(nullable = false)
@@ -31,7 +31,7 @@ public class Event extends BaseEntity {
     @JoinColumn(name = "park_branch_id", nullable = false)
     private ParkBranch parkBranch;
 
-    // NEW
+    // NEW    
     private String imageUrl;      // ảnh cover của sự kiện
     private Boolean status;       // active/inactive
 }

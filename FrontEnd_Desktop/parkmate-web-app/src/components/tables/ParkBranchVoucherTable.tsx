@@ -10,16 +10,16 @@ import {
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
 import Pagination from "./Pagination";
-import branchPromotionService, { branchPromotionResponse } from "@/lib/services/branchPromotionService";
-import { branchPromotionCreateModel } from "@/lib/model/branchPromotionCreateModel";
+import { voucherCreateModel } from "@/lib/model/voucherCreateModel";
 import { useParams } from "next/navigation";
 import { useModal } from "@/hooks/useModal";
 import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
-import { branchPromotionUpdateModel } from "@/lib/model/branchPromotionUpdateModel";
+import { voucherUpdateModel } from "@/lib/model/voucherUpdateModel";
 import toast from "react-hot-toast";
+import voucherService, { VoucherResponse } from "@/lib/services/voucherService";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -30,58 +30,58 @@ export default function ParkBranchVoucherTable() {
 
   const { isOpen, openModal, closeModal } = useModal();
 
-  const [formData, setFormData] = useState<branchPromotionCreateModel>();
-  const [branchPromotions, setBranchPromotions] = useState<branchPromotionResponse[]>([]);
-  const [selectedVoucher, setSelectedVoucher] = useState<branchPromotionResponse | null>(null);
-  const [mode, setMode] = useState<'create' | 'edit'>('create');
-  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<voucherCreateModel>();
+  const [vouchers, setVouchers] = useState<VoucherResponse[]>([]);
+  const [selectedVoucher, setSelectedVoucher] = useState<VoucherResponse | null>(null);
+  const [mode, setMode] = useState<'Tạo mới' | 'Cập Nhật'>('Tạo mới');
 
-  // Fetch Park Branches List
-  const fetchBranchPromotions = async () => {
+  // Fetch Vouchers List
+  const fetchVouchers = async () => {
     try {
-      const response = await branchPromotionService.getAll();
-      setBranchPromotions(response);
+      const response = await voucherService.getAll();
+      setVouchers(response);
     } catch (err) {
       console.log(err);
-      const message =
-        err instanceof Error ? err.message : 'Failed to fetch branch vouchers!';
+      const message = 'Failed voucher của chi nhánh thất bại';
       toast.error(message, {
         duration: 3000,
         position: 'top-right',
       });
     } finally {
-    // do something for example setLoading
+    // do something
     }
   }
   
   useEffect(() => {    
-    fetchBranchPromotions();    
+    fetchVouchers();    
   }, [])
 
   const openCreateModal = () => {
-      setMode('create');
+      setMode('Tạo mới');
       setFormData({
         parkBranchId: id,
-        description: '',
-        discount: undefined,
-        from: undefined,
-        to: undefined,
-        isActive: false,
+        code: undefined,
+        percent: undefined,
+        maxDiscount: undefined,        
+        startAt: undefined,
+        endAt: undefined,
+        active: true,
       });
       setSelectedVoucher(null);
       openModal();
     };
   
-    const openEditModal = (voucher: branchPromotionResponse) => {
-      setMode('edit');
+    const openEditModal = (voucher: VoucherResponse) => {
+      setMode('Cập Nhật');
       setSelectedVoucher(voucher);
       setFormData({
         parkBranchId: id,
-        description: voucher.description,
-        discount: voucher.discount,
-        from: voucher.from,
-        to: voucher.to,
-        isActive: voucher.isActive,
+        code: voucher.code,
+        percent: voucher.percent,
+        maxDiscount: voucher.maxDiscount,
+        startAt: voucher.startAt,
+        endAt: voucher.endAt,
+        active: voucher.active,
       });
       openModal();
     };
@@ -89,18 +89,27 @@ export default function ParkBranchVoucherTable() {
   // Handle save logic here
   const handleSave = async () => {        
     try {      
-      if (mode === 'edit' && selectedVoucher) {
-        await branchPromotionService.updateBranchPromotion(selectedVoucher.id, formData as branchPromotionUpdateModel);
+      if (mode === 'Cập Nhật' && selectedVoucher) {
+        await voucherService.updateVoucher(selectedVoucher.id, formData as voucherUpdateModel);
       } else {
-        await branchPromotionService.createBranchPromotion(formData);
+        await voucherService.createVoucher(formData);
       }
-      fetchBranchPromotions();      
+      fetchVouchers();      
       setFormData(undefined);
       setFormData(form => ({ ...form, parkBranchId: id }));
       closeModal();
+      const message = mode + " voucher thành công!";
+      toast.success(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     } catch (err) {
       console.log(err);
-      setError("Failed to " + mode + "branch voucher!");
+      const message = mode + " voucher thất bại!";
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
     }
   };
 
@@ -111,7 +120,7 @@ export default function ParkBranchVoucherTable() {
           className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition 
                      px-4 py-3 mb-6 mx-6 text-sm bg-brand-500 text-white hover:bg-brand-600"
           onClick={openCreateModal}>
-            Add Branch Voucher +
+            Tạo voucher mới
         </button>
       </div>
 
@@ -132,32 +141,38 @@ export default function ParkBranchVoucherTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Voucher Description
+                  Mã voucher
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Discount (%)
+                  Giảm giá (%)
                 </TableCell>                
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Available From
+                  Giảm giá tối đa (VNĐ)
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Available To
+                  Bắt đầu từ
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Active Status
+                  Kết thúc lúc
                 </TableCell>
+                <TableCell
+                  isHeader
+                  className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
+                >
+                  Trạng thái
+                </TableCell> 
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-xs dark:text-gray-400"
@@ -169,53 +184,56 @@ export default function ParkBranchVoucherTable() {
 
             {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {branchPromotions.map((promotion, index) => (
-                <TableRow key={promotion.id}>    
+              {vouchers.filter(v => v.parkBranchId == id).map((v, index) => (
+                <TableRow key={v.id}>    
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     {index + 1}                    
                   </TableCell>               
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {promotion.description}                    
+                    {v.code}                    
                   </TableCell>                  
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {promotion.discount}
+                    {v.percent * 100}
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
+                    {v.maxDiscount}
                   </TableCell>                  
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     {
-                      promotion.from ? 
-                      `${new Date(promotion.from).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${new Date(promotion.from).toLocaleDateString('en-GB')}`
+                      v.startAt ? 
+                      `${new Date(v.startAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${new Date(v.startAt).toLocaleDateString('en-GB')}`
                       : ''
                     }
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     {
-                      promotion.to ? 
-                      `${new Date(promotion.to).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${new Date(promotion.to).toLocaleDateString('en-GB')}`
+                      v.endAt ? 
+                      `${new Date(v.endAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${new Date(v.endAt).toLocaleDateString('en-GB')}`
                       : ''
                     }
                   </TableCell>                                                                       
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     <Badge                      
                       color={
-                        promotion.isActive === true
+                        v.active === true
                           ? "success"
-                          : promotion.isActive === false
-                          ? "info"
-                          : "error"
+                          : v.active === false
+                          ? "error"
+                          : "warning"
                       }
                     >
                       {
-                        promotion.isActive === true
-                          ? "Active"
-                          : promotion.isActive === false
-                          ? "Disabled"
+                        v.active === true
+                          ? "Đang hoạt động"
+                          : v.active === false
+                          ? "Ngừng hoạt động"
                           : "Error"
                       }                      
                     </Badge>
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">                      
-                      <Button size="sm" onClick={() => openEditModal(promotion)}>Edit</Button>
-                    </TableCell> 
+                    <Button size="sm" onClick={() => openEditModal(v)}>Cập Nhật</Button>
+                  </TableCell> 
                 </TableRow>
               ))}
             </TableBody>
@@ -226,8 +244,8 @@ export default function ParkBranchVoucherTable() {
         <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[600px] m-4">
           <div className="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
             <div className="px-2 pr-14">
-              <h4 className="mb-9 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
-                {mode === 'edit' ? 'Edit Branch Voucher' : 'Add New Branch Voucher'}
+              <h4 className="mb-3 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
+                {mode === 'Cập Nhật' ? 'Cập Nhật Voucher' : 'Tạo Voucher Mới'}
               </h4>
             </div>
             <form className="flex flex-col"
@@ -239,11 +257,11 @@ export default function ParkBranchVoucherTable() {
                   <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">   
                     <div className="col-span-2"></div>                                     
                     <div className="col-span-8">
-                      <Label>Voucher Description</Label>
+                      <Label>Mã voucher</Label>
                       <Input
                         type="text"
-                        value={formData?.description !== undefined ? formData.description : ''} 
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}                        
+                        value={formData?.code !== undefined ? formData.code : ''} 
+                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}                        
                       />
                     </div>                                        
                     <div className="col-span-2"></div>                    
@@ -251,55 +269,71 @@ export default function ParkBranchVoucherTable() {
 
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Discount (%)</Label>
+                      <Label>Giảm giá</Label>
                       <Input
                         type="number"
                         min={0}
-                        max={100}
-                        step={1}
-                        value={formData?.discount !== undefined ? formData.discount : ''}
-                        onChange={(e) => setFormData({ ...formData, discount: Number(e.target.value) })}                   
+                        max={0.5}
+                        step={0.01}
+                        value={formData?.percent !== undefined ? formData.percent : ''}
+                        onChange={(e) => setFormData({ ...formData, percent: Number(e.target.value) })}                   
                       />
                     </div>  
 
                     <div className="col-span-6">
-                      <Label>Active Status</Label>
-                      <input
-                        type="checkbox"
-                        checked={formData?.isActive ?? false}                     
-                        onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })} 
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"            
+                      <Label>Giảm giá tối đa (VNĐ)</Label>
+                      <Input
+                        type="number"
+                        min={1000}
+                        max={500000}
+                        step={1000}
+                        value={formData?.maxDiscount !== undefined ? formData.maxDiscount : ''}
+                        onChange={(e) => setFormData({ ...formData, maxDiscount: Number(e.target.value) })}                   
                       />
                     </div>                                      
                   </div> 
 
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Available From</Label>
+                      <Label>Bắt đầu từ</Label>
                       <Input
                         type="datetime-local"
-                        value={formData?.from ?? ''}                        
-                        onChange={(e) => setFormData({ ...formData, from: e.target.value })}                   
+                        value={formData?.startAt ?? ''}                        
+                        onChange={(e) => setFormData({ ...formData, startAt: e.target.value })}                   
                       />
                     </div>  
 
                     <div className="col-span-6">
-                      <Label>Available To</Label>
+                      <Label>Kết thúc lúc</Label>
                       <Input
                         type="datetime-local"
-                        value={formData?.to ?? ''}                       
-                        onChange={(e) => setFormData({ ...formData, to: e.target.value })}                   
+                        value={formData?.endAt ?? ''}                       
+                        onChange={(e) => setFormData({ ...formData, endAt: e.target.value })}                   
                       />
                     </div>                                                          
-                  </div>                                                                 
+                  </div>
+
+                  { mode === 'Cập Nhật' && (
+                  <div className="grid grid-cols-12 my-9 gap-x-4">                                          
+                    <div className="col-span-6">
+                      <Label>Trạng thái</Label>
+                      <input
+                        type="checkbox"
+                        checked={formData?.active ?? false}                     
+                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })} 
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"            
+                      />
+                    </div>                                      
+                  </div>                
+                  )}                                                  
                 </div>              
               </div>
               <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
                 <Button size="sm" variant="outline" onClick={closeModal}>
-                  Close
+                  Đóng
                 </Button>
                 <Button size="sm" onClick={handleSave}>
-                  {mode === 'edit' ? 'Edit' : 'Save Changes'}
+                  {mode === 'Cập Nhật' ? 'Cập Nhật' : 'Lưu thay đổi'}
                 </Button>
               </div>
             </form>

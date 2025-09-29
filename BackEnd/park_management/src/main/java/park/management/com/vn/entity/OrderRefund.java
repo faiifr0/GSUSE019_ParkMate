@@ -24,7 +24,7 @@ public class OrderRefund extends BaseEntity {
   private String reason;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "status", nullable = false, length = 32)
+  @Column(name = "status", nullable = false, length = 50)
   private Status status = Status.PENDING;
 
   @Column(name = "requested_at", nullable = false)

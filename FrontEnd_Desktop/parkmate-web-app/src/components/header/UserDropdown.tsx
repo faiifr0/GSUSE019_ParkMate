@@ -5,8 +5,11 @@ import React, { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import Cookies from "js-cookie";
+import { useAuth } from "@/components/context/AuthContext";
 
 export default function UserDropdown() {
+  const { currUser } = useAuth();
+
   const [isOpen, setIsOpen] = useState(false);
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
@@ -37,7 +40,7 @@ export default function UserDropdown() {
           />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">Manager</span>
+        <span className="block mr-1 font-medium text-theme-sm">{currUser?.roles?.[0] ?? "Unknown"}</span>
 
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
@@ -65,11 +68,11 @@ export default function UserDropdown() {
         className="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
       >
         <div>
-          <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            Something Manager
+          <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400 text-center">
+            {currUser?.sub}
           </span>
-          <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            manager@gmail.com
+          <span className="mt-0.5 block text-theme-sm text-gray-500 dark:text-gray-400 text-center">
+            {currUser?.email}
           </span>
         </div>
 
@@ -169,7 +172,7 @@ export default function UserDropdown() {
               fill=""
             />
           </svg>
-          Sign out
+          Đăng xuất
         </Link>
       </Dropdown>
     </div>

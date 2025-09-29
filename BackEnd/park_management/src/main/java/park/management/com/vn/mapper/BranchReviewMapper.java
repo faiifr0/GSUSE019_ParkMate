@@ -11,7 +11,8 @@ import park.management.com.vn.model.response.BranchReviewResponse;
 public interface BranchReviewMapper {
     BranchReview toEntity(BranchReviewRequest request);
 
-    @Mapping(target = "userId", source = "userEntity.username")
-    @Mapping(target = "branchId", source = "parkBranch.name")
+    @Mapping(target = "userId", source = "userEntity.id")
+    @Mapping(target = "branchId", source = "parkBranch.id")
+    @Mapping(target = "email", source = "userEntity.email")
     BranchReviewResponse toResponse(BranchReview entity);
 }

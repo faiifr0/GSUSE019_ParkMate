@@ -18,9 +18,7 @@ type TakeAttendance = {
 export default function ShiftTakeAttendance() {
   const params = useParams();
   const id = params.id ? String(params.id) : null;
-  const shiftId = params['shift-id'] ? String(params['shift-id']) : null;
-
-  console.log("Shift ID: " + shiftId);
+  const shiftId = params['shift-id'] ? String(params['shift-id']) : null;  
 
   if (id === null) {
     notFound();
