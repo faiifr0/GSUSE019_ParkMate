@@ -6,9 +6,11 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import Cookies from "js-cookie";
 import { useAuth } from "@/components/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function UserDropdown() {
   const { currUser } = useAuth();
+  const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -22,7 +24,8 @@ export default function UserDropdown() {
   } 
 
   const handleLogout = () => {    
-    Cookies.remove("token", {path: "/"});     
+    Cookies.remove("token", {path: "/"});
+    router.push("/signin");
   }
 
   return (

@@ -58,7 +58,7 @@ export default function OverviewInfoCard () {
         position: 'top-right',
       }) 
     } catch (err) {
-      const message = 'Cập nhật chi nhánh công viên thất bại!';
+      const message = 'Cập nhật chi nhánh công viên thất bại!' + (err instanceof Error ? err.message : '');
       toast.error(message, {
         duration: 3000,
         position: 'top-right',

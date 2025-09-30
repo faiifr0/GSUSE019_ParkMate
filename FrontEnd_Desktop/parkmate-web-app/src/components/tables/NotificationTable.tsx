@@ -60,25 +60,25 @@ export default function UserTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                 >
-                  Message
+                  Nội dung thông báo
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                 >
-                  Notification Type
+                  Loại thông báo
                 </TableCell>                               
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                 >
-                  Sent At
+                  Gửi lúc
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-800 text-center text-theme-lg dark:text-gray-400"
                 >
-                  Status
+                  Trạng thái
                 </TableCell>              
               </TableRow>
             </TableHeader>

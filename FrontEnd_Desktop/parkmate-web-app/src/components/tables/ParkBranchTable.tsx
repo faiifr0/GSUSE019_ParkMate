@@ -20,6 +20,8 @@ import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
 import { parkBranchCreateModel } from "@/lib/model/parkBranchCreateModel";
 import toast from "react-hot-toast";
+import { format, parseISO } from "date-fns";
+import { AxiosError } from "axios";
 
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
@@ -50,7 +52,7 @@ export default function ParkBranchTable() {
   useEffect(() => {    
     fetchParkBranches();
     
-    setFormData(form => ({ ...form, location: "106.623738 : 10.800662" }));
+    setFormData(form => ({ ...form, location: "106.623738 : 10.800662" })); // default geographical location
     setFormData(form => ({ ...form, openTime: "10:00:00" })); // default openTime 10:00 AM
     setFormData(form => ({ ...form, closeTime: "22:00:00" })); // default closeTime 10:00 PM
     setFormData(form => ({ ...form, status: false}));
@@ -62,9 +64,13 @@ export default function ParkBranchTable() {
       await parkBranchService.createParkBranch(formData);
       fetchParkBranches();      
       setFormData(undefined);
+      setFormData(form => ({ ...form, location: "106.623738 : 10.800662" })); // default geographical location
+      setFormData(form => ({ ...form, openTime: "10:00:00" })); // default openTime 10:00 AM
+      setFormData(form => ({ ...form, closeTime: "22:00:00" })); // default closeTime 10:00 PM
+      setFormData(form => ({ ...form, status: false}));
       closeModal();
     } catch (err) {      
-      const message = 'Tạo mới chi nhánh công viên thất bại!';
+      const message = 'Tạo mới chi nhánh công viên thất bại! ' + (err instanceof AxiosError ? err.message : '');
       toast.error(message, {
         duration: 3000,
         position: 'top-right',
@@ -145,7 +151,16 @@ export default function ParkBranchTable() {
 
               {/* Table Body */}
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {branches.map((branch, index) => (
+                {[...branches]
+                  .sort((a, b) => {
+                    // Prioritize status: true before false
+                    if (a.status !== b.status) {
+                      return a.status ? -1 : 1;
+                    }
+                    // Then sort by updatedAt descending
+                      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+                  })
+                .map((branch, index) => (
                   <TableRow key={branch.id}>      
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       {index + 1}
@@ -167,10 +182,10 @@ export default function ParkBranchTable() {
                       {branch.closeTime}
                     </TableCell>                                    
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {branch.createdAt}
+                      {format(parseISO(branch.createdAt), 'dd/MM/yyyy HH:mm:ss')}
                     </TableCell> 
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                      {branch.updatedAt}
+                      {format(parseISO(branch.updatedAt), 'dd/MM/yyyy HH:mm:ss')}
                     </TableCell>                  
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       <Badge
