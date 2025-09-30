@@ -34,6 +34,7 @@ export default function BranchStaffTable() {
 
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [branchStaffs, setBranchStaffs] = useState<branchStaffResponse[]>([]);
+  const [filteredStaffs, setFilteredStaffs] = useState<branchStaffResponse[]>([]);
   const [formData, setFormData] = useState<branchStaffCreateModel>();
   const [selectedStaff, setSelectedStaff] = useState<branchStaffResponse | null>(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
@@ -43,6 +44,9 @@ export default function BranchStaffTable() {
     try {
       const response = await branchStaffService.getAll();
       setBranchStaffs(response);
+      // filter branch staff by parkBranchId from params
+      const filteredStaffs = response.filter(staff => String(staff.parkBranchId) === id);
+      setFilteredStaffs(filteredStaffs);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Fetch nhân viên chi nhánh thất bại!';
@@ -200,7 +204,7 @@ export default function BranchStaffTable() {
 
               {/* Table Body */}
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {[...branchStaffs]
+                {[...filteredStaffs]
                   .sort((a, b) => {
                     // Prioritize status: true before false
                     if (a.status !== b.status) {

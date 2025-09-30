@@ -7,7 +7,7 @@ import { useAuth } from "@/components/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function AdminDashboard() {
-const { currUser } = useAuth();
+  const { currUser } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
