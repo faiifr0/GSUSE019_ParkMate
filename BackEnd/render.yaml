@@ -6,7 +6,7 @@ services:
     dockerfilePath: Dockerfile
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://dpg-d3ei400gjchc738omnl0-a.singapore-postgres.render.com:5432/parkdb_71ll?user=parkadmin&password=M2wqLrLBvTR7CLXeV3w3QUNXzLFpWd6Z
+        value: jdbc:postgresql://dpg-d3ei400gjchc738omnl0-a.singapore-postgres.render.com:5432/parkdb_71ll
       - key: SPRING_DATASOURCE_USERNAME
         value: parkadmin
       - key: SPRING_DATASOURCE_PASSWORD
@@ -37,16 +37,9 @@ services:
         value: /api/payment/payos/webhook
       - key: APP_MAIL_FROMNAME
         value: Park Management
-    autoDeploy: true
-    healthCheckPath: /actuator/health
-    envVars:
       - key: SMTP_USERNAME
         sync: false
       - key: SMTP_PASSWORD
         sync: false
-  - type: postgres
-    name: render-postgres
-    plan: starter
-    databaseName: parkdb_71ll
-    user: parkadmin
-    password: M2wqLrLBvTR7CLXeV3w3QUNXzLFpWd6Z
+    autoDeploy: true
+    healthCheckPath: /actuator/health  
