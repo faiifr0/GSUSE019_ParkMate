@@ -18,6 +18,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   Home: undefined;
   QRCodeScanner: undefined;
+  PromotionDetail: { promoId: number };
 };
 
 export type BottomTabParamList = {

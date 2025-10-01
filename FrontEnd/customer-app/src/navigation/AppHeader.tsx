@@ -1,5 +1,5 @@
 // src/navigation/AppHeader.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,9 +11,10 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/userSlice";
-import { persistor } from "../redux/store"; // ✅ import persistor
+import { persistor, RootState } from "../redux/store";
+import { useWallet } from "../hooks/useWallet";
 
 export default function AppHeader(props: NativeStackHeaderProps) {
   const { navigation } = props;
@@ -21,11 +22,18 @@ export default function AppHeader(props: NativeStackHeaderProps) {
   const isWeb = Platform.OS === "web";
   const isMobileView = width < 768;
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const coin = 0;
   const dispatch = useDispatch();
 
-  // 👉 Mobile header
+  const user = useSelector((state: RootState) => state.user.userInfo);
+
+  // Hook lấy số dư ví
+  const { balance: coin, refreshWallet } = useWallet(user?.userId);
+
+  useEffect(() => {
+    if (user?.userId) refreshWallet();
+  }, [user]);
+
+  // ---------------- MOBILE HEADER ----------------
   if (!isWeb) {
     return (
       <View
@@ -38,7 +46,11 @@ export default function AppHeader(props: NativeStackHeaderProps) {
           backgroundColor: "transparent",
         }}
       >
-        <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("MainApp", { screen: "Home" })
+          }
+        >
           <Text style={{ fontSize: 20, fontWeight: "bold", color: colors.primary }}>
             🎡 ParkMate
           </Text>
@@ -67,7 +79,7 @@ export default function AppHeader(props: NativeStackHeaderProps) {
     );
   }
 
-  // 👉 Web header
+  // ---------------- WEB HEADER ----------------
   return (
     <View
       style={{
@@ -77,7 +89,6 @@ export default function AppHeader(props: NativeStackHeaderProps) {
         paddingHorizontal: 32,
         paddingVertical: 12,
         backgroundColor: "transparent",
-        borderBottomWidth: 0,
         height: 64,
         position: "relative",
       }}
@@ -85,7 +96,9 @@ export default function AppHeader(props: NativeStackHeaderProps) {
       {/* Logo */}
       <TouchableOpacity
         style={{ flexDirection: "row", alignItems: "center" }}
-        onPress={() => navigation.navigate("Home")} // ✅ nhấn logo quay về Home
+        onPress={() =>
+          navigation.navigate("MainApp", { screen: "Home" })
+        }
       >
         <Image
           source={require("../../assets/icon.png")}
@@ -101,12 +114,18 @@ export default function AppHeader(props: NativeStackHeaderProps) {
       <View style={{ flexDirection: "row", alignItems: "center", gap: 24 }}>
         {!isMobileView && (
           <>
-            <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("MainApp", { screen: "Home" })
+              }
+            >
               <Text style={{ fontSize: 16, fontWeight: "500" }}>Trang chủ</Text>
             </TouchableOpacity>
+
             <TouchableOpacity onPress={() => navigation.navigate("Contact")}>
               <Text style={{ fontSize: 16, fontWeight: "500" }}>Liên hệ</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               onPress={() => navigation.navigate("TicketList")}
               style={{
@@ -181,8 +200,8 @@ export default function AppHeader(props: NativeStackHeaderProps) {
               <TouchableOpacity
                 onPress={async () => {
                   setMenuOpen(false);
-                  dispatch(logout());       // xóa Redux state
-                  await persistor.flush(); // xóa persisted state ngay lập tức
+                  dispatch(logout());
+                  await persistor.flush();
                 }}
                 style={{ paddingVertical: 8, paddingHorizontal: 12 }}
               >
