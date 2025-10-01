@@ -6,11 +6,11 @@ services:
     dockerfilePath: Dockerfile
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://render-postgres:5432/parkdb
+        value: jdbc:postgresql://dpg-d3ei400gjchc738omnl0-a.singapore-postgres.render.com:5432/parkdb_71ll?user=parkadmin&password=M2wqLrLBvTR7CLXeV3w3QUNXzLFpWd6Z
       - key: SPRING_DATASOURCE_USERNAME
-        value: postgres
+        value: parkadmin
       - key: SPRING_DATASOURCE_PASSWORD
-        value: 123456
+        value: M2wqLrLBvTR7CLXeV3w3QUNXzLFpWd6Z
       - key: SPRING_PROFILES_ACTIVE
         value: dev
       - key: PAYOS_CLIENT_ID
@@ -47,6 +47,6 @@ services:
   - type: postgres
     name: render-postgres
     plan: starter
-    databaseName: parkdb
-    user: postgres
-    password: 123456
+    databaseName: parkdb_71ll
+    user: parkadmin
+    password: M2wqLrLBvTR7CLXeV3w3QUNXzLFpWd6Z
