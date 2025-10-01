@@ -1,0 +1,52 @@
+services:
+  - type: web
+    name: parkmate-backend
+    env: docker
+    plan: starter
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://render-postgres:5432/parkdb
+      - key: SPRING_DATASOURCE_USERNAME
+        value: postgres
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: 123456
+      - key: SPRING_PROFILES_ACTIVE
+        value: dev
+      - key: PAYOS_CLIENT_ID
+        value: c2fbf473-2403-4441-9b9a-aec78cf39a82
+      - key: PAYOS_API_KEY
+        value: 76675f43-a3cf-4311-a7f0-8316fd8ea3a9
+      - key: PAYOS_CHECKSUM_KEY
+        value: e1b57c7e9f9aa99aca0322c01a8e42cc2aa8278cd0400bab13036c6c2d92fd6b
+      - key: JWT_SECRET
+        value: change-me-very-long-random-string-at-least-32-bytes-11111111111111111111111
+      - key: JWT_EXPIRE_TIME
+        value: 86400
+      - key: JWT_ISSUER
+        value: change-me-issuer
+      - key: GEMINI_API_KEY
+        value: AIzaSyDL4bvKRy3qkJz0HjihQg3PckjbU-3pb5U
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+      - key: APP_INTERNAL_TOPUP_CONFIRM_URL
+        value: http://localhost:8080/api/local/topups/confirm
+      - key: APP_WEBHOOK_BASE_URL
+        value: https://wiring-harbor-opt-disabilities.trycloudflare.com
+      - key: APP_WEBHOOK_PATH
+        value: /api/payment/payos/webhook
+      - key: APP_MAIL_FROMNAME
+        value: Park Management
+    autoDeploy: true
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+  - type: postgres
+    name: render-postgres
+    plan: starter
+    databaseName: parkdb
+    user: postgres
+    password: 123456
