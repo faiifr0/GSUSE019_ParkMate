@@ -8,60 +8,47 @@ import { UserRequest, UserResponse } from "../types/User";
 
 // Đăng ký user thường
 export const registerUser = (data: UserRequest) => {
-  return axiosClient.post<{ username: string; email: string }>(
-    "/users/register",
-    data
-  );
-};
-
-// Đăng ký staff
-export const registerStaff = (data: UserRequest) => {
-  return axiosClient.post<{ username: string; email: string }>(
-    "/users/register/staff",
-    data
-  );
+return axiosClient.post<{ username: string; email: string }>(
+"/users/register",
+data
+);
 };
 
 // Đăng nhập
 export const loginUser = async (email: string, password: string) => {
-  const res = await axiosClient.post<{ accessToken: string }>("/users/login", {
-    email,
-    password,
-  });
+const res = await axiosClient.post<{ accessToken: string }>("/users/login", {
+email,
+password,
+});
 
-  if (res.data?.accessToken) {
-    if (Platform.OS === "web") {
-      localStorage.setItem("token", res.data.accessToken);
-    } else {
-      await AsyncStorage.setItem("token", res.data.accessToken);
-    }
-  }
+if (res.data?.accessToken) {
+if (Platform.OS === "web") {
+localStorage.setItem("token", res.data.accessToken);
+} else {
+await AsyncStorage.setItem("token", res.data.accessToken);
+}
+}
 
-  return res;
+return res;
 };
 
 // Đăng xuất
 export const logoutUser = async () => {
-  if (Platform.OS === "web") {
-    localStorage.removeItem("token");
-  } else {
-    await AsyncStorage.removeItem("token");
-  }
+if (Platform.OS === "web") {
+localStorage.removeItem("token");
+} else {
+await AsyncStorage.removeItem("token");
+}
 };
 
 // ---------------- USER -----------------
 
 // Lấy thông tin user theo ID
 export const getUserById = (id: number) => {
-  return axiosClient.get<UserResponse>(`/users/${id}`);
+return axiosClient.get<UserResponse>(`/users/${id}`);
 };
 
 // Cập nhật thông tin user
 export const updateUser = (id: number, data: Partial<UserRequest>) => {
-  return axiosClient.put<UserResponse>(`/users/${id}`, data);
-};
-
-// Xóa user
-export const deleteUser = (id: number) => {
-  return axiosClient.delete(`/users/${id}`);
+return axiosClient.put<UserResponse>(`/users/${id}`, data);
 };

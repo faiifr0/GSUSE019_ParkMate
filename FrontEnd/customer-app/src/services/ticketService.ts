@@ -1,54 +1,40 @@
+// src/services/ticketTypeService.ts
 import axiosClient from "../api/axiosClient";
-import { Ticket, UserTicket } from "../types/Ticket";
+import { Ticket } from "../types/Ticket";
 
-
-const ticketService = {
-  // 👉 Lấy danh sách vé từ backend
-  getTickets: async (): Promise<Ticket[]> => {
-    const res = await axiosClient.get("/ticket-types");
-    return res.data.map((t: any) => ({
-      id: t.id,
-      name: t.name,
-      description: t.description,
-      price: t.basePrice, // map sang price cho frontend
-      createdAt: t.createdAt,
-      updatedAt: t.updatedAt,
-    }));
+const ticketTypeService = {
+  // Lấy tất cả ticket types
+  getAll: async (): Promise<Ticket[]> => {
+    try {
+      const res = await axiosClient.get<Ticket[]>("/ticket-types");
+      return res.data;
+    } catch (error) {
+      console.error("Error fetching ticket types:", error);
+      throw error;
+    }
   },
 
-  // 👉 Lấy chi tiết 1 vé theo id
-  getTicketById: async (ticketId: number): Promise<Ticket> => {
-    const res = await axiosClient.get(`/ticket-types/${ticketId}`);
-    const t = res.data;
-    return {
-      id: t.id,
-      name: t.name,
-      description: t.description,
-      price: t.basePrice,
-      createdAt: t.createdAt,
-      updatedAt: t.updatedAt,
-    };
+  // Lấy chi tiết 1 ticket type theo id
+  getById: async (id: number): Promise<Ticket> => {
+    try {
+      const res = await axiosClient.get<Ticket>(`/ticket-types/${id}`);
+      return res.data;
+    } catch (error) {
+      console.error(`Error fetching ticket type with id ${id}:`, error);
+      throw error;
+    }
   },
 
-  // 👉 Mua vé (fake, backend chưa có API)
-  createUserTicket: async (
-    userId: number,
-    ticketId: number,
-    quantity: number
-  ): Promise<UserTicket> => {
-    return {
-      id: Date.now(),
-      userId,
-      ticketId,
-      quantity,
-      createdAt: new Date().toISOString(),
-    };
-  },
-
-  // 👉 Lấy danh sách vé của user (fake)
-  getUserTickets: async (_userId: number): Promise<UserTicket[]> => {
-    return [];
+  // Lấy ticket types theo branchId
+  getByBranchId: async (branchId: number): Promise<Ticket[]> => {
+    try {
+      const res = await axiosClient.get<Ticket[]>(`/ticket-types/of-branch/${branchId}`);
+      return res.data;
+    } catch (error) {
+      console.error(`Error fetching ticket types for branchId ${branchId}:`, error);
+      throw error;
+    }
   },
 };
 
-export default ticketService;
+export default ticketTypeService;
