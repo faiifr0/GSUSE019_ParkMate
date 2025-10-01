@@ -24,10 +24,26 @@ async function removeToken() {
   if (Platform.OS === "web") {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
+    localStorage.removeItem("walletId");
   } else {
     await AsyncStorage.removeItem("token");
     await AsyncStorage.removeItem("userId");
+    await AsyncStorage.removeItem("walletId");
   }
+}
+
+// ✅ Thêm hàm lưu / lấy walletId
+async function setWalletId(walletId: number) {
+  if (Platform.OS === "web") {
+    localStorage.setItem("walletId", walletId.toString());
+  } else {
+    await AsyncStorage.setItem("walletId", walletId.toString());
+  }
+}
+
+async function getWalletId(): Promise<string | null> {
+  if (Platform.OS === "web") return localStorage.getItem("walletId");
+  return AsyncStorage.getItem("walletId");
 }
 
 const axiosClient = axios.create({
@@ -66,23 +82,21 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor → xử lý 401/403
 // Response interceptor → xử lý 401/403 + network error
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response) {
-      // Nếu có response từ server
       if (error.response.status === 401 || error.response.status === 403) {
         await removeToken();
         store.dispatch(logout());
       }
     } else if (error.request) {
-      // Không có response → lỗi kết nối
       console.log("Lỗi kết nối server:", error.message);
-      alert("Hệ thống đang bảo trì hoặc không thể kết nối server. Vui lòng thử lại sau!");
+      alert(
+        "Hệ thống đang bảo trì hoặc không thể kết nối server. Vui lòng thử lại sau!"
+      );
     } else {
-      // Lỗi khác
       console.log("Error", error.message);
     }
 
@@ -90,6 +104,5 @@ axiosClient.interceptors.response.use(
   }
 );
 
-
-export { getToken, decodeJWT, removeToken }; // ✅ export thêm để import bên ngoài
+export { getToken, decodeJWT, removeToken, setWalletId, getWalletId }; // ✅ export thêm
 export default axiosClient;
