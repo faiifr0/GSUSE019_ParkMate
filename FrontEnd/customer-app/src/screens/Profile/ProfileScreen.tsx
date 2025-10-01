@@ -14,22 +14,24 @@ import { persistor, RootState } from "../../redux/store";
 import { logout } from "../../redux/userSlice";
 import { getUserById } from "../../services/userService";
 import { Ionicons } from "@expo/vector-icons";
-import { walletService } from "../../services/walletService";
 import colors from "../../constants/colors";
 import styles from "../../styles/ProfileScreenStyles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useWallet } from "../../hooks/useWallet";
 
 export default function ProfileScreen({ navigation }: any) {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.userInfo);
   const [userData, setUserData] = useState<any>(null);
-  const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {    
+  // Hook lấy số dư ví theo userId
+  const { balance: walletBalance, refreshWallet } = useWallet(user?.userId);
+
+  useEffect(() => {
     if (user?.userId) {
       fetchUserInfo(user.userId);
-      fetchWalletBalance(user.userId);
+      refreshWallet();
     }
   }, [user]);
 
@@ -38,8 +40,6 @@ export default function ProfileScreen({ navigation }: any) {
       setLoading(true);
       const res = await getUserById(id);
       setUserData(res.data || null);
-      console.log("Fetched user data:", res.data);
-      console.log("----------------------");
     } catch (error) {
       console.error("Lỗi khi lấy thông tin user:", error);
     } finally {
@@ -47,22 +47,12 @@ export default function ProfileScreen({ navigation }: any) {
     }
   };
 
-  const fetchWalletBalance = async (userId: number) => {
-    try {
-      const wallet = await walletService.getWalletById(userId);
-      setWalletBalance(wallet.balance || 0);
-    } catch (error) {
-      console.error("Lỗi khi lấy số dư ví:", error);
-      setWalletBalance(0);
-    }
-  };
-
   const handleLogout = async () => {
-    console.log("Logout button pressed");
-    // ✅ Chỉ dispatch logout, AppNavigator sẽ tự render Login
-    dispatch(logout());        
+    dispatch(logout());
     persistor.purge();
-    await AsyncStorage.removeItem("token"); // Clear JWT Token
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("userId");
+    await AsyncStorage.removeItem("walletId");
   };
 
   if (loading) {
@@ -249,7 +239,7 @@ export default function ProfileScreen({ navigation }: any) {
             borderRadius: 8,
             alignItems: "center",
           }}
-          onPress={() => navigation.navigate("Wallet", { userId: user.id })}
+          onPress={() => navigation.navigate("Wallet", { userId: user?.userId })}
         >
           <Text style={{ color: "#fff", fontWeight: "bold" }}>Quản lý ví & Nạp tiền</Text>
         </TouchableOpacity>

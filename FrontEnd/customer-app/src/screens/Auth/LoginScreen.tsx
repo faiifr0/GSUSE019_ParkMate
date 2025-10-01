@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, Platform } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, Image, StyleSheet, Platform, TextInput as RNTextInput } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import AuthLayout from "../../components/AuthLayout";
@@ -15,6 +15,27 @@ export default function LoginScreen() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarColor, setSnackbarColor] = useState("#F44336");
+
+
+  // 👇 Check autofill sau khi component mount
+useEffect(() => {
+  if (Platform.OS === "web") {
+    const timer = setTimeout(() => {
+      const emailInput = document.querySelector<HTMLInputElement>(
+        "#email"   // 👈 đổi sang id
+      );
+      const passwordInput = document.querySelector<HTMLInputElement>(
+        "#password"   // 👈 đổi sang id
+      );
+
+      if (emailInput?.value && !email) setEmail(emailInput.value);
+      if (passwordInput?.value && !password) setPassword(passwordInput.value);
+    }, 500); // đợi autofill
+    return () => clearTimeout(timer);
+  }
+}, []);
+
+
 
   const onLoginPress = async () => {
     const result = await handleLogin(email, password);
@@ -39,37 +60,37 @@ export default function LoginScreen() {
     >
       {/* Logo + Tên ứng dụng */}
       <View style={styles.logoWrapper}>
-        <Image
-          source={{ uri: images.logo }}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <Image source={{ uri: images.logo }} style={styles.logo} resizeMode="contain" />
         <Text style={styles.appSubtitle}>Bắt đầu hành trình kỷ niệm 🌈</Text>
       </View>
 
       {/* Form */}
       <View style={styles.form}>
         <TextInput
-          label="Email"
-          placeholder="example@gmail.com"
-          value={email}
-          onChangeText={setEmail}
-          mode="outlined"
-          style={styles.input}
-          keyboardType="email-address"
-          outlineColor="#FF6B6B"
-          activeOutlineColor="#673AB7"
-        />
-        <TextInput
-          label="Mật khẩu"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          mode="outlined"
-          style={styles.input}
-          outlineColor="#FF6B6B"
-          activeOutlineColor="#673AB7"
-        />
+  label="Email"
+  placeholder="example@gmail.com"
+  value={email}
+  onChangeText={setEmail}
+  mode="outlined"
+  style={styles.input}
+  keyboardType="email-address"
+  outlineColor="#FF6B6B"
+  activeOutlineColor="#673AB7"
+  nativeID="email"   // 👈 thay name bằng nativeID
+/>
+
+<TextInput
+  label="Mật khẩu"
+  value={password}
+  onChangeText={setPassword}
+  secureTextEntry
+  mode="outlined"
+  style={styles.input}
+  outlineColor="#FF6B6B"
+  activeOutlineColor="#673AB7"
+  nativeID="password"   // 👈 thay name bằng nativeID
+/>
+
 
         <Button
           mode="contained"
@@ -84,21 +105,21 @@ export default function LoginScreen() {
 
         {/* Quên mật khẩu */}
         <View style={styles.linkRow}>
-        <Text
-          style={styles.forgotPassword}
-          onPress={() => navigation.navigate("ForgotPassword" as never)}
-        >
-          Quên mật khẩu?
-        </Text>
+          <Text
+            style={styles.forgotPassword}
+            onPress={() => navigation.navigate("ForgotPassword" as never)}
+          >
+            Quên mật khẩu?
+          </Text>
 
-        {/* Đăng ký */}
-        <Text
-          style={styles.linkText}
-          onPress={() => navigation.navigate("Register" as never)}
-        >
-          Chưa có tài khoản?{" "}
-          <Text style={{ color: "#673AB7", fontWeight: "600" }}>Đăng ký</Text>
-        </Text>
+          {/* Đăng ký */}
+          <Text
+            style={styles.linkText}
+            onPress={() => navigation.navigate("Register" as never)}
+          >
+            Chưa có tài khoản?{" "}
+            <Text style={{ color: "#673AB7", fontWeight: "600" }}>Đăng ký</Text>
+          </Text>
         </View>
       </View>
     </AuthLayout>
@@ -106,26 +127,11 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  logoWrapper: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  logo: {
-    width: 240,
-    height: 240,
-    marginBottom: 6,
-  },
-  appSubtitle: {
-    fontSize: 24,
-    color: "#666",
-  },
-  form: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-  },
-  input: {
-    marginBottom: 14,
-  },
+  logoWrapper: { alignItems: "center", marginBottom: 20 },
+  logo: { width: 240, height: 240, marginBottom: 6 },
+  appSubtitle: { fontSize: 24, color: "#666" },
+  form: { paddingHorizontal: 24, paddingTop: 16 },
+  input: { marginBottom: 14 },
   button: {
     marginTop: 8,
     paddingVertical: 8,
@@ -136,25 +142,8 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 3,
   },
-  buttonWeb: {
-    boxShadow: "0px 3px 6px rgba(255, 107, 107, 0.25)",
-  },
-  forgotPassword: {
-    marginTop: 12,
-    textAlign: "center",
-    color: "#673AB7",
-    fontWeight: "500",
-  },
-  linkRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  marginTop: 18,
-  paddingHorizontal: 12, 
-},
-  linkText: {
-    marginTop: 12,
-    textAlign: "center",
-    color: "#FF6B6B",
-    fontWeight: "500",
-  },
+  buttonWeb: { boxShadow: "0px 3px 6px rgba(255, 107, 107, 0.25)" },
+  forgotPassword: { marginTop: 12, textAlign: "center", color: "#673AB7", fontWeight: "500" },
+  linkRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 18, paddingHorizontal: 12 },
+  linkText: { marginTop: 12, textAlign: "center", color: "#FF6B6B", fontWeight: "500" },
 });

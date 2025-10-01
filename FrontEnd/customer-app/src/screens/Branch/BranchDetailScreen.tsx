@@ -64,7 +64,7 @@ export default function BranchDetailScreen({ route }: Props) {
     <View style={styles.gameCard}>
       <Image
         source={{
-          uri: item.thumbnail || "https://via.placeholder.com/100",
+          uri: item.imageUrl || "https://via.placeholder.com/100",
         }}
         style={styles.gameImage}
       />

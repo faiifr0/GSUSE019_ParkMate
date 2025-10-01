@@ -3,7 +3,7 @@ import { View, FlatList } from "react-native";
 import { Text, ActivityIndicator, Card, Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import styles from "../../styles/GamesScreenStyles";
-import { Game } from "../../types/Game";
+import { Game, GameResponse } from "../../types/Game";
 import { getGames } from "../../services/gameService";
 
 export default function GamesScreen() {
@@ -15,7 +15,7 @@ export default function GamesScreen() {
   const fetchGames = async () => {
     try {
       setLoading(true);
-      const data = await getGames({ page, size: 10 });
+      const data: GameResponse = await getGames({ page, size: 10 });
       setGames(data.content);
       setTotalPages(data.totalPages);
     } finally {
@@ -40,7 +40,6 @@ export default function GamesScreen() {
               <Card.Title title={item.name} subtitle={`Branch ID: ${item.branchId}`} />
               <Card.Content>
                 <Text>{item.description}</Text>
-                <Text>Location: {item.location}</Text>
               </Card.Content>
             </Card>
           )}
@@ -52,7 +51,9 @@ export default function GamesScreen() {
         <Button disabled={page <= 0} onPress={() => setPage((prev) => prev - 1)}>
           Previous
         </Button>
-        <Text style={styles.pageText}>{page + 1} / {totalPages}</Text>
+        <Text style={styles.pageText}>
+          {page + 1} / {totalPages}
+        </Text>
         <Button disabled={page >= totalPages - 1} onPress={() => setPage((prev) => prev + 1)}>
           Next
         </Button>

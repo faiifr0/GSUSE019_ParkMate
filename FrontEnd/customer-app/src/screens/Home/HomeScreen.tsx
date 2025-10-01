@@ -1,278 +1,126 @@
 // src/screens/Home/HomeScreen.tsx
-import React, { useEffect, useState, useCallback } from "react";
+import React from "react";
 import {
   View,
   Text,
-  FlatList,
-  Image,
   ScrollView,
-  ActivityIndicator,
-  TouchableOpacity,
   RefreshControl,
   Platform,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
 } from "react-native";
-import * as Location from "expo-location";
-import { getDistance } from "geolib";
 import * as Animatable from "react-native-animatable";
-import branchPromotionService from "../../services/branchPromotionService";
-import { BranchPromotion } from "../../types/BranchPromotion";
-import branchService from "../../services/branchService";
-import { Branch } from "../../types/Branch";
 import colors from "../../constants/colors";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { walletService } from "../../services/walletService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/types";
+import { useHomeData } from "../../hooks/useHomeData";
 
-// ------------ TYPES ------------
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
 
-// ------------ MAIN SCREEN ------------
+// Hoverable wrapper cho web
+const HoverableCard = ({ children, style }: { children: React.ReactNode; style?: any }) => {
+  const [hover, setHover] = React.useState(false);
+
+  if (Platform.OS === "web") {
+    return (
+      <div
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        style={{
+          ...style,
+          ...(hover && { transform: "scale(1.05)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }),
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  return <View style={style}>{children}</View>;
+};
+
 export default function HomeScreen({ navigation }: HomeScreenProps) {
   const user = useSelector((state: RootState) => state.user.userInfo);
+  const { branches, nearestBranch, promotions, hotGames, coin, loading, refreshing, error, onRefresh } =
+    useHomeData(user?.id);
 
-  const [nearestBranch, setNearestBranch] = useState<Branch | null>(null);
-  const [promotions, setPromotions] = useState<BranchPromotion[]>([]);
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  // ---------------- WEB ----------------
+  if (Platform.OS === "web") {
+    if (loading)
+      return (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      );
 
-  const [coin, setCoin] = useState<number>(0);
-  const [refreshing, setRefreshing] = useState(false);
+    if (error)
+      return (
+        <View style={styles.centered}>
+          <Text style={{ color: "red" }}>{error}</Text>
+        </View>
+      );
 
-  // 👉 Lấy số dư ví
-  const fetchWallet = useCallback(async () => {
-    if (!user?.id) return;
-    try {
-      const wallet = await walletService.getWalletById(user.id);
-      setCoin(wallet.balance || 0);
-    } catch (err) {
-      console.error("Lỗi khi lấy số dư ví:", err);
-      setCoin(0);
-    }
-  }, [user?.id]);
-
-  // 👉 Lấy danh sách chi nhánh + khuyến mãi
-  const fetchBranches = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      let userCoords: { latitude: number; longitude: number } | null = null;
-
-      if (status === "granted") {
-        const location = await Location.getCurrentPositionAsync({});
-        userCoords = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        };
-      }
-
-      const branchList: Branch[] = await branchService.getAll();
-      setBranches(branchList);
-
-      let closest: Branch | null = null;
-      let minDistance = Infinity;
-
-      if (userCoords) {
-        branchList.forEach((b: Branch) => {
-          if (typeof b.lat !== "number" || typeof b.lon !== "number") return;
-          const dist = getDistance(userCoords!, {
-            latitude: b.lat,
-            longitude: b.lon,
-          });
-          if (dist < minDistance) {
-            minDistance = dist;
-            closest = b;
-          }
-        });
-      }
-
-      setNearestBranch(closest);
-
-      if (closest && (closest as Branch).id) {
-        const promos = await branchPromotionService.getByBranchId((closest as Branch).id);
-        setPromotions(promos || []);
-      } else {
-        setPromotions([]);
-      }
-
-      if (!userCoords) {
-        setError(
-          "⚠️ Vị trí không được cấp phép. Chỉ hiển thị chi nhánh và khuyến mãi."
-        );
-      }
-    } catch (err: any) {
-      setError(err?.message ?? "Có lỗi khi tải dữ liệu.");
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchWallet();
-    fetchBranches();
-  }, [fetchWallet, fetchBranches]);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchWallet();
-    fetchBranches();
-  };
-
-// ------------ WEB LANDING PAGE ------------
-if (Platform.OS === "web") {
-  return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: "transparent" }}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ flexGrow: 1, backgroundColor: "transparent" }}
-    >
-      {/* Hero Section */}
-      <View
-        style={{
-          paddingVertical: 120,
-          alignItems: "center",
-          justifyContent: "center"
-        } as any}
-      >
-        <Text
-          style={{
-            fontSize: 52,
-            fontWeight: "900",
-            color: "white",
-            textAlign: "center",
-            letterSpacing: 1,
-          }}
-        >
-          KHU VUI CHƠI ĐẦY SẮC MÀU
-        </Text>
-        <TouchableOpacity
-          onPress={() => console.log("👉 KHÁM PHÁ NGAY")}
-          style={{
-            marginTop: 40,
-            backgroundColor: "white",
-            paddingVertical: 16,
-            paddingHorizontal: 50,
-            borderRadius: 30,
-            shadowColor: "#000",
-            shadowOpacity: 0.2,
-            shadowRadius: 8,
-          }}
-        >
-          <Text
-            style={{
-              color: "#FF6A88",
-              fontWeight: "bold",
-              fontSize: 18,
-              textTransform: "uppercase",
-            }}
+    return (
+      <ScrollView style={styles.webScroll} contentContainerStyle={styles.webContainer} keyboardShouldPersistTaps="handled">
+        {/* Hero */}
+        <View style={styles.heroContainer}>
+          <Text style={styles.heroText}>KHU VUI CHƠI ĐẦY SẮC MÀU</Text>
+          <TouchableOpacity
+            onPress={() => hotGames.length > 0 && navigation.navigate("GameDetail", { gameId: hotGames[0].id })}
+            style={styles.heroButton}
           >
-            Khám phá ngay
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <Text style={styles.heroButtonText}>Khám phá ngay</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Các section */}
-      <View style={{ padding: 60, backgroundColor: "transparent" }}>
-        {/* Trò chơi hot */}
-        <View style={{ marginBottom: 60 }}>
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: "700",
-              marginBottom: 20,
-              color: colors.primary,
-            }}
-          >
-            🎡 Trò chơi hot
-          </Text>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              flexWrap: "wrap",
-              gap: 20,
-            }}
-          >
-            {branches.slice(0, 4).map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={{
-                  width: 220,
-                  backgroundColor: "#fff", // chỉ card mới trắng
-                  borderRadius: 16,
-                  overflow: "hidden",
-                  shadowColor: "#000",
-                  shadowOpacity: 0.1,
-                  shadowRadius: 6,
-                }}
-              >
-                <Image
-                  source={{ uri: "https://via.placeholder.com/220x140" }}
-                  style={{ width: "100%", height: 140 }}
-                />
-                <View style={{ padding: 12 }}>
-                  <Text style={{ fontSize: 16, fontWeight: "600" }}>
-                    {item.name}
-                  </Text>
-                  <Text style={{ fontSize: 14, color: "#666" }}>
-                    {item.address}
-                  </Text>
-                </View>
-              </TouchableOpacity>
+        {/* Hot Games */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.primary }]}>🎡 Trò chơi hot</Text>
+          <View style={styles.grid}>
+            {hotGames.map((game) => (
+              <HoverableCard key={game.id} style={styles.card}>
+                <TouchableOpacity onPress={() => navigation.navigate("GameDetail", { gameId: game.id })}>
+                  <Image
+                    source={{ uri: game.imageUrl || "https://via.placeholder.com/220x140" }}
+                    style={styles.cardImage}
+                  />
+                  <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle}>{game.name}</Text>
+                    <Text style={styles.cardSubtitle}>{game.description}</Text>
+                  </View>
+                </TouchableOpacity>
+              </HoverableCard>
             ))}
           </View>
         </View>
 
-        {/* Khuyến mãi nổi bật */}
-        <View style={{ marginBottom: 60 }}>
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: "700",
-              marginBottom: 20,
-              color: "#e63946",
-            }}
-          >
-            🔥 Khuyến mãi nổi bật
-          </Text>
-          <View style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {/* Promotions */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: "#e63946" }]}>🔥 Khuyến mãi nổi bật</Text>
+          <View style={{ flexDirection: "column", gap: 20 }}>
             {promotions.length > 0 ? (
               promotions.map((promo) => (
-                <TouchableOpacity
-                  key={promo.id}
-                  style={{
-                    backgroundColor: "#fff", // box riêng
-                    borderRadius: 16,
-                    overflow: "hidden",
-                    shadowColor: "#000",
-                    shadowOpacity: 0.1,
-                    shadowRadius: 6,
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: promo.image || "https://via.placeholder.com/600x200",
-                    }}
-                    style={{ width: "100%", height: 160 }}
-                  />
-                  <View style={{ padding: 16 }}>
-                    <Text
-                      style={{ fontSize: 18, fontWeight: "600", marginBottom: 6 }}
-                    >
-                      {promo.description}
-                    </Text>
-                    <Text style={{ color: "#ff6a88", fontSize: 16 }}>
-                      Giảm {promo.discount}%
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                <HoverableCard key={promo.id} style={styles.promoCard}>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("PromotionDetail", { promoId: promo.id })}
+                  >
+                    <Image
+                      source={{ uri: promo.imageUrl || "https://via.placeholder.com/600x200" }}
+                      style={{ width: "100%", height: 160 }}
+                    />
+                    <View style={{ padding: 16 }}>
+                      <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: 6 }}>{promo.description}</Text>
+                      <Text style={{ color: "#ff6a88", fontSize: 16 }}>Giảm {promo.discount}%</Text>
+                    </View>
+                  </TouchableOpacity>
+                </HoverableCard>
               ))
             ) : (
               <Text>Không có khuyến mãi</Text>
@@ -280,58 +128,63 @@ if (Platform.OS === "web") {
           </View>
         </View>
 
-        {/* Chi nhánh gần bạn */}
-        <View
-          style={{
-            backgroundColor: "#fff", // chỉ box riêng
-            borderRadius: 20,
-            padding: 30,
-            shadowColor: "#000",
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: "700",
-              marginBottom: 20,
-              color: "#1d3557",
-            }}
-          >
-            📍 Chi nhánh gần bạn
-          </Text>
+        {/* Nearest Branch */}
+        <View style={styles.nearestBranch}>
+          <Text style={[styles.sectionTitle, { color: "#1d3557" }]}>📍 Chi nhánh gần bạn</Text>
           {nearestBranch ? (
             <View>
-              <Text style={{ fontSize: 20, fontWeight: "600" }}>
-                {nearestBranch.name}
-              </Text>
+              <Text style={{ fontSize: 20, fontWeight: "600" }}>{nearestBranch.name}</Text>
               <Text style={{ marginTop: 4 }}>{nearestBranch.address}</Text>
               <Text style={{ marginTop: 4 }}>
                 🕒 {nearestBranch.open ?? "?"} - {nearestBranch.close ?? "?"}
               </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("BranchDetail", { branchId: nearestBranch.id })}
+                style={{ marginTop: 12 }}
+              >
+                <Text style={{ color: colors.primary, fontWeight: "600" }}>👉 Xem chi tiết</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <Text>Không tìm thấy chi nhánh gần bạn</Text>
           )}
         </View>
-      </View>
-    </ScrollView>
-  );
-}
 
+        {/* All Branches */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: "#1d3557" }]}>🏢 Tất cả chi nhánh</Text>
+          <View style={styles.grid}>
+            {branches.map((branch) => (
+              <HoverableCard key={branch.id} style={styles.card}>
+                <TouchableOpacity onPress={() => navigation.navigate("BranchDetail", { branchId: branch.id })}>
+                  <Image
+                    source={{ uri: branch.imageUrl || "https://via.placeholder.com/220x140" }}
+                    style={styles.cardImage}
+                  />
+                  <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle}>{branch.name}</Text>
+                    <Text style={styles.cardSubtitle}>{branch.address}</Text>
+                    <Text style={{ marginTop: 4, fontSize: 14, color: "#666" }}>
+                      🕒 {branch.open ?? "?"} - {branch.close ?? "?"}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </HoverableCard>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
 
-
-  // ------------ APP HOME ------------
+  // ---------------- MOBILE ----------------
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
         contentContainerStyle={{ padding: 16 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
       >
-        <Animatable.Text animation="fadeIn" style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
+        <Animatable.Text animation="fadeIn" style={styles.mobileTitle}>
           🎡 Chào mừng đến với ParkMate
         </Animatable.Text>
 
@@ -341,33 +194,20 @@ if (Platform.OS === "web") {
           <>
             {error && <Text style={{ color: "red" }}>{error}</Text>}
 
-            {/* Chi nhánh gần nhất */}
+            {/* Nearest Branch */}
             {nearestBranch && (
-              <TouchableOpacity
-                onPress={() => navigation.navigate("BranchDetail", { branchId: nearestBranch.id })}
-              >
-                <Animatable.View
-                  animation="bounceIn"
-                  duration={900}
-                  style={{
-                    backgroundColor: "#f9f9f9",
-                    padding: 16,
-                    borderRadius: 12,
-                    marginBottom: 20,
-                  }}
-                >
+              <TouchableOpacity onPress={() => navigation.navigate("BranchDetail", { branchId: nearestBranch.id })}>
+                <Animatable.View animation="bounceIn" duration={900} style={styles.mobileNearestBranch}>
                   <Text style={{ fontWeight: "bold", fontSize: 18 }}>Chi nhánh gần nhất</Text>
                   <Text>{nearestBranch.name}</Text>
                   <Text>{nearestBranch.address ?? "Chưa có địa chỉ"}</Text>
-                  <Text>
-                    🕒 {nearestBranch.open ?? "?"} - {nearestBranch.close ?? "?"}
-                  </Text>
+                  <Text>🕒 {nearestBranch.open ?? "?"} - {nearestBranch.close ?? "?"}</Text>
                 </Animatable.View>
               </TouchableOpacity>
             )}
 
-            {/* Danh sách chi nhánh */}
-            <Animatable.Text animation="fadeIn" style={{ fontSize: 20, fontWeight: "bold", marginBottom: 16 }}>
+            {/* Branches */}
+            <Animatable.Text animation="fadeIn" style={styles.mobileSectionTitle}>
               Danh sách chi nhánh
             </Animatable.Text>
             <FlatList
@@ -375,20 +215,8 @@ if (Platform.OS === "web") {
               data={branches}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => navigation.navigate("BranchDetail", { branchId: item.id })}>
-                  <Animatable.View
-                    animation="fadeInUp"
-                    style={{
-                      width: 150,
-                      marginRight: 12,
-                      backgroundColor: "#fff",
-                      borderRadius: 12,
-                      padding: 8,
-                      shadowColor: "#000",
-                      shadowOpacity: 0.05,
-                      shadowRadius: 4,
-                    }}
-                  >
-                    <Image source={{ uri: "https://via.placeholder.com/150" }} style={{ width: "100%", height: 100, borderRadius: 8 }} />
+                  <Animatable.View animation="fadeInUp" style={styles.mobileCard}>
+                    <Image source={{ uri: item.imageUrl || "https://via.placeholder.com/150" }} style={styles.mobileCardImage} />
                     <Text style={{ fontWeight: "bold", marginTop: 8 }} numberOfLines={1}>
                       {item.name}
                     </Text>
@@ -402,28 +230,16 @@ if (Platform.OS === "web") {
               showsHorizontalScrollIndicator={false}
             />
 
-            {/* Khuyến mãi nổi bật */}
-            <Animatable.Text animation="fadeIn" style={{ fontSize: 20, fontWeight: "bold", marginVertical: 16 }}>
+            {/* Promotions */}
+            <Animatable.Text animation="fadeIn" style={styles.mobileSectionTitle}>
               Khuyến mãi nổi bật
             </Animatable.Text>
             <FlatList
               horizontal
               data={promotions}
               renderItem={({ item }) => (
-                <Animatable.View
-                  animation="fadeInUp"
-                  style={{
-                    width: 150,
-                    marginRight: 12,
-                    backgroundColor: "#fff",
-                    borderRadius: 12,
-                    padding: 8,
-                    shadowColor: "#000",
-                    shadowOpacity: 0.05,
-                    shadowRadius: 4,
-                  }}
-                >
-                  <Image source={{ uri: item.image || "https://via.placeholder.com/150" }} style={{ width: "100%", height: 100, borderRadius: 8 }} />
+                <Animatable.View animation="fadeInUp" style={styles.mobileCard}>
+                  <Image source={{ uri: item.imageUrl || "https://via.placeholder.com/150" }} style={styles.mobileCardImage} />
                   <Text style={{ fontWeight: "bold", marginTop: 8 }} numberOfLines={2}>
                     {item.description}
                   </Text>
@@ -439,3 +255,29 @@ if (Platform.OS === "web") {
     </View>
   );
 }
+
+// ---------------- STYLES ----------------
+const styles = StyleSheet.create({
+  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
+  webScroll: { flex: 1, backgroundColor: "transparent" },
+  webContainer: { flexGrow: 1, padding: 60 },
+  heroContainer: { paddingVertical: 120, alignItems: "center", justifyContent: "center" },
+  heroText: { fontSize: 52, fontWeight: "900", color: "white", textAlign: "center" },
+  heroButton: { marginTop: 40, backgroundColor: colors.primary, paddingVertical: 16, paddingHorizontal: 32, borderRadius: 12 },
+  heroButtonText: { color: "white", fontSize: 20, fontWeight: "700" },
+  section: { marginBottom: 60 },
+  sectionTitle: { fontSize: 28, fontWeight: "700", marginBottom: 20 },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: 20, justifyContent: "center" },
+  card: { width: 220, backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 3 },
+  cardImage: { width: "100%", height: 140 },
+  cardContent: { padding: 12 },
+  cardTitle: { fontSize: 16, fontWeight: "600" },
+  cardSubtitle: { fontSize: 14, color: "#666" },
+  promoCard: { backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 3 },
+  nearestBranch: { backgroundColor: "#fff", borderRadius: 20, padding: 30, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 3, marginBottom: 40 },
+  mobileTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 16 },
+  mobileNearestBranch: { backgroundColor: "#f9f9f9", padding: 16, borderRadius: 12, marginBottom: 20 },
+  mobileSectionTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 16 },
+  mobileCard: { width: 150, marginRight: 12, backgroundColor: "#fff", borderRadius: 12, padding: 8, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 4 },
+  mobileCardImage: { width: "100%", height: 100, borderRadius: 8 },
+});
