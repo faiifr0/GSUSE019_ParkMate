@@ -2,6 +2,7 @@ import { parkBranchCreateModel } from "@/lib/model/parkBranchCreateModel";
 import axiosClient from "../axiosClient";
 import {parkBranchUpdateModel} from "@/lib/model/parkBranchUpdateModel";
 import { updateImageModel } from "../model/updateImageModel";
+import axios from "axios";
 
 export type parkBranchResponse = {
   id: number;
@@ -61,6 +62,12 @@ const parkBranchService = {
       return res.data;
     } catch (error) {
       console.error("❌ Error update park branch id {" + id + "} :", error);
+      if (axios.isAxiosError(error)) {
+        var message = error.response?.data?.message;
+        if (message == "UPDATE_STATUS_FAILED_NO_ACTIVE_TICKET_TYPE") message = "Chi nhánh chưa có loại vé nào đang hoạt động!";
+        if (message == "UPDATE_STATUS_FAILED_NO_ACTIVE_BRANCH_TYPE") message = "Chi nhánh chưa có nhân viên nào đang hoạt động!";
+        throw new Error(message || '');  
+      }
       throw error;
     }
   },

@@ -184,7 +184,7 @@ export default function StaffOverviewTable() {
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                       <Button 
                         size="sm"
-                        disabled={staffAssignments.some(sa => sa.staffName === staff.username)}
+                        disabled={staffAssignments.some(sa => sa.staffName === staff.username && sa.assignedDate === rawDate)}
                         onClick={() => { handleAssigning(staff.id); }}
                       >
                         Phân ca

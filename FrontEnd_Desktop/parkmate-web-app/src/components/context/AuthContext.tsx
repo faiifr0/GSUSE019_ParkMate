@@ -8,7 +8,7 @@ type CurrUserPayLoad = JwtPayload & {
   roles: string[];
   userId: number;
   parkBranchId: number;
-  email: string;  
+  email: string;
 };
 
 // Define the context shape
@@ -33,8 +33,8 @@ export const AuthProvider = ({ children } : AuthProviderProps) => {
     if (token) {
       try {
         const decoded = jwtDecode<CurrUserPayLoad>(token);       
-        console.log("Decoded JWT: ", decoded); 
-        console.log("Decoded JWT: " + JSON.stringify(decoded, null, 2));
+        //console.log("Decoded JWT: ", decoded); 
+        //console.log("Decoded JWT: " + JSON.stringify(decoded, null, 2));
         setCurrUser(decoded);
       } catch (err) {
         console.error('Invalid token', err);

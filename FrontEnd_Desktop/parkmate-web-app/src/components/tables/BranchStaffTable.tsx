@@ -34,6 +34,7 @@ export default function BranchStaffTable() {
 
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [branchStaffs, setBranchStaffs] = useState<branchStaffResponse[]>([]);
+  const [filteredStaffs, setFilteredStaffs] = useState<branchStaffResponse[]>([]);
   const [formData, setFormData] = useState<branchStaffCreateModel>();
   const [selectedStaff, setSelectedStaff] = useState<branchStaffResponse | null>(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
@@ -43,6 +44,9 @@ export default function BranchStaffTable() {
     try {
       const response = await branchStaffService.getAll();
       setBranchStaffs(response);
+      // filter branch staff by parkBranchId from params
+      const filteredStaffs = response.filter(staff => String(staff.parkBranchId) === id);
+      setFilteredStaffs(filteredStaffs);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Fetch nhân viên chi nhánh thất bại!';
@@ -200,7 +204,7 @@ export default function BranchStaffTable() {
 
               {/* Table Body */}
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {[...branchStaffs]
+                {[...filteredStaffs]
                   .sort((a, b) => {
                     // Prioritize status: true before false
                     if (a.status !== b.status) {
@@ -257,7 +261,7 @@ export default function BranchStaffTable() {
           <div className="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
             <div className="px-2 pr-14">
               <h4 className="mb-9 ml-10 text-2xl font-semibold text-center text-gray-800 dark:text-white/90">
-                {mode === 'edit' ? 'Edit Branch Staff' : 'Add New Branch Staff'}
+                {mode === 'edit' ? 'Cập Nhật Nhân Viên Chi Nhánh' : 'Thêm Nhân Viên Chi Nhánh'}
               </h4>
             </div>
             <form className="flex flex-col"

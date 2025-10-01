@@ -9,9 +9,11 @@ import Badge from "../ui/badge/Badge";
 import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
 import { parkBranchUpdateModel } from "@/lib/model/parkBranchUpdateModel";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function OverviewInfoCard () {
-  const { isOpen, openModal, closeModal } = useModal();  
+  const { isOpen, openModal, closeModal } = useModal();
+  const { currUser } = useAuth();
 
   const params = useParams();
   const id = params.id ? String(params.id) : '0';
@@ -58,7 +60,7 @@ export default function OverviewInfoCard () {
         position: 'top-right',
       }) 
     } catch (err) {
-      const message = 'Cập nhật chi nhánh công viên thất bại!';
+      const message = 'Cập nhật chi nhánh công viên thất bại!' + (err instanceof Error ? err.message : '');
       toast.error(message, {
         duration: 3000,
         position: 'top-right',
@@ -218,7 +220,8 @@ export default function OverviewInfoCard () {
                       type="checkbox"
                       checked={formData?.status ?? false}                     
                       onChange={(e) => setFormData({ ...formData, status: e.target.checked })} 
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"            
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                      disabled={!(currUser?.roles?.includes("ADMIN"))}          
                     />
                   </div>
                   <div>

@@ -71,7 +71,7 @@ const AppSidebar: React.FC = () => {
         { name: "Tiện nghi", path: "/park-branches/" + id + "/amenities", pro: false, icon: <BoltIcon /> },
         { name: "Trò chơi", path: "/park-branches/" + id + "/games", pro: false, icon: <GameIcon />},
         { name: "Sự kiện", path: "/park-branches/" + id + "/events", pro: false, icon: <ShootingStarIcon /> },
-        { name: "Đánh giá", path: "/park-branches/" + id + "/reviews", pro: false, icon: <PencilIcon/> },
+        //{ name: "Đánh giá", path: "/park-branches/" + id + "/reviews", pro: false, icon: <PencilIcon/> },
         ],
     });  
   }
@@ -89,7 +89,7 @@ const AppSidebar: React.FC = () => {
         { name: "Tiện nghi", path: "/park-branches/" + currUser?.parkBranchId + "/amenities", pro: false, icon: <BoltIcon /> },
         { name: "Trò chơi", path: "/park-branches/" + currUser?.parkBranchId + "/games", pro: false, icon: <GameIcon />},
         { name: "Sự kiện", path: "/park-branches/" + currUser?.parkBranchId + "/events", pro: false, icon: <ShootingStarIcon /> },
-        { name: "Đánh giá", path: "/park-branches/" + currUser?.parkBranchId + "/reviews", pro: false, icon: <PencilIcon/> },
+        // { name: "Đánh giá", path: "/park-branches/" + currUser?.parkBranchId + "/reviews", pro: false, icon: <PencilIcon/> },
         ],
     });  
   }
