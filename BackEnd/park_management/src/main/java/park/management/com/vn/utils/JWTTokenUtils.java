@@ -21,11 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import park.management.com.vn.config.model.JWTConfigModel;
 import park.management.com.vn.entity.ParkBranch;
 import park.management.com.vn.entity.UserEntity;
+import park.management.com.vn.security.UserPrincipal;
 
 @Slf4j
 @Service
@@ -95,7 +95,7 @@ public class JWTTokenUtils {
     Claims claims = getClaims(token);
     String username = claims.getSubject();
     Long userId = claims.get("userId", Long.class);
-    String password = "N/A";
+   
     List<SimpleGrantedAuthority> authorities = new ArrayList<>();
     List<String> roles = claims.get("roles", List.class);
     if (roles != null) {
@@ -103,7 +103,7 @@ public class JWTTokenUtils {
         authorities.add(new SimpleGrantedAuthority(r));
       }
     }
-    park.management.com.vn.security.UserPrincipal principal = new park.management.com.vn.security.UserPrincipal(userId, username, password, authorities);
+    UserPrincipal principal = new UserPrincipal(userId, username, "N/A", authorities);
     return new UsernamePasswordAuthenticationToken(principal, token, authorities);
   }
 }
