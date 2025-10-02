@@ -1,18 +1,20 @@
 export interface BranchReview {
   id: number;
   userId: number;
+  email: string;
   branchId: number;
-  rating: number;     // số sao (1–5)
-  comment: string;    // nội dung đánh giá
-  approved: boolean;  // duyệt hay chưa
+  rating: number;
+  comment: string;
+  approved: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
+// DTO khi khách tạo đánh giá
 export interface CreateBranchReviewDto {
   userId: number;
   branchId: number;
   rating: number;
   comment: string;
-  approved?: boolean; // khách thì mặc định false, admin mới duyệt
+  approved?: boolean; // mặc định true/false do backend quyết định
 }

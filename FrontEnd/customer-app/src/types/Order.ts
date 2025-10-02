@@ -1,5 +1,3 @@
-// src/types/Order.ts
-
 export interface OrderDetail {
   ticketTypeId: number;
   ticketTypeName: string;
@@ -10,7 +8,7 @@ export interface OrderDetail {
   finalPrice: number;
 }
 
-export interface Pass {
+export interface OrderPass {
   passId: number;
   code: string;
   link: string;
@@ -21,18 +19,14 @@ export interface Order {
   ticketId: number;
   status: string;
   details: OrderDetail[];
-  passes: Pass[];
+  passes: OrderPass[];
 }
 
-// ----- Request types -----
-
-export interface CreateOrderDetailRequest {
-  ticketTypeId: number;
-  quantity: number;
-}
-
-export interface CreateOrderRequest {
-  details: CreateOrderDetailRequest[];
+export interface CreateOrderPayload {
+  details: {
+    ticketTypeId: number;
+    quantity: number;
+  }[];
   branchId: number;
   ticketDate: string; // yyyy-MM-dd
   customerName: string;
@@ -42,7 +36,7 @@ export interface CreateOrderRequest {
   voucherCode?: string;
 }
 
-export interface UpdateOrderRequest {
-  status: "PENDING" | "CONFIRMED" | "CANCELLED" | string;
+export interface UpdateOrderPayload {
+  status: string; // "PENDING" | "CONFIRMED" | ...
   note?: string;
 }
