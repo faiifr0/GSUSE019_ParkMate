@@ -62,7 +62,8 @@ public class WalletTopupServiceImpl implements WalletTopupService {
             .build()
     );
 
-    long orderCode = generateOrderCode(wallet.getId());
+    // generate orderCode after save to get unique ID otherwise we will have duplicates
+    long orderCode = generateOrderCode(pending.getId());
     pending.setOrderCode(orderCode);
     topupRepo.save(pending);
     log.info("[TOPUP] orderCode generated: {}", orderCode);

@@ -36,7 +36,7 @@ public class WalletTopupController {
     log.info("[TOPUP] link created: orderCode={} paymentLinkId={} checkoutUrl={}",
         data.getOrderCode(), data.getPaymentLinkId(), data.getCheckoutUrl());
 
-    return ResponseEntity.ok(new TopupResponse(data.getCheckoutUrl(), data.getPaymentLinkId()));
+    return ResponseEntity.ok(new TopupResponse(data.getCheckoutUrl(), data.getPaymentLinkId(), data.getOrderCode()));
   }
 
   @Data
@@ -46,5 +46,5 @@ public class WalletTopupController {
     private BigDecimal amount;
   }
 
-  public static record TopupResponse(String checkoutUrl, String paymentLinkId) {}
+  public static record TopupResponse(String checkoutUrl, String paymentLinkId, long orderCode) {}
 }
