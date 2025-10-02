@@ -1,36 +1,36 @@
+// src/screens/Wallet/WalletScreen.tsx
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, TextInput } from "react-native";
 import { walletService } from "../../services/walletService";
-import { Transaction, Wallet } from "../../types/Wallet";
+import { Wallet } from "../../types/Wallet";
+import { Transaction } from "../../types/Transaction"; // Update the path as needed
 import colors from "../../constants/colors";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../navigation/types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useAuth } from "../../hooks/useAuth";
 
 type WalletScreenProp = NativeStackNavigationProp<RootStackParamList, "Wallet">;
 
 export default function WalletScreen() {
   const navigation = useNavigation<WalletScreenProp>();
-  const [wallet, setWallet] = useState<Wallet | null>(null);
+  const { wallet } = useAuth(); // lấy wallet từ hook useAuth
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [topUpAmount, setTopUpAmount] = useState<string>("");
 
   useEffect(() => {
-    fetchWalletData();
-  }, []);
+    if (wallet) fetchWalletData(wallet);
+  }, [wallet]);
 
-  const fetchWalletData = async () => {
+  const fetchWalletData = async (w: Wallet) => {
     try {
       setLoading(true);
-      const w = await walletService.ensureWallet();
-      setWallet(w);
-
       const t = await walletService.getTransactions(w.id);
       setTransactions(t);
     } catch (err) {
       console.error(err);
-      Alert.alert("Lỗi", "Không thể tải ví");
+      Alert.alert("Lỗi", "Không thể tải giao dịch");
     } finally {
       setLoading(false);
     }
@@ -47,11 +47,10 @@ export default function WalletScreen() {
 
       const { checkoutUrl } = await walletService.topUp(wallet.id, amount, "myapp://success", "myapp://cancel");
 
-      // Navigate sang TopUpConfirm screen để hiển thị QR / WebView
       navigation.navigate("TopUp", { walletId: wallet.id, amount, checkoutUrl });
 
       setTopUpAmount("");
-      fetchWalletData();
+      fetchWalletData(wallet);
     } catch (err) {
       console.error(err);
       Alert.alert("Lỗi", "Không thể nạp tiền");

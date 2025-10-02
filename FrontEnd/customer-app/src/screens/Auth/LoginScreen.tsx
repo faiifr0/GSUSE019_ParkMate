@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, Text, Image, StyleSheet, Platform, TextInput as RNTextInput } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, StyleSheet, Platform } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import AuthLayout from "../../components/AuthLayout";
-import { useLogin } from "../../hooks/useLogin";
 import { images } from "../../constants/images";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function LoginScreen() {
-  const { handleLogin, loading } = useLogin();
+  const { login, loading } = useAuth();
   const navigation = useNavigation();
 
   const [email, setEmail] = useState("");
@@ -16,38 +16,38 @@ export default function LoginScreen() {
   const [snackbarMsg, setSnackbarMsg] = useState("");
   const [snackbarColor, setSnackbarColor] = useState("#F44336");
 
+  // 👇 Check autofill trên web
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      const timer = setTimeout(() => {
+        const emailInput = document.querySelector<HTMLInputElement>("#email");
+        const passwordInput = document.querySelector<HTMLInputElement>("#password");
 
-  // 👇 Check autofill sau khi component mount
-useEffect(() => {
-  if (Platform.OS === "web") {
-    const timer = setTimeout(() => {
-      const emailInput = document.querySelector<HTMLInputElement>(
-        "#email"   // 👈 đổi sang id
-      );
-      const passwordInput = document.querySelector<HTMLInputElement>(
-        "#password"   // 👈 đổi sang id
-      );
-
-      if (emailInput?.value && !email) setEmail(emailInput.value);
-      if (passwordInput?.value && !password) setPassword(passwordInput.value);
-    }, 500); // đợi autofill
-    return () => clearTimeout(timer);
-  }
-}, []);
-
-
+        if (emailInput?.value && !email) setEmail(emailInput.value);
+        if (passwordInput?.value && !password) setPassword(passwordInput.value);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const onLoginPress = async () => {
-    const result = await handleLogin(email, password);
+  try {
+    const result = await login(email, password);
+
     if (result.success) {
       setSnackbarMsg("🎉 Đăng nhập thành công!");
       setSnackbarColor("#4CAF50");
     } else {
-      setSnackbarMsg(result.errors?.[0] || "❌ Lỗi đăng nhập");
+      setSnackbarMsg(result.error || "❌ Lỗi đăng nhập");
       setSnackbarColor("#F44336");
     }
-    setSnackbarVisible(true);
-  };
+  } catch (err: any) {
+    setSnackbarMsg(err.message || "❌ Lỗi đăng nhập");
+    setSnackbarColor("#F44336");
+  }
+
+  setSnackbarVisible(true);
+};
 
   return (
     <AuthLayout
@@ -67,30 +67,29 @@ useEffect(() => {
       {/* Form */}
       <View style={styles.form}>
         <TextInput
-  label="Email"
-  placeholder="example@gmail.com"
-  value={email}
-  onChangeText={setEmail}
-  mode="outlined"
-  style={styles.input}
-  keyboardType="email-address"
-  outlineColor="#FF6B6B"
-  activeOutlineColor="#673AB7"
-  nativeID="email"   // 👈 thay name bằng nativeID
-/>
+          label="Email"
+          placeholder="example@gmail.com"
+          value={email}
+          onChangeText={setEmail}
+          mode="outlined"
+          style={styles.input}
+          keyboardType="email-address"
+          outlineColor="#FF6B6B"
+          activeOutlineColor="#673AB7"
+          nativeID="email"
+        />
 
-<TextInput
-  label="Mật khẩu"
-  value={password}
-  onChangeText={setPassword}
-  secureTextEntry
-  mode="outlined"
-  style={styles.input}
-  outlineColor="#FF6B6B"
-  activeOutlineColor="#673AB7"
-  nativeID="password"   // 👈 thay name bằng nativeID
-/>
-
+        <TextInput
+          label="Mật khẩu"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          mode="outlined"
+          style={styles.input}
+          outlineColor="#FF6B6B"
+          activeOutlineColor="#673AB7"
+          nativeID="password"
+        />
 
         <Button
           mode="contained"
@@ -144,6 +143,11 @@ const styles = StyleSheet.create({
   },
   buttonWeb: { boxShadow: "0px 3px 6px rgba(255, 107, 107, 0.25)" },
   forgotPassword: { marginTop: 12, textAlign: "center", color: "#673AB7", fontWeight: "500" },
-  linkRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 18, paddingHorizontal: 12 },
+  linkRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 18,
+    paddingHorizontal: 12,
+  },
   linkText: { marginTop: 12, textAlign: "center", color: "#FF6B6B", fontWeight: "500" },
 });

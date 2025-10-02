@@ -1,78 +1,135 @@
-import React, { useState } from "react";
-import { View, TextInput, TouchableOpacity, FlatList, Text, KeyboardAvoidingView, Platform } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { sendChat } from "../../services/aiChatService";
-import { AIChatResponse } from "../../types/AIChat";
-import colors from "../../constants/colors";
+// src/components/ChatBot.tsx
+import React, { useState, useRef } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  PanResponder,
+  Dimensions,
+} from "react-native";
 
-export default function ChatBox() {
-  const [messages, setMessages] = useState<{ from: "user" | "ai"; text: string }[]>([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+const { width, height } = Dimensions.get("window");
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+export default function ChatBot() {
+  const [open, setOpen] = useState(false);
 
-    const userMessage = { from: "user", text: input.trim() };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
+  // PanResponder để kéo thả nút chat
+  const pan = useRef(new Animated.ValueXY({ x: width - 80, y: height - 180 }))
+    .current;
 
-    try {
-      setLoading(true);
-      const res: AIChatResponse = await sendChat({ prompt: input.trim(), history: messages.map((m) => m.text) });
-      setMessages((prev) => [...prev, { from: "ai", text: res.answer }]);
-    } catch {
-      setMessages((prev) => [...prev, { from: "ai", text: "❌ Có lỗi khi gọi AI" }]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: Animated.event(
+        [null, { dx: pan.x, dy: pan.y }],
+        { useNativeDriver: false }
+      ),
+      onPanResponderRelease: () => {
+        pan.extractOffset(); // giữ vị trí mới
+      },
+    })
+  ).current;
 
+  if (!open) {
+    // Floating button khi chưa mở
+    return (
+      <Animated.View
+        {...panResponder.panHandlers}
+        style={[
+          styles.floatingButton,
+          { transform: [{ translateX: pan.x }, { translateY: pan.y }] },
+        ]}
+      >
+        <TouchableOpacity onPress={() => setOpen(true)} style={styles.chatBtn}>
+          <Text style={{ fontSize: 24 }}>💬</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }
+
+  // Khi mở chatbox
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <Animated.View
+      style={[
+        styles.chatContainer,
+        {
+          transform: [{ translateX: pan.x }, { translateY: pan.y }],
+        },
+      ]}
+      {...panResponder.panHandlers}
     >
-      <FlatList
-        data={messages}
-        keyExtractor={(_, i) => i.toString()}
-        renderItem={({ item }) => (
-          <View
-            style={{
-              alignSelf: item.from === "user" ? "flex-end" : "flex-start",
-              backgroundColor: item.from === "user" ? colors.primary : "#ddd",
-              borderRadius: 12,
-              padding: 10,
-              marginVertical: 4,
-              maxWidth: "75%",
-            }}
-          >
-            <Text style={{ color: item.from === "user" ? "#fff" : "#000" }}>{item.text}</Text>
-          </View>
-        )}
-        contentContainerStyle={{ padding: 10 }}
-      />
-
-      {/* input + send */}
-      <View style={{ flexDirection: "row", alignItems: "center", padding: 8, borderTopWidth: 1, borderColor: "#ccc" }}>
-        <TextInput
-          value={input}
-          onChangeText={setInput}
-          placeholder="Nhập tin nhắn..."
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            borderColor: "#ccc",
-            borderRadius: 20,
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            marginRight: 8,
-          }}
-        />
-        <TouchableOpacity onPress={handleSend} disabled={loading}>
-          <Ionicons name="send" size={24} color={loading ? "#aaa" : colors.primary} />
+      <View style={styles.chatHeader}>
+        <Text style={styles.chatTitle}>ParkMate ChatBot</Text>
+        <TouchableOpacity onPress={() => setOpen(false)}>
+          <Text style={styles.closeIcon}>▼</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+
+      <View style={styles.chatBody}>
+        <Text>Xin chào 👋! Tôi có thể giúp gì cho bạn?</Text>
+      </View>
+
+      <View style={styles.chatFooter}>
+        <Text style={{ color: "#999" }}>Type here...</Text>
+      </View>
+    </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  floatingButton: {
+    position: "absolute",
+    zIndex: 1000,
+  },
+  chatBtn: {
+    backgroundColor: "#4ECDC4",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  chatContainer: {
+    position: "absolute",
+    width: 300,
+    height: 400,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+  chatHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#4ECDC4",
+    padding: 12,
+  },
+  chatTitle: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  closeIcon: {
+    color: "#fff",
+    fontSize: 20,
+  },
+  chatBody: {
+    flex: 1,
+    padding: 10,
+  },
+  chatFooter: {
+    padding: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd",
+  },
+});
