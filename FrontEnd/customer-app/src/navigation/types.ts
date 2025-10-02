@@ -8,7 +8,7 @@ export type RootStackParamList = {
   BranchDetail: { branchId: number };
   GameDetail: { gameId: number };
   Wallet: { userId: number };
-  TopUp: { walletId: number; amount: number; checkoutUrl: string };
+  TopUp: { walletId: number; amount: number; checkoutUrl: string; orderCode?: number };
   Contact: undefined;
     TicketList: { branchId: number }; // ✅ thêm dòng này
     OrderConfirm: { branchId: number; cart: any[] };
@@ -21,6 +21,8 @@ export type RootStackParamList = {
   Home: undefined;
   QRCodeScanner: undefined;
   PromotionDetail: { promoId: number };
+  WalletTopupSuccessScreen: undefined;
+  WalletTopupCancelScreen: undefined;
 };
 
 export type BottomTabParamList = {

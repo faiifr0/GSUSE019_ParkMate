@@ -3,6 +3,14 @@ import axiosClient from "../api/axiosClient";
 import { getWalletId, getUser } from "../api/axiosClient";
 import { Wallet } from "../types/Wallet";
 
+// Type SettleResponse
+export type SettleResponse = {
+  message: string;
+  walletId?: number;
+  newBalance?: string;
+  error?: string;
+};
+
 export const walletService = {
   // Lấy ví theo id (id là walletId). Nếu id undefined => dùng storage.getWalletId()
   getWalletById: async (id?: number): Promise<Wallet> => {
@@ -31,6 +39,32 @@ export const walletService = {
   updateWallet: async (id: number, data: Partial<Wallet>): Promise<Wallet> => {
     const res = await axiosClient.put<Wallet>(`/wallets/${id}`, data);
     return res.data;
+  },
+
+  topUp: async (
+    walletId: number,
+    amount: number,
+    returnUrl?: string,
+    cancelUrl?: string
+  ) => {
+    const response = await axiosClient.post(
+      `/wallets/${walletId}/topups`,
+      { amount },
+      {
+        headers: {
+          ...(returnUrl && { "X-Return-Url": returnUrl }),
+          ...(cancelUrl && { "X-Cancel-Url": cancelUrl }),
+        },
+      }
+    );
+    return response.data;
+  },
+
+  settleOrderCode: async (orderCode: number): Promise<SettleResponse> => {
+    const response = await axiosClient.post(
+      `/api/payment/payos/webhook/dev-complete/${orderCode}`
+    );
+    return response.data;
   },
 };
 

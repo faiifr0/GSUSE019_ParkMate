@@ -30,7 +30,7 @@ export default function ProfileScreen({ navigation }: any) {
 
   useEffect(() => {
     if (user?.userId) {
-      fetchUserInfo(user.userId);      
+      fetchUserInfo(user.userId);
       refreshWallet();
     }
   }, [user]);
@@ -147,9 +147,9 @@ export default function ProfileScreen({ navigation }: any) {
                 paddingHorizontal: 24,
                 borderRadius: 12,
               }}
-              onPress={() => navigation.navigate("EditProfile")}
+              onPress={() => navigation.navigate("Wallet", { userId: user?.userId })}
             >
-              <Text style={{ color: "#fff", fontWeight: "bold" }}>Cài đặt</Text>
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>Quản lí ví</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

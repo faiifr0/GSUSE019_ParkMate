@@ -5,10 +5,13 @@ import { useNavigation } from "@react-navigation/native";
 import AuthLayout from "../../components/AuthLayout";
 import { images } from "../../constants/images";
 import { useAuth } from "../../hooks/useAuth";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../redux/userSlice";
 
 export default function LoginScreen() {
   const { login, loading } = useAuth();
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,6 +40,11 @@ export default function LoginScreen() {
     if (result.success) {
       setSnackbarMsg("🎉 Đăng nhập thành công!");
       setSnackbarColor("#4CAF50");
+
+      // ✅ Dispatch to Redux so AppNavigator switches to MainAppStack
+      dispatch(setCredentials({ token: result.token, userInfo: result.user }));
+
+      // ✅ No need to manually navigate — AppNavigator will re-render
     } else {
       setSnackbarMsg(result.error || "❌ Lỗi đăng nhập");
       setSnackbarColor("#F44336");

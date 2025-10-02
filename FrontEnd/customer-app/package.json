@@ -31,6 +31,7 @@
     "expo-contacts": "~14.2.5",
     "expo-dev-client": "~5.2.4",
     "expo-linear-gradient": "~14.1.5",
+    "expo-linking": "^8.0.8",
     "expo-location": "~18.1.6",
     "expo-navigation-bar": "~4.2.7",
     "expo-notifications": "~0.31.3",

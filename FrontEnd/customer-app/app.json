@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "ParkMate",
-    "slug": "parkmate",
+    "slug": "parkmate-customer-app",
+    "scheme": "parkmate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +23,9 @@
       "edgeToEdgeEnabled": true,
       "permissions": [
         "CAMERA",
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "ios": {
@@ -48,8 +51,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "bc291b10-c173-4122-85f7-980cd17cace4"
+        "projectId": "d639c636-8fa0-4d0b-a225-0f7645b628c4"
       }
-    }
+    },
+    "owner": "hoanghapho123"
   }
 }

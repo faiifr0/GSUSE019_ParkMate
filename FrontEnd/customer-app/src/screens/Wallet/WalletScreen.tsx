@@ -1,6 +1,6 @@
 // src/screens/Wallet/WalletScreen.tsx
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, TextInput, Platform } from "react-native";
 import { walletService } from "../../services/walletService";
 import { Wallet } from "../../types/Wallet";
 import { Transaction } from "../../types/Transaction"; // Update the path as needed
@@ -9,25 +9,43 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../navigation/types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useAuth } from "../../hooks/useAuth";
+import { transactionService } from "../../services/transactionService";
+import { RootState } from "../../redux/store";
+import { useSelector } from "react-redux";
+import { useWallet } from "../../hooks/useWallet";
+import { getWalletId } from "../../api/axiosClient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 type WalletScreenProp = NativeStackNavigationProp<RootStackParamList, "Wallet">;
 
 export default function WalletScreen() {
+  const user = useSelector((state: RootState) => state.user.userInfo);
   const navigation = useNavigation<WalletScreenProp>();
-  const { wallet } = useAuth(); // lấy wallet từ hook useAuth
+  //const { wallet } = useAuth(); // lấy wallet từ hook useAuth
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [topUpAmount, setTopUpAmount] = useState<string>("");
+  const [walletId, setWalletId] = useState<number>(0);
+  const { balance: walletBalance } = useWallet();
+
+  // useEffect(() => {
+  //   if (wallet) fetchWalletData(wallet);
+  // }, [wallet]);
 
   useEffect(() => {
-    if (wallet) fetchWalletData(wallet);
-  }, [wallet]);
+    fetchWalletData();
+  }, []);
 
-  const fetchWalletData = async (w: Wallet) => {
+  const fetchWalletData = async () => {
     try {
       setLoading(true);
-      const t = await walletService.getTransactions(w.id);
-      setTransactions(t);
+      //const t = await transactionService.getOfUser();
+      //setTransactions();
+      const walletId = await getWalletId();
+      setWalletId(walletId!);
+      //console.log("Fetched transactions:", t);
+      console.log("Fetched walletId:", walletId);
     } catch (err) {
       console.error(err);
       Alert.alert("Lỗi", "Không thể tải giao dịch");
@@ -37,39 +55,52 @@ export default function WalletScreen() {
   };
 
   const handleTopUp = async () => {
+    console.log("Button pressed");
     const amount = parseInt(topUpAmount);
-    if (!amount || amount <= 0) {
-      Alert.alert("Lỗi", "Nhập số tiền hợp lệ");
+    console.log("Amount:", amount);
+
+    if (!amount || amount < 2000) {      
+      Alert.alert("Lỗi", "Nhập số tiền không hợp lệ (ít nhất là 2000 coin)");
       return;
     }
-    try {
-      if (!wallet) throw new Error("Wallet not loaded");
 
-      const { checkoutUrl } = await walletService.topUp(wallet.id, amount, "myapp://success", "myapp://cancel");
+    try {    
+      console.log("Initiating top-up for walletId:", walletId, "amount:", amount);
 
-      navigation.navigate("TopUp", { walletId: wallet.id, amount, checkoutUrl });
+      const returnUrl = Platform.OS === "web"
+      ? "http://localhost:8081/wallet/success" // ### still local here
+      : "parkmate://wallet/success";
 
-      setTopUpAmount("");
-      fetchWalletData(wallet);
+      const { checkoutUrl, paymentLinkId, orderCode } = await walletService.topUp(walletId, amount, returnUrl, "parkmate://wallet/cancel");
+
+      console.log("Top-up initiated, checkoutUrl:", checkoutUrl, "orderCode:", orderCode);
+
+      // set orderCode vào localStorage hoặc AsyncStorage để dùng khi xử lý deep link
+      if (Platform.OS === "web") localStorage.setItem("orderCode", orderCode.toString());
+      else AsyncStorage.setItem("orderCode", orderCode.toString());
+      
+      fetchWalletData();
+
+      navigation.navigate("TopUp", { walletId: walletId, amount: parseInt(topUpAmount), checkoutUrl: checkoutUrl, orderCode: orderCode });
     } catch (err) {
       console.error(err);
       Alert.alert("Lỗi", "Không thể nạp tiền");
     }
   };
 
-  if (loading || !wallet) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
+  // if (loading || !wallet) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+  //       <ActivityIndicator size="large" color={colors.primary} />
+  //     </View>
+  //   );
+  // }
 
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: colors.background }}>
       <Text style={{ fontSize: 22, fontWeight: "bold", color: colors.textPrimary }}>Ví của bạn</Text>
       <Text style={{ fontSize: 18, marginTop: 12, color: colors.textSecondary }}>
-        Số dư hiện tại: {wallet.balance} coin
+        Số dư hiện tại: {walletBalance} coin
       </Text>
 
       <View style={{ flexDirection: "row", marginTop: 16, alignItems: "center" }}>
@@ -94,7 +125,7 @@ export default function WalletScreen() {
             paddingVertical: 10,
             paddingHorizontal: 16,
             borderRadius: 8,
-          }}
+          }}        
           onPress={handleTopUp}
         >
           <Text style={{ color: "#fff", fontWeight: "bold" }}>Nạp tiền</Text>

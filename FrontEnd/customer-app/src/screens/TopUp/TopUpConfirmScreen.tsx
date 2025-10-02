@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Linking, Platform } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../navigation/types";
 import { WebView } from "react-native-webview";
@@ -8,9 +8,10 @@ import colors from "../../constants/colors";
 type TopUpRouteProp = RouteProp<RootStackParamList, "TopUp">;
 
 export default function TopUpConfirmScreen() {
+  // Tạo URL trả về và hủy bỏ  
   const route = useRoute<TopUpRouteProp>();
   const navigation = useNavigation();
-  const { walletId, amount, checkoutUrl } = route.params;
+  const { walletId, amount, checkoutUrl, orderCode } = route.params;
 
   return (
     <View style={styles.container}>
@@ -28,6 +29,18 @@ export default function TopUpConfirmScreen() {
       <View style={styles.webviewWrapper}>
         <WebView source={{ uri: checkoutUrl }} style={styles.webview} />
       </View>
+
+      
+      {/* Link thanh toán */}
+      {Platform.OS === 'web' && (
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => Linking.openURL(checkoutUrl)}
+      >
+        <Text style={styles.buttonText}>Mở trình duyệt để thanh toán</Text>
+      </TouchableOpacity>
+      )}
+
 
       {/* Nút trở về ví */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>

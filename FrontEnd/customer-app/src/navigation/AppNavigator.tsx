@@ -1,14 +1,15 @@
 // AppNavigator.tsx
 import React, { useEffect, useState, useRef } from "react";
-import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StatusBar, StyleSheet, View, Platform, Text } from "react-native";
+import { NavigationContainer, DefaultTheme, useNavigation } from "@react-navigation/native";
+import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StatusBar, StyleSheet, View, Platform, Text} from "react-native";
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import * as SystemUI from "expo-system-ui";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 import { setCredentials, logout } from "../redux/userSlice";
 import { getToken, decodeJWT } from "../api/axiosClient";
+import * as Linking from "expo-linking";
 
 // Screens
 import LoginScreen from "../screens/Auth/LoginScreen";
@@ -25,6 +26,8 @@ import { RootStackParamList } from "./types";
 import AppHeader from "./AppHeader";
 import TicketListScreen from "../screens/Ticket/TicketListScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
+import WalletTopupSuccessScreen from "../screens/Wallet/WalletTopupSuccessScreen";
+import WalletTopupCancelScreen from "../screens/Wallet/WalletTopupCancelScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -54,6 +57,8 @@ function MainAppStack() {
       <Stack.Screen name="Contact" component={ContactScreen} />
       <Stack.Screen name="TicketList" component={TicketListScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="WalletTopupSuccessScreen" component={WalletTopupSuccessScreen} />
+      <Stack.Screen name="WalletTopupCancelScreen" component={WalletTopupCancelScreen} />
     </Stack.Navigator>
   );
 }
@@ -184,7 +189,7 @@ export default function AppNavigatorInnerBase() {
   }
 
   const linking = {
-    prefixes: ["/"],
+    prefixes: ["parkmate://","/"],
     config: {
       screens: {
         Login: "login",
@@ -200,6 +205,8 @@ export default function AppNavigatorInnerBase() {
             Promotion: "promotion",
             ChatBox: "chat",
             Contact: "contact",
+            WalletTopupSuccessScreen: "wallet/success",
+            WalletTopupCancelScreen: "wallet/cancel",
           },
         },
         Notifications: "notifications",
@@ -228,6 +235,23 @@ export default function AppNavigatorInnerBase() {
 }
 
 export function AppNavigator() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  
+  useEffect(() => {
+  const handleDeepLink = (event: { url: string }) => {
+      const data = Linking.parse(event.url);
+      // Example: navigate based on the path
+      if (data.path === "wallet/success") {
+        navigation.navigate("WalletTopupSuccessScreen");
+      } else if (data.path === "wallet/cancel") {
+        navigation.navigate("WalletTopupCancelScreen");
+      }
+    };
+
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+    return () => subscription.remove();
+  }, [navigation]);
+
   return (
     <SafeAreaProvider>
       <AppNavigatorInnerBase />

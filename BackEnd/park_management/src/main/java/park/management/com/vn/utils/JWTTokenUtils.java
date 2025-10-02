@@ -94,7 +94,8 @@ public class JWTTokenUtils {
   public Authentication getAuthentication(String token) {
     Claims claims = getClaims(token);
     String username = claims.getSubject();
-
+    Long userId = claims.get("userId", Long.class);
+    String password = "N/A";
     List<SimpleGrantedAuthority> authorities = new ArrayList<>();
     List<String> roles = claims.get("roles", List.class);
     if (roles != null) {
@@ -102,8 +103,7 @@ public class JWTTokenUtils {
         authorities.add(new SimpleGrantedAuthority(r));
       }
     }
-
-    User principal = new User(username, "N/A", authorities);
+    park.management.com.vn.security.UserPrincipal principal = new park.management.com.vn.security.UserPrincipal(userId, username, password, authorities);
     return new UsernamePasswordAuthenticationToken(principal, token, authorities);
   }
 }
