@@ -2,8 +2,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { walletService } from "../services/walletService";
 import { getWalletId } from "../api/axiosClient";
+import { Wallet } from "../types/Wallet";
 
-export function useWallet(userId?: number) {
+export function useWallet(walletIdProp?: number) {
   const [balance, setBalance] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -13,23 +14,17 @@ export function useWallet(userId?: number) {
       setLoading(true);
       setError(null);
 
-      let idToFetch: number | null = null;
+      let walletId: number | null = null;
 
-      // Nếu có userId truyền vào → lấy wallet theo userId
-      if (userId) {
-        idToFetch = userId;
+      if (walletIdProp) {
+        walletId = walletIdProp;
       } else {
-        // Không có userId → fallback vào walletId lưu trong storage
-        const walletId = await getWalletId();
-        idToFetch = walletId ? Number(walletId) : null;
+        walletId = await getWalletId();
       }
 
-      if (!idToFetch) {
-        setBalance(0);
-        return;
-      }
+      // ✅ chỉ cần gọi getWalletById, vì service đã lo fallback rồi
+      const wallet: Wallet = await walletService.getWalletById(walletId || undefined);
 
-      const wallet = await walletService.getWalletById(idToFetch);
       setBalance(wallet.balance || 0);
     } catch (err: any) {
       console.error("Lỗi lấy số dư ví:", err);
@@ -38,7 +33,7 @@ export function useWallet(userId?: number) {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [walletIdProp]);
 
   useEffect(() => {
     fetchWallet();

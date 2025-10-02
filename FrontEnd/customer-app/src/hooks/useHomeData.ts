@@ -11,6 +11,8 @@ import voucherService from "../services/voucherService";
 import { walletService } from "../services/walletService";
 import { getHotGames } from "../services/gameService";
 import { getWalletId } from "../api/axiosClient";
+import { aiChatService } from "../services/aiChatService"; // mới
+import { ChatMessage } from "../types/AIChat";
 
 export const useHomeData = (userId?: number) => {
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -22,6 +24,26 @@ export const useHomeData = (userId?: number) => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // ----- AI Chat -----
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const sendAIMessage = useCallback(async (prompt: string) => {
+    setChatLoading(true);
+    try {
+      const history = chatMessages.filter(m => m.type === "user").map(m => m.text);
+      const res = await aiChatService.sendChat({ prompt, history });
+      setChatMessages(prev => [
+        ...prev,
+        { type: "user", text: prompt },
+        { type: "ai", text: res.answer },
+      ]);
+    } finally {
+      setChatLoading(false);
+    }
+  }, [chatMessages]);
+
+  // ----- Wallet -----
   const fetchWallet = useCallback(async () => {
     try {
       if (!userId) return setCoin(0);
@@ -37,6 +59,7 @@ export const useHomeData = (userId?: number) => {
     }
   }, [userId]);
 
+  // ----- Branch & Voucher -----
   const fetchBranches = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -52,7 +75,6 @@ export const useHomeData = (userId?: number) => {
       const branchList = await branchService.getAll();
       setBranches(branchList);
 
-      // Tìm chi nhánh gần nhất
       let closest: Branch | null = null;
       let minDistance = Infinity;
       if (userCoords) {
@@ -67,7 +89,6 @@ export const useHomeData = (userId?: number) => {
       }
       setNearestBranch(closest);
 
-      // Voucher cho chi nhánh gần nhất
       if (closest) {
         const vouchers = await voucherService.getByBranchId(closest.id);
         const validVouchers = vouchers.filter(voucherService.isValidNow);
@@ -116,5 +137,8 @@ export const useHomeData = (userId?: number) => {
     refreshing,
     error,
     onRefresh,
+    chatMessages,    // AI messages
+    chatLoading,
+    sendAIMessage,   // function gửi message
   };
 };

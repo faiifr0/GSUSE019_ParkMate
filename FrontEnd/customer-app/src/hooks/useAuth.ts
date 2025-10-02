@@ -1,80 +1,172 @@
-// src/hooks/useAuth.ts
-import { useEffect, useState, useCallback } from "react";
-import { loginUser, logoutUser, registerUser, getUserById, updateUser } from "../services/userService";
+import { useState, useCallback } from "react";
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+  getUserById,
+  updateUser,
+} from "../services/userService";
 import { UserRequest, UserResponse } from "../types/User";
-import { setWalletId } from "../api/axiosClient"; // ✅ thêm dòng này
+import {
+  setWalletId,
+  decodeJWT,
+  setUser,
+  setToken,
+  getWalletId,
+} from "../api/axiosClient";
+import { walletService } from "../services/walletService";
+import { Wallet } from "../types/Wallet";
+import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const useAuth = () => {
-  const [user, setUser] = useState<UserResponse | null>(null);
+  const [user, setUserState] = useState<UserResponse | null>(null);
+  const [wallet, setWalletState] = useState<Wallet | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await loginUser(email, password);
-      return res;
-    } catch (err: any) {
-      setError(err.message ?? "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const register = useCallback(async (data: UserRequest) => {
-    try {
-      setLoading(true);
-      setError(null);
-      await registerUser(data);
-    } catch (err: any) {
-      setError(err.message ?? "Register failed");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const logout = useCallback(async () => {
-    await logoutUser();
-    setUser(null);
-  }, []);
-
+  /** Lấy user + wallet */
   const fetchUser = useCallback(async (id: number) => {
     try {
-      setLoading(true);
       const res = await getUserById(id);
-      setUser(res.data);
+      const userData = res.data;
 
-      // ✅ Lưu walletId vào storage cho walletService xài
-      if (res.data.walletId) {
-        await setWalletId(res.data.walletId);
+      setUserState(userData);
+      await setUser(userData);
+
+      let walletData: Wallet | null = null;
+
+      if (userData.walletId) {
+        await setWalletId(userData.walletId);
+        try {
+          walletData = await walletService.getWalletById(userData.walletId);
+          setWalletState(walletData);
+        } catch {
+          setWalletState(null);
+        }
+      } else {
+        const savedWalletId = await getWalletId();
+        if (savedWalletId) {
+          try {
+            walletData = await walletService.getWalletById(savedWalletId);
+            setWalletState(walletData);
+          } catch {
+            setWalletState(null);
+          }
+        }
       }
-    } catch (err: any) {
-      setError(err.message ?? "Fetch user failed");
-    } finally {
-      setLoading(false);
+
+      return { userData, walletData };
+    } catch (err) {
+      console.error("fetchUser error:", err);
+      throw err;
     }
   }, []);
 
-  const updateProfile = useCallback(async (id: number, data: Partial<UserRequest>) => {
-    try {
+  /** Lưu token */
+  const persistTokenLocally = async (rawToken: string) => {
+    if (Platform.OS === "web") localStorage.setItem("token", rawToken);
+    else await AsyncStorage.setItem("token", rawToken);
+    await setToken(rawToken);
+  };
+
+  /** Login */
+  const login = useCallback(
+    async (email: string, password: string) => {
       setLoading(true);
-      const res = await updateUser(id, data);
-      setUser(res.data);
+      setError(null);
+      try {
+        const res = await loginUser(email, password);
+        const token = res.data?.accessToken;
+        if (!token) throw new Error("No token from login");
 
-      // ✅ Nếu update xong có walletId mới, lưu lại
-      if (res.data.walletId) {
-        await setWalletId(res.data.walletId);
+        await persistTokenLocally(token);
+
+        const decoded: any = decodeJWT(token);
+        if (decoded?.userId) {
+          const { userData, walletData } = await fetchUser(decoded.userId);
+
+          return {
+            success: true,
+            token,
+            user: userData,
+            wallet: walletData,
+          } as const;
+        }
+
+        return {
+          success: false,
+          error: "Không tìm thấy userId trong token",
+          token,
+        } as const;
+      } catch (err: any) {
+        console.error("login error:", err);
+        setError(err.message ?? "Login failed");
+        return {
+          success: false,
+          error: err.message ?? "Login failed",
+        } as const;
+      } finally {
+        setLoading(false);
       }
-    } catch (err: any) {
-      setError(err.message ?? "Update failed");
-    } finally {
-      setLoading(false);
-    }
+    },
+    [fetchUser]
+  );
+
+  /** Register */
+  const register = useCallback(
+    async (data: UserRequest) => {
+      setLoading(true);
+      setError(null);
+      try {
+        await registerUser(data);
+        return await login(data.email, data.password);
+      } catch (err: any) {
+        console.error("register error:", err);
+        setError(err.message ?? "Register failed");
+        return {
+          success: false,
+          error: err.message ?? "Register failed",
+        } as const;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [login]
+  );
+
+  /** Logout */
+  const logout = useCallback(async () => {
+    await logoutUser();
+    setUserState(null);
+    setWalletState(null);
   }, []);
+
+  /** Update profile */
+  const updateProfile = useCallback(
+    async (id: number, data: Partial<UserRequest>) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await updateUser(id, data);
+        const updatedUser = res.data;
+        setUserState(updatedUser);
+        await setUser(updatedUser);
+        return updatedUser;
+      } catch (err: any) {
+        console.error("updateProfile error:", err);
+        setError(err.message ?? "Update failed");
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   return {
     user,
+    wallet,
     loading,
     error,
     login,
