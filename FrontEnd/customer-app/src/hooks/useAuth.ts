@@ -36,8 +36,8 @@ export const useAuth = () => {
 
       let walletData: Wallet | null = null;
 
-      if (userData.walletId) {
-        await setWalletId(userData.walletId);
+      if (userData.walletId) {        
+        await setWalletId(userData.walletId);            
         try {
           walletData = await walletService.getWalletById(userData.walletId);
           setWalletState(walletData);

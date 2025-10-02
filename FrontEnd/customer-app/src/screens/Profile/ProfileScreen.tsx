@@ -26,19 +26,19 @@ export default function ProfileScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
 
   // Hook lấy số dư ví theo userId
-  const { balance: walletBalance, refreshWallet } = useWallet(user?.userId);
+  const { balance: walletBalance, refreshWallet } = useWallet();
 
   useEffect(() => {
     if (user?.userId) {
-      fetchUserInfo(user.userId);
+      fetchUserInfo(user.userId);      
       refreshWallet();
     }
   }, [user]);
 
   const fetchUserInfo = async (id: number) => {
     try {
-      setLoading(true);
-      const res = await getUserById(id);
+      setLoading(true);      
+      const res = await getUserById(id);      
       setUserData(res.data || null);
     } catch (error) {
       console.error("Lỗi khi lấy thông tin user:", error);

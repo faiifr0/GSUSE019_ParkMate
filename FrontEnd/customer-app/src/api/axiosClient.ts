@@ -46,7 +46,7 @@ export async function setWalletId(walletId: number) {
 
 export async function getWalletId(): Promise<number | null> {
   if (Platform.OS === "web") {
-    const id = localStorage.getItem("walletId");
+    const id = localStorage.getItem("walletId");    
     return id ? parseInt(id, 10) : null;
   }
   const id = await AsyncStorage.getItem("walletId");

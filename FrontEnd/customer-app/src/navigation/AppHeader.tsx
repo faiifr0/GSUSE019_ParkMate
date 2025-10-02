@@ -27,7 +27,7 @@ export default function AppHeader(props: NativeStackHeaderProps) {
   const user = useSelector((state: RootState) => state.user.userInfo);
 
   // Hook lấy số dư ví
-  const { balance: coin, refreshWallet } = useWallet(user?.userId);
+  const { balance: coin, refreshWallet } = useWallet();
 
   useEffect(() => {
     if (user?.userId) refreshWallet();
