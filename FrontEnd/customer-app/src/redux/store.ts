@@ -1,8 +1,8 @@
 // redux/store.ts
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
-import { combineReducers } from "redux";
 import userReducer from "./userSlice";
+import aiChatReducer from "./aiChatSlice"; // ✅ thêm AI chat slice
 
 // Chọn storage khác nhau cho web và mobile
 let storage: any;
@@ -23,6 +23,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   user: userReducer,
+  aiChat: aiChatReducer, // ✅ thêm AI chat slice
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

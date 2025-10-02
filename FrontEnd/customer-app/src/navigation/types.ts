@@ -10,7 +10,9 @@ export type RootStackParamList = {
   Wallet: { userId: number };
   TopUp: { walletId: number; amount: number; checkoutUrl: string };
   Contact: undefined;
-  TicketList: undefined;
+    TicketList: { branchId: number }; // ✅ thêm dòng này
+    OrderConfirm: { branchId: number; cart: any[] };
+    OrderDetail: { orderId: number }; 
   Profile: undefined;
   Promotion: undefined;
   ChatBox: undefined;
