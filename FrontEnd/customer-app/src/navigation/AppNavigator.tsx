@@ -1,6 +1,6 @@
 // AppNavigator.tsx
 import React, { useEffect, useState, useRef } from "react";
-import { NavigationContainer, DefaultTheme, useNavigation } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme, useNavigation, NavigationContainerRef } from "@react-navigation/native";
 import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StatusBar, StyleSheet, View, Platform, Text} from "react-native";
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -30,6 +30,8 @@ import WalletTopupSuccessScreen from "../screens/Wallet/WalletTopupSuccessScreen
 import WalletTopupCancelScreen from "../screens/Wallet/WalletTopupCancelScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+export const navigationRef = React.createRef<NavigationContainerRef<any>>();
 
 function AuthStack() {
   return (
@@ -75,6 +77,21 @@ export default function AppNavigatorInnerBase() {
   const inactivityTimerRef = useRef<number | null>(null);
 
   const INACTIVITY_MINUTES = 30;
+
+  useEffect(() => {
+    const handleDeepLink = (event: { url: string }) => {
+      const data = Linking.parse(event.url);
+      // Example: navigate based on the path
+      if (data.path === "wallet/success") {
+        navigationRef.current?.navigate("WalletTopupSuccessScreen");
+      } else if (data.path === "wallet/cancel") {
+        navigationRef.current?.navigate("WalletTopupCancelScreen");
+      }
+    };
+
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     if (Platform.OS !== "web") {
@@ -227,7 +244,7 @@ export default function AppNavigatorInnerBase() {
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <StatusBar backgroundColor="transparent" barStyle="dark-content" translucent />
-      <NavigationContainer theme={LightTheme} linking={Platform.OS === "web" ? linking : undefined}>
+      <NavigationContainer ref={navigationRef} theme={LightTheme} linking={linking}>
         {isValid ? <MainAppStack /> : <AuthStack />}
       </NavigationContainer>
     </View>
@@ -235,23 +252,6 @@ export default function AppNavigatorInnerBase() {
 }
 
 export function AppNavigator() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  
-  useEffect(() => {
-  const handleDeepLink = (event: { url: string }) => {
-      const data = Linking.parse(event.url);
-      // Example: navigate based on the path
-      if (data.path === "wallet/success") {
-        navigation.navigate("WalletTopupSuccessScreen");
-      } else if (data.path === "wallet/cancel") {
-        navigation.navigate("WalletTopupCancelScreen");
-      }
-    };
-
-    const subscription = Linking.addEventListener("url", handleDeepLink);
-    return () => subscription.remove();
-  }, [navigation]);
-
   return (
     <SafeAreaProvider>
       <AppNavigatorInnerBase />
