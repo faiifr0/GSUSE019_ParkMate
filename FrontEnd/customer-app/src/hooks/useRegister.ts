@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { registerUser, loginUser } from "../services/userService";
-import { UserRequest } from "../types/User";
+import { registerUser, loginUser, getUserById } from "../services/userService";
+import { UserRequest, UserResponse } from "../types/User";
 import { validateRegister } from "../validation/registerValidation";
+import { decodeJWT, setToken } from "../api/axiosClient";
 
 export function useRegister() {
   const [loading, setLoading] = useState(false);
@@ -21,12 +22,23 @@ export function useRegister() {
       // 2️⃣ Auto-login để lấy token
       const loginRes = await loginUser(payload.email, payload.password);
       const token = loginRes.data?.accessToken || null;
+      if (!token) throw new Error("Không lấy được token");
+
+      await setToken(token);
+      const decoded: any = decodeJWT(token);
+
+      // 3️⃣ Lấy thông tin user từ API (full UserResponse)
+      let userInfo: UserResponse | null = null;
+      if (decoded?.userId) {
+        const res = await getUserById(decoded.userId);
+        userInfo = res.data as UserResponse;
+      }
 
       return {
         success: true,
         data: {
           token,
-          userInfo: { username: payload.username, email: payload.email },
+          userInfo,
         },
       };
     } catch (error: any) {
