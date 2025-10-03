@@ -146,7 +146,7 @@ export default function WalletScreen() {
             }}
           >
             <Text style={{ color: colors.textPrimary }}>
-              {item.type} {item.amount} coin
+              {item.amount} coin / Nội dung: {item.type} 
             </Text>
             <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
               {new Date(item.createdAt).toLocaleString()}

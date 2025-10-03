@@ -28,20 +28,23 @@ export default function TopUpConfirmScreen() {
       </View>
 
       {/* WebView thanh toán */}
+      {Platform.OS !== 'web' && (
       <View style={styles.webviewWrapper}>
         <WebView source={{ uri: checkoutUrl }} style={styles.webview} />
       </View>
-
+      )}
       
       {/* Link thanh toán */}
-      {Platform.OS === 'web' && (
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => Linking.openURL(checkoutUrl)}
-      >
-        <Text style={styles.buttonText}>Mở trình duyệt để thanh toán</Text>
-      </TouchableOpacity>
-      )}
+      <View style={{ marginBottom: 12 }}>
+        {Platform.OS === 'web' && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => Linking.openURL(checkoutUrl)}
+        >
+          <Text style={styles.buttonText}>Mở tab mới để tiến hành thanh toán</Text>
+        </TouchableOpacity>
+        )}
+      </View>
 
       {Platform.OS !== "web" && (
         <TouchableOpacity

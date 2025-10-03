@@ -10,7 +10,7 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-export default function CustomerStatisticsChart() {
+export default function BranchCustomerStatisticsChart() {
   const options: ApexOptions = {
     legend: {
       show: true, // Hide legend

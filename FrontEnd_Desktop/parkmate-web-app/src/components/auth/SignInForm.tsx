@@ -11,8 +11,8 @@ import toast, { Toaster } from "react-hot-toast";
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   
-  const [email, setEmail] = useState("admin@local");
-  const [password, setPassword] = useState("Admin@1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
     try {      
@@ -66,10 +66,8 @@ export default function SignInForm() {
                   <Input 
                     placeholder="info@gmail.com" 
                     type="email" 
-                    onChange={(e) => setEmail(e.target.value)}
-                    defaultValue="admin@local"
-                  >
-                    
+                    onChange={(e) => setEmail(e.target.value)}                    
+                  >                    
                   </Input>
                 </div>
                 <div>
@@ -80,8 +78,7 @@ export default function SignInForm() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
-                      onChange={(e) => setPassword(e.target.value)}
-                      defaultValue="Admin@1234"
+                      onChange={(e) => setPassword(e.target.value)}                      
                     >
                     </Input>
                     <span

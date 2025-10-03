@@ -3,7 +3,8 @@ import Cookies from "js-cookie"
 
 const axiosClient = axios.create({
   //baseURL: "https://parkmate-management-system.azurewebsites.net/api",
-  baseURL: "http://localhost:8080/api",
+  //baseURL: "http://localhost:8080/api", // for local testing
+  baseURL: "https://gsuse019-parkmate.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },

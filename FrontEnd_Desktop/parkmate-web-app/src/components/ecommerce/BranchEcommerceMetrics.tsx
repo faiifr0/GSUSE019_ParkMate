@@ -5,7 +5,7 @@ import { ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon } from "@/components
 import userService, { UserResponse } from "@/lib/services/userService";
 import orderService, { orderResponse } from "@/lib/services/orderService";
 
-export const EcommerceMetrics = () => {
+export const BranchEcommerceMetrics = () => {
   const [newCustomers, setNewCustomers] = useState<UserResponse[]>([]);
   const [newOrders, setNewOrders] = useState<orderResponse[]>([]);
   const [thisMonthRevenue, setthisMonthRevenue] = useState<number>(0);

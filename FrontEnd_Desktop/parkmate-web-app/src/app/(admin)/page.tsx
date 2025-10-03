@@ -5,6 +5,11 @@ import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
 import CustomerStatisticsChart from "@/components/ecommerce/CustomerStatisticsChart";
 import { useAuth } from "@/components/context/AuthContext";
 import { useRouter } from "next/navigation";
+import ComponentCard from "@/components/common/ComponentCard";
+import BranchCustomerStatisticsChart from "@/components/ecommerce/BranchCustomerStatisticsChart";
+import BranchMonthlySalesChart from "@/components/ecommerce/BranchMonthlySalesChart";
+import Cookies from "js-cookie";
+import { BranchEcommerceMetrics } from "@/components/ecommerce/BranchEcommerceMetrics";
 
 export default function AdminDashboard() {
   const { currUser } = useAuth();
@@ -19,7 +24,9 @@ export default function AdminDashboard() {
     const isAuthorized = isAdmin || isManager;
 
     if (!isAuthorized) {
-      router.replace("/error-403");
+      //router.replace("/error-403");
+      Cookies.remove("token", {path: "/"});
+      router.push("/signin");
     }
   }, [currUser, router]);
 
@@ -33,26 +40,52 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="grid grid-cols-12 gap-4 md:gap-6">
-      {(currUser?.parkBranchId || currUser.roles?.includes("ADMIN")) ? (
-        <>
-          <div className="col-span-12 space-y-6 xl:col-span-12">
-            <EcommerceMetrics />
-          </div>
+    <>
+      {(currUser.roles?.includes("ADMIN") && (
+      <ComponentCard title="Thống kê tổng quan toàn hệ thống">
+        <div className="grid grid-cols-12 gap-4 md:gap-6">            
+          <>
+            <div className="col-span-12 space-y-6 xl:col-span-12">
+              <EcommerceMetrics />
+            </div>
 
-          <div className="col-span-12">
-            <MonthlySalesChart />
-          </div>
+            <div className="col-span-12">
+              <MonthlySalesChart />
+            </div>
 
-          <div className="col-span-12">
-            <CustomerStatisticsChart />
-          </div>      
-        </>
-      ) : (
-        <div className="col-span-12 text-center text-gray-500">
-          Bạn không được phân công quản lý chi nhánh nào. Vui lòng liên hệ quản trị viên.
+            <div className="col-span-12">
+              <CustomerStatisticsChart />
+            </div>      
+          </>
         </div>
-      )}      
-    </div>
+      </ComponentCard>
+    ))}
+
+      {(currUser.roles?.includes("MANAGER") && currUser?.parkBranchId !== 0 && (
+      <ComponentCard title="Thống kê tổng quan chi nhánh">
+        <div className="grid grid-cols-12 gap-4 md:gap-6">            
+          <>
+            <div className="col-span-12 space-y-6 xl:col-span-12">
+              <BranchEcommerceMetrics />
+            </div>
+
+            <div className="col-span-12">
+              <BranchMonthlySalesChart />
+            </div>
+
+            <div className="col-span-12">
+              <BranchCustomerStatisticsChart />
+            </div>      
+          </>
+        </div>
+      </ComponentCard>
+      ))}  
+
+      {(currUser && currUser.roles?.includes("MANAGER") && currUser?.parkBranchId === 0 && (
+      <div className="col-span-12 text-center text-gray-900">
+        Bạn không được phân công quản lý chi nhánh nào. Vui lòng liên hệ quản trị viên.
+      </div>
+      ))}                  
+    </>
   )
 }
