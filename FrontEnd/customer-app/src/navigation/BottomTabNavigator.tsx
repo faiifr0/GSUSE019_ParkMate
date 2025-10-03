@@ -1,3 +1,4 @@
+// src/navigation/BottomTabNavigator.tsx
 import React from "react";
 import { Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -7,9 +8,9 @@ import { Ionicons } from "@expo/vector-icons";
 import HomeScreen from "../screens/Home/HomeScreen";
 import TicketListScreen from "../screens/Ticket/TicketListScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
-import QRCodeScannerScreen from "../screens/QRCode/QRCodeScannerScreen";
+import WalletScreen from "../screens/Wallet/WalletScreen"; 
 
-// Bổ sung các trang cho web stack
+// Web-only screens
 import BranchDetailScreen from "../screens/Branch/BranchDetailScreen";
 import PromotionScreen from "../screens/Promotion/PromotionScreen";
 import ChatBoxScreen from "../screens/ChatBox/ChatBox";
@@ -26,7 +27,6 @@ function WebNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="TicketList" component={TicketListScreen} />
-      <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="BranchDetail" component={BranchDetailScreen} />
       <Stack.Screen name="Promotion" component={PromotionScreen} />
@@ -66,16 +66,32 @@ export default function BottomTabNavigator() {
           let iconName: keyof typeof Ionicons.glyphMap = "home";
           if (route.name === "Home") iconName = "home";
           else if (route.name === "TicketList") iconName = "ticket";
-          else if (route.name === "QRCodeScanner") iconName = "qr-code";
+          else if (route.name === "Wallet") iconName = "wallet";
           else if (route.name === "Profile") iconName = "person";
           return <Ionicons name={iconName} size={24} color={color} />;
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: "Trang chủ" }} />
-      <Tab.Screen name="TicketList" component={TicketListScreen} options={{ title: "Vé" }} />
-      <Tab.Screen name="QRCodeScanner" component={QRCodeScannerScreen} options={{ title: "Quét QR" }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Tài khoản" }} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ title: "Trang chủ" }}
+      />
+      <Tab.Screen
+        name="TicketList"
+        component={TicketListScreen}
+        options={{ title: "Đơn/Vé" }} // 👈 gộp Orders + Tickets
+      />
+      <Tab.Screen
+        name="Wallet"
+        component={WalletScreen}
+        options={{ title: "Ví" }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: "Tài khoản" }}
+      />
     </Tab.Navigator>
   );
 }
