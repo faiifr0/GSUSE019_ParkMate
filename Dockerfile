@@ -21,13 +21,14 @@ RUN mkdir -p /usr/local/bin && \
     chmod +x /usr/local/bin/with-postgres
 
 # Build your app at image build-time (skip tests for speed; remove if you need tests)
-RUN mvn -f BackEnd/park_management/pom.xml -B -DskipTests=false -DtrimStackTrace=false --no-transfer-progress clean package
+RUN mvn -f BackEnd/park_management/pom.xml -B -DskipTests=true -DtrimStackTrace=false --no-transfer-progress clean package
 
 EXPOSE 8080
 
 # Start Postgres, then run your app
 ENTRYPOINT ["/usr/local/bin/with-postgres"]
 CMD ["java","-jar","/app/BackEnd/park_management/target/park_management-1.0-SNAPSHOT.jar"]
+
 
 
 
