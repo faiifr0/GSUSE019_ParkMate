@@ -1,7 +1,6 @@
 // src/hooks/useWallet.ts
 import { useState, useEffect, useCallback } from "react";
 import { walletService } from "../services/walletService";
-import { getWalletId } from "../api/axiosClient";
 import { Wallet } from "../types/Wallet";
 
 export function useWallet(walletIdProp?: number) {
@@ -9,22 +8,17 @@ export function useWallet(walletIdProp?: number) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Callback nhận update từ store
+  const handleWalletUpdate = (wallet: Wallet) => {
+    setBalance(wallet.balance || 0);
+  };
+
   const fetchWallet = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      let walletId: number | null = null;
-
-      if (walletIdProp) {
-        walletId = walletIdProp;
-      } else {
-        walletId = await getWalletId();
-      }
-
-      // ✅ chỉ cần gọi getWalletById, vì service đã lo fallback rồi
-      const wallet: Wallet = await walletService.getWalletById(walletId || undefined);
-
+      const wallet = await walletService.fetchWallet(walletIdProp);
       setBalance(wallet.balance || 0);
     } catch (err: any) {
       console.error("Lỗi lấy số dư ví:", err);
@@ -37,6 +31,10 @@ export function useWallet(walletIdProp?: number) {
 
   useEffect(() => {
     fetchWallet();
+
+    // ✅ subscribe store để tự cập nhật khi wallet thay đổi
+    const unsubscribe = walletService.subscribe(handleWalletUpdate);
+    return () => unsubscribe();
   }, [fetchWallet]);
 
   return { balance, loading, error, refreshWallet: fetchWallet };

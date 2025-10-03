@@ -13,7 +13,6 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/types";
 import { useNavigation } from "@react-navigation/native"; 
-import { styles as baseStyles } from "../../styles/BranchDetailScreenStyles";
 import { Game } from "../../types/Game";
 import { Branch } from "../../types/Branch";
 import { BranchReview, CreateBranchReviewDto } from "../../types/BranchReview";
@@ -21,6 +20,8 @@ import { getGamesByBranch } from "../../services/gameService";
 import branchService from "../../services/branchService";
 import { branchReviewService } from "../../services/branchReviewService";
 import colors from "../../constants/colors";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 type Props = NativeStackScreenProps<RootStackParamList, "BranchDetail">;
 
@@ -30,7 +31,11 @@ export default function BranchDetailScreen({ route }: Props) {
   const [games, setGames] = useState<Game[]>([]);
   const [reviews, setReviews] = useState<BranchReview[]>([]);
   const [loading, setLoading] = useState(true);
-const navigation = useNavigation<any>();
+  const navigation = useNavigation<any>();
+
+  // Lấy user từ Redux
+  const userInfo = useSelector((state: RootState) => state.user.userInfo);
+
   // State cho review mới
   const [newRating, setNewRating] = useState<number>(5);
   const [newComment, setNewComment] = useState<string>("");
@@ -48,10 +53,8 @@ const navigation = useNavigation<any>();
       const gamesData = await getGamesByBranch(branchId);
       setGames(gamesData);
 
-      const reviewsData = await branchReviewService.getAll();
-      setReviews(
-        reviewsData.filter((r) => r.branchId === branchId && r.approved)
-      );
+      const reviewsData = await branchReviewService.getOfBranch(branchId);
+      setReviews(reviewsData.filter((r) => r.approved));
     } catch (err: any) {
       console.log("Error fetching branch detail:", err);
     } finally {
@@ -60,13 +63,17 @@ const navigation = useNavigation<any>();
   };
 
   const handleSubmitReview = async () => {
+    if (!userInfo) {
+      Alert.alert("Thông báo", "Bạn cần đăng nhập để đánh giá");
+      return;
+    }
     if (!newComment.trim()) {
       Alert.alert("Lỗi", "Vui lòng nhập nội dung đánh giá");
       return;
     }
 
     const data: CreateBranchReviewDto = {
-      userId: 0,
+      userId: userInfo.id, // ✅ lấy userId từ Redux
       branchId,
       rating: newRating,
       comment: newComment,
@@ -116,7 +123,7 @@ const navigation = useNavigation<any>();
           <Text style={{ color: "#fff", marginTop: 4 }}>
             🕒 {branch.open ?? "?"} - {branch.close ?? "?"}
           </Text>
-          {/* 👇 Nút mua vé ngay */}
+          {/* Nút mua vé */}
           <TouchableOpacity
             onPress={() => navigation.navigate("TicketList", { branchId })}
             style={{
@@ -188,7 +195,7 @@ const navigation = useNavigation<any>();
         </View>
       </View>
 
-      {/* Danh sách game */}
+      {/* Games */}
       <Text
         style={{
           fontSize: 20,
@@ -241,7 +248,7 @@ const navigation = useNavigation<any>();
         </Text>
       )}
 
-      {/* Đánh giá khách hàng */}
+      {/* Reviews */}
       <Text
         style={{
           fontSize: 20,
@@ -272,7 +279,7 @@ const navigation = useNavigation<any>();
                 ⭐ {item.rating}
               </Text>
               <Text style={{ color: colors.textSecondary, marginBottom: 4 }}>
-                {item.userId ?? "Người dùng ẩn danh"}
+                {item.email || "Người dùng ẩn danh"}
               </Text>
               <Text>{item.comment}</Text>
             </View>
@@ -298,7 +305,7 @@ const navigation = useNavigation<any>();
           ✍️ Đánh giá chi nhánh này
         </Text>
 
-        {/* Rating sao */}
+        {/* Rating */}
         <View style={{ flexDirection: "row", marginBottom: 12 }}>
           {[1, 2, 3, 4, 5].map((i) => (
             <TouchableOpacity key={i} onPress={() => setNewRating(i)}>

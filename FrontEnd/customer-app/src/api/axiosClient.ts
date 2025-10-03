@@ -1,12 +1,12 @@
-// src/api/axiosClient.ts
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios, { InternalAxiosRequestConfig, AxiosHeaders } from "axios";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { store } from "../redux/store";
 import { logout } from "../redux/userSlice";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { UserResponse } from "../types/User";
 
+/** Decode JWT */
 export function decodeJWT(token: string): any | null {
   try {
     return jwtDecode(token);
@@ -16,6 +16,7 @@ export function decodeJWT(token: string): any | null {
   }
 }
 
+/** Token helpers */
 export async function getToken(): Promise<string | null> {
   if (Platform.OS === "web") return localStorage.getItem("token");
   return AsyncStorage.getItem("token");
@@ -38,7 +39,7 @@ export async function removeToken() {
   }
 }
 
-// walletId helpers
+/** Wallet helpers */
 export async function setWalletId(walletId: number) {
   if (Platform.OS === "web") localStorage.setItem("walletId", walletId.toString());
   else await AsyncStorage.setItem("walletId", walletId.toString());
@@ -46,14 +47,14 @@ export async function setWalletId(walletId: number) {
 
 export async function getWalletId(): Promise<number | null> {
   if (Platform.OS === "web") {
-    const id = localStorage.getItem("walletId");    
+    const id = localStorage.getItem("walletId");
     return id ? parseInt(id, 10) : null;
   }
   const id = await AsyncStorage.getItem("walletId");
   return id ? parseInt(id, 10) : null;
 }
 
-// user helpers
+/** User helpers */
 export async function setUser(user: UserResponse) {
   const s = JSON.stringify(user);
   if (Platform.OS === "web") localStorage.setItem("user", s);
@@ -67,18 +68,19 @@ export async function getUser(): Promise<UserResponse | null> {
   return raw ? JSON.parse(raw) : null;
 }
 
+/** Axios client */
 const axiosClient = axios.create({
   baseURL: "https://gsuse019-parkmate.onrender.com/api",
   headers: { "Content-Type": "application/json" },
 });
 
-// attach token
+/** Request interceptor: tự động gắn token */
 axiosClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    // don't add Authorization for login/register request (they don't need it)
     if (config.url?.includes("/users/login") || config.url?.includes("/users/register")) {
       return config;
     }
+
     const token = await getToken();
     if (token) {
       const payload = decodeJWT(token);
@@ -87,15 +89,24 @@ axiosClient.interceptors.request.use(
         store.dispatch(logout());
         return Promise.reject({ message: "Token expired" });
       }
-      config.headers = config.headers ?? {};
-      (config.headers as any).Authorization = `Bearer ${token}`;
+
+      // ✅ Gắn Authorization chuẩn Axios v1
+      if (config.headers instanceof AxiosHeaders) {
+        config.headers.set("Authorization", `Bearer ${token}`);
+      } else {
+        config.headers = new AxiosHeaders({
+          ...(typeof config.headers === "object" ? config.headers : {}),
+          Authorization: `Bearer ${token}`,
+        });
+      }
     }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// response interceptor
+/** Response interceptor: xử lý lỗi 401/403 */
 axiosClient.interceptors.response.use(
   (resp) => resp,
   async (error) => {

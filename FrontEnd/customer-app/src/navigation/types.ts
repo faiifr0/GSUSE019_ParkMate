@@ -28,6 +28,6 @@ export type RootStackParamList = {
 export type BottomTabParamList = {
   Home: undefined;
   TicketList: undefined;
-  QRCodeScanner: undefined;
+  Wallet: undefined;
   Profile: undefined;
 };

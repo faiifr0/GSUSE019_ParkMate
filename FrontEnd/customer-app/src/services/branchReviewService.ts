@@ -22,9 +22,10 @@ export const branchReviewService = {
     return res.data;
   },
 
-  // Tạo đánh giá mới (khách chỉ được tạo)
+  // Tạo đánh giá mới
   create: async (data: CreateBranchReviewDto): Promise<BranchReview> => {
     const res = await apiClient.post<BranchReview>(ENDPOINT, data);
     return res.data;
   },
+
 };
