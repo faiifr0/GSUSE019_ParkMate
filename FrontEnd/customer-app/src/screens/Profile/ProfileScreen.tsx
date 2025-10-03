@@ -1,4 +1,3 @@
-// src/screens/Profile/ProfileScreen.tsx
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -7,52 +6,36 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Platform,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { persistor, RootState } from "../../redux/store";
-import { logout } from "../../redux/userSlice";
-import { getUserById } from "../../services/userService";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "../../constants/colors";
 import styles from "../../styles/ProfileScreenStyles";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useWallet } from "../../hooks/useWallet";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, persistor } from "../../redux/store";
+import { logout } from "../../redux/userSlice";
 
 export default function ProfileScreen({ navigation }: any) {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.userInfo);
-  const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // Hook lấy số dư ví theo userId
   const { balance: walletBalance, refreshWallet } = useWallet();
 
   useEffect(() => {
-    if (user?.userId) {
-      fetchUserInfo(user.userId);
-      refreshWallet();
+    if (user?.id) {
+      refreshWallet(); // chỉ refresh wallet thôi
     }
   }, [user]);
 
-  const fetchUserInfo = async (id: number) => {
+  const handleLogout = async () => {
+    setLoading(true);
     try {
-      setLoading(true);      
-      const res = await getUserById(id);      
-      setUserData(res.data || null);
-    } catch (error) {
-      console.error("Lỗi khi lấy thông tin user:", error);
+      dispatch(logout());
+      await persistor.flush();
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLogout = async () => {
-    dispatch(logout());
-    persistor.purge();
-    await AsyncStorage.removeItem("token");
-    await AsyncStorage.removeItem("userId");
-    await AsyncStorage.removeItem("walletId");
   };
 
   if (loading) {
@@ -70,119 +53,6 @@ export default function ProfileScreen({ navigation }: any) {
     );
   }
 
-  // ==========================
-  // WEB GIAO DIỆN
-  // ==========================
-  if (Platform.OS === "web") {
-    return (
-      <ScrollView>
-        <View
-          style={{
-            maxWidth: 800,
-            marginHorizontal: "auto",
-            padding: 24,
-            alignItems: "center",
-          }}
-        >
-          {/* Avatar + Info */}
-          <Image
-            source={{ uri: "https://i.pravatar.cc/150?img=12" }}
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: 60,
-              marginBottom: 16,
-              borderWidth: 3,
-              borderColor: "#fff",
-            }}
-          />
-          <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 4, color: "#333" }}>
-            {userData?.username || "Khách hàng"}
-          </Text>
-          <Text style={{ fontSize: 16, color: "#555" }}>
-            {userData?.email || "Chưa có email"}
-          </Text>
-          <Text style={{ fontSize: 16, color: "#555", marginBottom: 24 }}>
-            {userData?.phone || "Chưa có số điện thoại"}
-          </Text>
-
-          {/* Nút hành động */}
-          <View
-            style={{
-              flexDirection: "row",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: 16,
-              marginBottom: 32,
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#FF6B6B",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 12,
-              }}
-              onPress={() => navigation.navigate("TicketList")}
-            >
-              <Text style={{ color: "#fff", fontWeight: "bold" }}>Lịch sử vé</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#7B61FF",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 12,
-              }}
-              onPress={() => navigation.navigate("ChangePassword")}
-            >
-              <Text style={{ color: "#fff", fontWeight: "bold" }}>Đổi mật khẩu</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#2EC4B6",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 12,
-              }}
-              onPress={() => navigation.navigate("Wallet", { userId: user?.userId })}
-            >
-              <Text style={{ color: "#fff", fontWeight: "bold" }}>Quản lí ví</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#FF4D4D",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 12,
-              }}
-              onPress={handleLogout}
-            >
-              <Text style={{ color: "#fff", fontWeight: "bold" }}>Đăng xuất</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Thông tin thêm */}
-          <View style={{ width: "100%", gap: 12 }}>
-            <Text style={{ fontSize: 16, color: "#333" }}>💰 Số dư ví: {walletBalance} coin</Text>
-            <Text style={{ fontSize: 16, color: "#333" }}>
-              🏢 Chi nhánh: {userData?.parkBranch?.name || "Chưa có"}
-            </Text>
-            <Text style={{ fontSize: 16, color: "#333" }}>
-              🎭 Vai trò: {userData?.role?.name || "Khách"}
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-    );
-  }
-
-  // ==========================
-  // APP GIAO DIỆN
-  // ==========================
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
@@ -200,10 +70,13 @@ export default function ProfileScreen({ navigation }: any) {
           style={{ width: 100, height: 100, borderRadius: 50, marginBottom: 12 }}
         />
         <Text style={{ fontSize: 22, fontWeight: "bold", color: "#fff" }}>
-          {userData?.username || "Khách hàng"}
+          {user?.username || "Khách hàng"}
         </Text>
         <Text style={{ fontSize: 14, color: "#eee" }}>
-          {userData?.email || "Chưa có email"}
+          {user?.email || "Chưa có email"}
+        </Text>
+        <Text style={{ fontSize: 14, color: "#eee" }}>
+          {user?.phoneNumber || "Chưa có số điện thoại"}
         </Text>
       </View>
 
@@ -214,18 +87,11 @@ export default function ProfileScreen({ navigation }: any) {
           padding: 16,
           borderRadius: 16,
           backgroundColor: colors.surface,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
           elevation: 2,
         }}
       >
         <Text style={{ fontSize: 16, marginBottom: 8, color: colors.textPrimary }}>
-          🏢 Chi nhánh: {userData?.parkBranch?.name || "Chưa có"}
-        </Text>
-        <Text style={{ fontSize: 16, marginBottom: 8, color: colors.textPrimary }}>
-          🎭 Vai trò: {userData?.role?.name || "Khách"}
+          🏢 Chi nhánh: {user?.parkBranchName || "Chưa có"}
         </Text>
         <Text style={{ fontSize: 16, marginBottom: 8, color: colors.textPrimary }}>
           💰 Số dư ví: {walletBalance} coin
@@ -239,9 +105,11 @@ export default function ProfileScreen({ navigation }: any) {
             borderRadius: 8,
             alignItems: "center",
           }}
-          onPress={() => navigation.navigate("Wallet", { userId: user?.userId })}
+          onPress={() => navigation.navigate("Wallet", { userId: user?.id })}
         >
-          <Text style={{ color: "#fff", fontWeight: "bold" }}>Quản lý ví & Nạp tiền</Text>
+          <Text style={{ color: "#fff", fontWeight: "bold" }}>
+            Quản lý ví & Nạp tiền
+          </Text>
         </TouchableOpacity>
       </View>
 

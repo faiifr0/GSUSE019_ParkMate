@@ -8,14 +8,20 @@ import {
   Animated,
   PanResponder,
   Dimensions,
+  TextInput,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
+import { useAIChat } from "../../hooks/useAIChat";
 
 const { width, height } = Dimensions.get("window");
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const { messages, sendMessage, loading } = useAIChat();
 
-  // PanResponder để kéo thả nút chat
+  // Floating button kéo thả
   const pan = useRef(new Animated.ValueXY({ x: width - 80, y: height - 180 }))
     .current;
 
@@ -27,13 +33,19 @@ export default function ChatBot() {
         { useNativeDriver: false }
       ),
       onPanResponderRelease: () => {
-        pan.extractOffset(); // giữ vị trí mới
+        pan.extractOffset();
       },
     })
   ).current;
 
+  const handleSend = () => {
+    if (input.trim()) {
+      sendMessage(input);
+      setInput("");
+    }
+  };
+
   if (!open) {
-    // Floating button khi chưa mở
     return (
       <Animated.View
         {...panResponder.panHandlers}
@@ -49,7 +61,6 @@ export default function ChatBot() {
     );
   }
 
-  // Khi mở chatbox
   return (
     <Animated.View
       style={[
@@ -67,12 +78,45 @@ export default function ChatBot() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.chatBody}>
-        <Text>Xin chào 👋! Tôi có thể giúp gì cho bạn?</Text>
-      </View>
+      {/* Danh sách tin nhắn */}
+      <FlatList
+        style={styles.chatBody}
+        data={messages}
+        keyExtractor={(_, i) => i.toString()}
+        renderItem={({ item }) => (
+          <View
+            style={[
+              styles.message,
+              item.type === "user" ? styles.userMsg : styles.aiMsg,
+            ]}
+          >
+            <Text style={{ color: item.type === "user" ? "#fff" : "#000" }}>
+              {item.text}
+            </Text>
+          </View>
+        )}
+      />
 
+      {/* Footer nhập tin nhắn */}
       <View style={styles.chatFooter}>
-        <Text style={{ color: "#999" }}>Type here...</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Nhập tin nhắn..."
+          value={input}
+          onChangeText={setInput}
+          editable={!loading}
+        />
+        <TouchableOpacity
+          style={styles.sendBtn}
+          onPress={handleSend}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={{ color: "#fff" }}>Gửi</Text>
+          )}
+        </TouchableOpacity>
       </View>
     </Animated.View>
   );
@@ -127,9 +171,40 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  message: {
+    marginVertical: 4,
+    padding: 8,
+    borderRadius: 8,
+    maxWidth: "80%",
+  },
+  userMsg: {
+    backgroundColor: "#4ECDC4",
+    alignSelf: "flex-end",
+  },
+  aiMsg: {
+    backgroundColor: "#f1f1f1",
+    alignSelf: "flex-start",
+  },
   chatFooter: {
-    padding: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
     borderTopWidth: 1,
     borderTopColor: "#ddd",
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginRight: 8,
+  },
+  sendBtn: {
+    backgroundColor: "#4ECDC4",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
 });

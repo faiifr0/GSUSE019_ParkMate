@@ -30,7 +30,7 @@ export default function AppHeader(props: NativeStackHeaderProps) {
   const { balance: coin, refreshWallet } = useWallet();
 
   useEffect(() => {
-    if (user?.userId) refreshWallet();
+    if (user?.id) refreshWallet();
   }, [user]);
 
   // ---------------- MOBILE HEADER ----------------
