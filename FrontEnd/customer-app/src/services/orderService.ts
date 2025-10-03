@@ -17,7 +17,7 @@ const orderService = {
   },
 
   create: async (payload: CreateOrderPayload): Promise<Order> => {
-    const { data } = await axiosClient.post(`/orders`, payload);
+    const { data } = await axiosClient.post(`/tickets`, payload);
     return data;
   },
 

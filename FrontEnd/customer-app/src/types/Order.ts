@@ -16,7 +16,7 @@ export interface OrderPass {
 }
 
 export interface Order {
-  ticketId: number;
+  orderId: number;
   status: string;
   details: OrderDetail[];
   passes: OrderPass[];

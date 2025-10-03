@@ -56,7 +56,7 @@ export function useOrders() {
       const data = await orderService.update(id, payload);
       setCurrentOrder(data);
       setOrders((prev) =>
-        prev.map((order) => (order.ticketId === id ? data : order))
+        prev.map((order) => (order.orderId === id ? data : order))
       );
       setError(null);
       return data;
@@ -72,8 +72,8 @@ export function useOrders() {
     setLoading(true);
     try {
       await orderService.delete(id);
-      setOrders((prev) => prev.filter((order) => order.ticketId !== id));
-      if (currentOrder?.ticketId === id) setCurrentOrder(null);
+      setOrders((prev) => prev.filter((order) => order.orderId !== id));
+      if (currentOrder?.orderId === id) setCurrentOrder(null);
       setError(null);
     } catch (err: any) {
       setError(err.message || "Lỗi xóa đơn hàng");
