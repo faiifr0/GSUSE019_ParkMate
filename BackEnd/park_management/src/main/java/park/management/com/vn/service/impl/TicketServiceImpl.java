@@ -94,18 +94,18 @@ public class TicketServiceImpl implements TicketService {
         Map<TicketType, Integer> ticketTypeQuantityMap = new HashMap<>();
         Map<TicketType, BigDecimal> ticketTypePriceMap = new HashMap<>();
 
-        // 1) Validate capacity & collect quantities
+        //1) Validate capacity & collect quantities
         for (TicketRequest.TicketDetailRequest detailRequest : ticketRequest.getDetails()) {
             TicketType ticketType = this.getTicketTypeById(detailRequest.getTicketTypeId());
             Integer quantityRequested = detailRequest.getQuantity();
 
-            DailyTicketInventory inventory = this.getDailyTicketInventory(ticketType.getId(), ticketDate);
+            //DailyTicketInventory inventory = this.getDailyTicketInventory(ticketType.getId(), ticketDate);
             Pair<Long, LocalDate> key = Pair.of(ticketType.getId(), ticketDate);
 
-            remainingCapacityMap.putIfAbsent(key, inventory.getTotalAvailable() - inventory.getSold());
+            //remainingCapacityMap.putIfAbsent(key, inventory.getTotalAvailable() - inventory.getSold());
             int available = remainingCapacityMap.get(key);
-            if (quantityRequested > available) throw new DailyTicketInventoryExceedException(ticketDate);
-            remainingCapacityMap.put(key, available - quantityRequested);
+            //if (quantityRequested > available) throw new DailyTicketInventoryExceedException(ticketDate);
+            //remainingCapacityMap.put(key, available - quantityRequested);
 
             ticketTypeQuantityMap.merge(ticketType, quantityRequested, Integer::sum);
         }
@@ -196,8 +196,8 @@ public class TicketServiceImpl implements TicketService {
             TicketType ticketType = entry.getKey();
             int quantity = entry.getValue();
             BigDecimal unitPrice = ticketType.getBasePrice();
-            BulkPricingRule rule = this.findBulkPricingRuleByTicketTypeId(ticketType.getId()).orElse(null);
-            int discountPercent = (rule != null) ? rule.getDiscountPercent() : 0;
+            //BulkPricingRule rule = this.findBulkPricingRuleByTicketTypeId(ticketType.getId()).orElse(null);
+            int discountPercent = (appliedVoucher != null) ? appliedVoucher.getPercent().intValue() * 100 : 0;
             BigDecimal finalPrice = this.calculateDiscountedPrice(unitPrice, quantity, discountPercent);
 
             TicketDetail ticketDetail = TicketDetail.builder()
@@ -212,8 +212,9 @@ public class TicketServiceImpl implements TicketService {
         }
         ticketDetailRepository.saveAll(details);
 
+        // ### LEGACY CODE
         // 7) Update inventories
-        updateDailyInventoryAfterPurchase(ticketTypeQuantityMap, ticketDate);
+        //updateDailyInventoryAfterPurchase(ticketTypeQuantityMap, ticketDate);
 
         // 8) Attach details to order to avoid NPE in same request
         savedOrder.setDetails(details);

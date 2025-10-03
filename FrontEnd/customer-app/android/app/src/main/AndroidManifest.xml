@@ -31,6 +31,15 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="exp+parkmate"/>
+        <data android:scheme="parkmate"/>
+        <data android:scheme="exp+parkmate-customer-app"/>
+      </intent-filter>
+      <intent-filter data-generated="true">
+        <action android:name="android.intent.action.VIEW"/>
+        <data android:scheme="parkmate" android:host="app"/>
+        <data android:scheme="exp+parkmate-customer-app"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </activity>
   </application>
