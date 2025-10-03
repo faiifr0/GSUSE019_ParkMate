@@ -21,7 +21,7 @@ RUN mkdir -p /usr/local/bin && \
     chmod +x /usr/local/bin/with-postgres
 
 # Build your app at image build-time (skip tests for speed; remove if you need tests)
-RUN mvn -f park_management/pom.xml -B -DskipTests=true -DtrimStackTrace=false --no-transfer-progress clean package
+RUN mvn -f park_management/pom.xml -B -DskipTests=false -DtrimStackTrace=false --no-transfer-progress clean package
 
 EXPOSE 8080
 
