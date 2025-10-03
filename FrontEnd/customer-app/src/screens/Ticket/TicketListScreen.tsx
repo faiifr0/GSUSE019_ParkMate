@@ -186,16 +186,18 @@ export default function TicketListScreen({ route }: Props) {
             {cart.length} vé - {total.toLocaleString()} VND
           </Text>
           <TouchableOpacity
-            style={{
-              backgroundColor: colors.primary,
-              paddingHorizontal: 20,
-              paddingVertical: 10,
-              borderRadius: 12,
-            }}
-            onPress={() => navigation.navigate("OrderConfirm", { cart, branchId })}
-          >
-            <Text style={{ color: "#fff", fontWeight: "bold" }}>Tiếp tục</Text>
-          </TouchableOpacity>
+  style={{
+    backgroundColor: colors.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+  }}
+  onPress={() =>
+    navigation.getParent()?.navigate("OrderConfirm", { cart, branchId })
+  }
+>
+  <Text style={{ color: "#fff", fontWeight: "bold" }}>Tiếp tục</Text>
+</TouchableOpacity>
         </View>
       )}
     </View>
