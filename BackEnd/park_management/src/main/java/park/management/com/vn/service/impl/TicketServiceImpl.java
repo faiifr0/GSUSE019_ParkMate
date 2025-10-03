@@ -103,7 +103,7 @@ public class TicketServiceImpl implements TicketService {
             Pair<Long, LocalDate> key = Pair.of(ticketType.getId(), ticketDate);
 
             //remainingCapacityMap.putIfAbsent(key, inventory.getTotalAvailable() - inventory.getSold());
-            int available = remainingCapacityMap.get(key);
+            //int available = remainingCapacityMap.get(key);
             //if (quantityRequested > available) throw new DailyTicketInventoryExceedException(ticketDate);
             //remainingCapacityMap.put(key, available - quantityRequested);
 
