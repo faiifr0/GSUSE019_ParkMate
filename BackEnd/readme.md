@@ -8,3 +8,5 @@
 4.ticket_detail: final_price : giá sau khi giảm giá, unit_price: giá gốc , quantity : số lượng mua 
 
 5.ticket_order:order của người dùng tạo ra 
+
+6.Oder_refund: admin ( manager ) tạo ra : create_at  
