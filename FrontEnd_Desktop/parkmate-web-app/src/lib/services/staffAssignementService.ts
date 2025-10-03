@@ -4,9 +4,9 @@ import { staffAssignmentUpdateModel } from "@/lib/model/staffAssignmentUpdateMod
 
 export type staffAssignmentResponse = {
   id: number;
-  staffId: number;
+  staffId: string;
   staffName: string;
-  shiftCode: string;
+  shiftId: string;
   assignedDate: string;
   createdAt: string;        
   updatedAt: string; 
