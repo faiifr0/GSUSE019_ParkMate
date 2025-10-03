@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import park.management.com.vn.entity.ParkBranch;
@@ -33,6 +36,8 @@ public class VoucherServiceImpl implements VoucherService {
     private final VoucherUsageRepository usageRepo;
     private final ParkBranchRepository parkBranchRepo;
     private final VoucherMapper mapper;    
+
+    private static final Logger log = LoggerFactory.getLogger(VoucherServiceImpl.class);
 
     @Override
     @Transactional
@@ -69,6 +74,9 @@ public class VoucherServiceImpl implements VoucherService {
         BigDecimal byPercent = subtotal.multiply(v.getPercent());
         BigDecimal cap = v.getMaxDiscount().min(MAX_LIMIT); // extra guard
         BigDecimal discount = byPercent.min(cap);
+
+        log.info("[VoucherService] validateAndPrice: subtotal={}, percent={}, byPercent={}, cap={}, discount={}",
+         subtotal, v.getPercent(), byPercent, cap, discount);
 
         if (discount.signum() < 0) discount = BigDecimal.ZERO;
         return new Result(discount, v);

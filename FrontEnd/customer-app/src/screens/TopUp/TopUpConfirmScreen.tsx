@@ -4,13 +4,15 @@ import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../navigation/types";
 import { WebView } from "react-native-webview";
 import colors from "../../constants/colors";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-type TopUpRouteProp = RouteProp<RootStackParamList, "TopUp">;
+type TopUpRoute = RouteProp<RootStackParamList, "TopUp">;
+type TopUpNavigation = NativeStackNavigationProp<RootStackParamList, "TopUp">;
 
 export default function TopUpConfirmScreen() {
   // Tạo URL trả về và hủy bỏ  
-  const route = useRoute<TopUpRouteProp>();
-  const navigation = useNavigation();
+  const route = useRoute<TopUpRoute>();
+  const navigation = useNavigation<TopUpNavigation>();
   const { walletId, amount, checkoutUrl, orderCode } = route.params;
 
   return (
@@ -41,6 +43,10 @@ export default function TopUpConfirmScreen() {
       </TouchableOpacity>
       )}
 
+      {/* Nút trở về ví */}
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("WalletTopupSuccessScreen")}>
+        <Text style={styles.buttonText}>Hoàn tất nạp tiền</Text>
+      </TouchableOpacity>
 
       {/* Nút trở về ví */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>

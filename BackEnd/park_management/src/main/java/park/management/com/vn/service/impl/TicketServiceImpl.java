@@ -2,6 +2,9 @@ package park.management.com.vn.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +50,8 @@ public class TicketServiceImpl implements TicketService {
     private final VoucherService voucherService;                 // << NEW
 
     private final TicketMapper ticketMapper;
+
+    private static final Logger log = LoggerFactory.getLogger(TicketServiceImpl.class);
 
     @Override
     public TicketOrder getTicketOrderById(Long id) {
@@ -138,8 +143,14 @@ public class TicketServiceImpl implements TicketService {
         BigDecimal voucherDiscount = voucherResult.discountAmount();
         Voucher appliedVoucher = voucherResult.voucher();
 
+        log.info("[TicketService] voucherDiscount={}, appliedVoucher={}",
+         voucherDiscount, (appliedVoucher != null ? appliedVoucher.getCode() : "N/A"));
+
         BigDecimal netAfterVoucher = total.subtract(voucherDiscount);
         if (netAfterVoucher.signum() < 0) netAfterVoucher = BigDecimal.ZERO;
+
+        log.info("[TicketService] netAfterVoucher={}",
+         netAfterVoucher);
 
         // ### LEGACY CODE ###
         // 4) Branch promotion (if you still keep it)
@@ -198,7 +209,7 @@ public class TicketServiceImpl implements TicketService {
             BigDecimal unitPrice = ticketType.getBasePrice();
             //BulkPricingRule rule = this.findBulkPricingRuleByTicketTypeId(ticketType.getId()).orElse(null);
             // don't understand how this works
-            int discountPercent = 0;
+            int discountPercent = (appliedVoucher != null) ? appliedVoucher.getPercent().intValue() * 100 : 0;
             BigDecimal finalPrice = this.calculateDiscountedPrice(unitPrice, quantity, discountPercent);
 
             TicketDetail ticketDetail = TicketDetail.builder()
