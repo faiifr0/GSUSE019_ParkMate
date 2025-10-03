@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Platform, ActivityIndicator } from "react-native";
 import { RootStackParamList } from "../../navigation/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { walletService } from "../../services/walletService";
+import topupService from "../../services/topupService";
 type WalletTopupSuccessProps = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
@@ -20,7 +20,7 @@ export default function WalletTopupSuccessScreen({ navigation }: WalletTopupSucc
 
   useEffect(() => {
     try {
-      const res = walletService.settleOrderCode(parseInt(orderCode));
+      const res = topupService.settleOrderCode(parseInt(orderCode));
       console.log("Settle orderCode result:", res);
       // Xoá orderCode đã dùng
       if (Platform.OS === "web") localStorage.removeItem("orderCode");

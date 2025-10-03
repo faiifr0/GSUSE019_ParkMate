@@ -1,21 +1,18 @@
 // src/screens/Wallet/WalletScreen.tsx
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, TextInput, Platform } from "react-native";
-import { walletService } from "../../services/walletService";
-import { Wallet } from "../../types/Wallet";
 import { Transaction } from "../../types/Transaction"; // Update the path as needed
 import colors from "../../constants/colors";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../navigation/types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useAuth } from "../../hooks/useAuth";
 import { transactionService } from "../../services/transactionService";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import { useWallet } from "../../hooks/useWallet";
 import { getWalletId } from "../../api/axiosClient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import topupService from "../../services/topupService";
 
 type WalletScreenProp = NativeStackNavigationProp<RootStackParamList, "Wallet">;
 
@@ -71,7 +68,7 @@ export default function WalletScreen() {
       ? "http://localhost:8081/app/wallet/success" // ### still local here
       : "parkmate://app/wallet/success";
 
-      const { checkoutUrl, paymentLinkId, orderCode } = await walletService.topUp(walletId, amount, returnUrl, "parkmate://wallet/cancel");
+      const { checkoutUrl, paymentLinkId, orderCode } = await topupService.topUp(walletId, amount, returnUrl, "parkmate://app/wallet/cancel");
 
       console.log("Top-up initiated, checkoutUrl:", checkoutUrl, "orderCode:", orderCode);
 
