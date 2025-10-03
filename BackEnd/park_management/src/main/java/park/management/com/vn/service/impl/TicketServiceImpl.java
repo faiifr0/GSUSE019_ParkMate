@@ -210,6 +210,8 @@ public class TicketServiceImpl implements TicketService {
             //BulkPricingRule rule = this.findBulkPricingRuleByTicketTypeId(ticketType.getId()).orElse(null);
             // don't understand how this works
             int discountPercent = (appliedVoucher != null) ? appliedVoucher.getPercent().intValue() * 100 : 0;
+            log.info("[TicketService] appliedVoucher Percent={}", appliedVoucher != null ? appliedVoucher.getPercent() : "N/A");
+            log.info("[TicketService] discountPercent={}", discountPercent);
             BigDecimal finalPrice = this.calculateDiscountedPrice(unitPrice, quantity, discountPercent);
 
             TicketDetail ticketDetail = TicketDetail.builder()

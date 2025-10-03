@@ -15,9 +15,10 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface TicketMapper {
 
-    @Mapping(target = "ticketId", source = "ticketOrder.id")
+    @Mapping(target = "orderId", source = "ticketOrder.id")
     @Mapping(target = "status", source = "ticketOrder.status")
-    @Mapping(target = "details", expression = "java(toDetailResponseList(ticketDetails, ticketOrder.getTicketDate()))")
+    @Mapping(target = "details", expression = "java(toDetailResponseList(ticketDetails, ticketOrder.getTicketDate()))")    
+    @Mapping(target = "finalAmount", source = "ticketOrder.finalAmount")
     TicketResponse toResponse(TicketOrder ticketOrder, List<TicketDetail> ticketDetails);
 
     @Named("toDetailResponseListWithDate")
