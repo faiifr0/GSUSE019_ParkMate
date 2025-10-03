@@ -1,10 +1,10 @@
-// src/redux/userSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Platform } from "react-native";
+import { UserResponse } from "../types/User"; // ✅ import UserResponse
 
 interface UserState {
   token: string | null;
-  userInfo: any | null;
+  userInfo: UserResponse | null; // ✅ thay any bằng UserResponse
 }
 
 const initialState: UserState = {
@@ -18,15 +18,13 @@ const userSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ token: string | null; userInfo: any | null }>
+      action: PayloadAction<{ token: string | null; userInfo: UserResponse | null }>
     ) => {
       state.token = action.payload.token;
       state.userInfo = action.payload.userInfo;
 
-      // Lưu vào localStorage nếu chạy web
       if (Platform.OS === "web") {
-        if (action.payload.token)
-          localStorage.setItem("token", action.payload.token);
+        if (action.payload.token) localStorage.setItem("token", action.payload.token);
         if (action.payload.userInfo)
           localStorage.setItem("userInfo", JSON.stringify(action.payload.userInfo));
       }
@@ -40,6 +38,8 @@ const userSlice = createSlice({
         localStorage.removeItem("userInfo");
         localStorage.removeItem("userId");
         localStorage.removeItem("walletId");
+        localStorage.removeItem("user");
+        localStorage.removeItem("orderCode");
       }
     },
   },
