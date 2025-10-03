@@ -49,7 +49,7 @@ gemini:
 app:
   internal-topup-confirm-url: http://localhost:8080/api/local/topups/confirm
   webhook:
-    base-url: "https://parkmanage.onrender.com"  # kept as-is
+    base-url: "https://gsuse019-parkmate-8c7n.onrender.com"  # kept as-is
     path: /api/payment/payos/webhook
   mail:
     fromName: Park Management
