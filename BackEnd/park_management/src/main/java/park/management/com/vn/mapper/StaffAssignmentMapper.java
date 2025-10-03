@@ -11,6 +11,7 @@ public interface StaffAssignmentMapper {
     StaffAssignment toEntity(StaffAssignmentRequest request);
 
     @Mapping(target = "staffName", source = "staff.userEntity.username")
+    @Mapping(target = "staffId", source = "staff.id")
     @Mapping(target = "shiftId", source = "shift.id")
     StaffAssignmentResponse toResponse(StaffAssignment entity);
 }

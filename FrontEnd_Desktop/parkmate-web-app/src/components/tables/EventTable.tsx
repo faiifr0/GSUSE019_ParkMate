@@ -352,11 +352,11 @@ export default function EventTable() {
           </div>
         </Modal>
 
-        <Pagination 
+        {/* <Pagination 
             currentPage={1}
             totalPages={1}
             onPageChange={handlePageChange}
-        />     
+        />      */}
       </div>
     </div>
   );

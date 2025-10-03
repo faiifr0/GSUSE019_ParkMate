@@ -120,11 +120,11 @@ export default function UserTable() {
         </div>
       </div>
 
-      <Pagination 
+      {/* <Pagination 
         currentPage={4}
         totalPages={7}
         onPageChange={handlePageChange}
-      />
+      /> */}
     </div>
   );
 }

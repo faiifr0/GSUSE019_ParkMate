@@ -48,6 +48,7 @@ export const EcommerceMetrics = () => {
       const currentYear = now.getFullYear();
 
       const newOrdersThisMonth = allOrders.filter(order =>
+        order.status === "PAID" &&
         new Date(order.details[0].ticketDate).getMonth() === currentMonth &&
         new Date(order.details[0].ticketDate).getFullYear() === currentYear
       );

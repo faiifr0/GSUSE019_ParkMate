@@ -287,11 +287,11 @@ export default function ParkBranchTicketTable() {
           </div>
         </Modal>
 
-        <Pagination 
+        {/* <Pagination 
           currentPage={4}
           totalPages={7}
           onPageChange={handlePageChange}
-        />     
+        />      */}
       </div>
     </div>
   );

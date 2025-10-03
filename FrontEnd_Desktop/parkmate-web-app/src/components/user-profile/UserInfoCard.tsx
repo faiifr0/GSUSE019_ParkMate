@@ -1,67 +1,174 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { notFound, useParams } from "next/navigation";
+import userService, { UserResponse } from "@/lib/services/userService";
+import { userUpdateModel } from "@/lib/model/userUpdateModel";
+import parkBranchService, { parkBranchResponse } from "@/lib/services/parkBranchService";
+import toast from "react-hot-toast";
+import { format } from "date-fns"
+import axios, { Axios, AxiosError } from "axios";
+import { useAuth } from "../context/AuthContext";
 
 export default function UserInfoCard() {
+  const { currUser } = useAuth();
+
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
+
+  const [user, setUser] = useState<UserResponse>();
+  const [parkBranches, setParkBranches] = useState<parkBranchResponse[]>([]);
+  const [formData, setFormData] = useState<userUpdateModel>({});
+
+  // Fetch Current User
+  const fetchUser = async () => {    
+    try {
+      const response = await userService.getUserById(currUser!.userId!.toString());
+      setUser(response);
+    } catch (err) {
+      console.log(err);      
+    }
+  }
+
+  // Fetch Park Branches
+  const fetchParkBranches = async () => {
+    try {
+      const response = await parkBranchService.getAll();
+      setParkBranches(response);
+    } catch (err) {
+      console.log(err);
+      const message = 'Fetch danh sách chi nhánh thất bại!';
+      toast
+      .error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
+    } finally {
+      // do something
+    }
+  }
+
+  useEffect(() => {     
+    if (!currUser?.userId) return;
+    
+    fetchUser();    
+    fetchParkBranches();
+  }, [currUser])
+
+  const openEditModal = () => {      
+      setFormData({        
+        username: user?.username ?? "",
+        email: user?.email ?? "",        
+        parkBranchId: user?.parkBranchId,        
+        fullName: user?.fullName ?? "",
+        dob: user?.dob ?? "",
+        phoneNumber: user?.phoneNumber ?? ""
+    });
+    openModal();
   };
+
+  const handleSave = async () => {    
+    try {
+      await userService.updateUser(currUser!.userId!.toString(), formData);
+      fetchUser();
+
+      const message = 'Cập nhật thông tin người dùng thành công!';
+      toast.success(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
+
+      closeModal();
+    } catch (err) {
+      let message = 'Cập nhật thông tin người dùng thất bại! ';
+
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
+        message += err.response.data.message;
+      }
+      
+      toast.error(message, {
+        duration: 3000,
+        position: 'top-right',
+      });
+      
+      closeModal();
+    }
+  };
+
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-            Personal Information
+            Thông tin cá nhân
           </h4>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 mt-8">
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Name
+                Tên người dùng
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Something
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Role
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Park Manager
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Email address
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                manager@gmail.com
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 123 456 78
+                {user?.username}
               </p>
             </div>            
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Email
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.email}
+              </p>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Tên đầy đủ
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.fullName || "(Chưa có)"}
+              </p>
+            </div>                                 
           </div>
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-7 2xl:gap-x-32 mt-8">
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                SĐT
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.phoneNumber || "(Chưa có)"}
+              </p>
+            </div>            
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Ngày sinh
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.dob ? format(new Date(user.dob), "dd-MM-yyyy") : "(Chưa có)"}
+              </p>
+            </div>
+
+            {(user?.roles?.[0]?.roleName === "MANAGER") && (
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Quản Lý Chi Nhánh
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {user?.parkBranchName ? user.parkBranchName : '(Chưa có)'}
+              </p>
+            </div>
+            )}                                 
+          </div>         
         </div>
 
         <button
-          onClick={openModal}
+          onClick={openEditModal}
           className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
         >
           <svg
@@ -79,7 +186,7 @@ export default function UserInfoCard() {
               fill=""
             />
           </svg>
-          Edit
+          Cập nhật
         </button>
       </div>
 
@@ -87,53 +194,106 @@ export default function UserInfoCard() {
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Personal Information
+              Cập nhật thông tin người dùng
             </h4>
             <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
+              Cập nhật thông tin của người dùng hệ thống ParkMate
             </p>
           </div>
-          <form className="flex flex-col">
-            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">              
-              <div className="mt-7">
-                {/* <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Personal Information
-                </h5> */}
-
+          <form 
+            className="flex flex-col"
+            onSubmit = {(e) => {
+              e.preventDefault();
+          }}>
+            <div className="custom-scrollbar h-[275x] overflow-y-auto px-2 pb-3">              
+              <div>               
                 <div className="grid grid-cols-1 gap-x-12 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Name</Label>
-                    <Input type="text" defaultValue="Something" />
+                    <Label>Tên người dùng</Label>
+                    <Input 
+                      type="text" 
+                      value={formData?.username !== undefined ? formData.username : ""}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Role</Label>
-                    <Input type="text" defaultValue="Manager" />
+                    <Label>Email</Label>
+                    <Input 
+                      type="text" 
+                      value={formData?.email !== undefined ? formData.email : ""}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="email@gmail.com"
+                    />
+                  </div>                                    
+                </div>
+
+                <div className="grid grid-cols-1 gap-x-12 gap-y-5 lg:grid-cols-2 mt-4">
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>Tên đầy đủ</Label>
+                    <Input 
+                      type="text" 
+                      value={formData?.fullName !== undefined ? formData.fullName : ""}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address</Label>
-                    <Input type="text" defaultValue="manager@gmail.com" />
-                  </div>
+                    <Label>Ngày sinh</Label>
+                    <Input 
+                      type="date" 
+                      value={formData?.dob !== undefined ? formData.dob : ""}
+                      onChange={(e) => setFormData({ ...formData, dob: e.target.value })}                      
+                    />
+                  </div>                                    
+                </div>
 
+                <div className="grid grid-cols-1 gap-x-12 gap-y-5 lg:grid-cols-2 mt-4">  
+                  {(user?.roles?.[0]?.roleName === "MANAGER") && (                
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
-                    <Input type="text" defaultValue="+09 123 456 78" />
+                    <Label>Quản lý chi nhánh</Label>
+                    <select            
+                      value={formData?.parkBranchId ?? ""}            
+                      className="block w-full rounded-md border border-gray-300 bg-white px-3 py-[12px] text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      onChange={(e) => setFormData({ ...formData, parkBranchId: Number(e.target.value) })}
+                      disabled
+                    >
+                      <option value="">
+                        -- Không quản lý chi nhánh nào --
+                      </option>
+
+                      {parkBranches.map(branch => (
+                      <option key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </option>
+                      ))}
+                    </select>
+                  </div>
+                  )} 
+                                    
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>SĐT</Label>
+                    <Input 
+                      type="text" 
+                      value={formData?.phoneNumber !== undefined ? formData.phoneNumber : ""}
+                      onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}   
+                      placeholder="0912345678"                   
+                    />
                   </div>                  
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
+                Đóng
               </Button>
               <Button size="sm" onClick={handleSave}>
-                Save Changes
+                Lưu thay đổi
               </Button>
             </div>
           </form>
         </div>
       </Modal>
     </div>
-  );
+  );  
 }

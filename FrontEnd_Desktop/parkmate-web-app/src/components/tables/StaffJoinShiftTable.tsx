@@ -43,7 +43,7 @@ export default function StaffJoinShiftTable() {
   const fetchStaffs = async () => {
     try {
       const response = await branchStaffService.getAll();                                                                   
-      setStaffs(response);
+      setStaffs(response.filter(s => s.parkBranchId === Number(id)));      
     } catch (err) {
       console.log(err);
       const message = 'Fetch nhân viên thất bại!';
@@ -58,8 +58,12 @@ export default function StaffJoinShiftTable() {
   
   const fetchStaffAssignments = async () => {
     try {
-      const response = await staffAssignmentService.getAll();                                                                  
-      setStaffAssignments(response.filter(a => a.assignedDate === rawDate));
+      const response = await branchStaffService.getAll();                                                                   
+      const branchStaffs = response.filter(s => s.parkBranchId === Number(id));
+      const staffIds = branchStaffs.map(s => s.id);
+
+      const res = await staffAssignmentService.getAll();                                                                  
+      setStaffAssignments(res.filter(a => a.assignedDate === rawDate && staffIds.includes(a.staffId)));
     } catch (err) {
       console.log(err);
       const message = 'Fetch phân ca thất bại!';

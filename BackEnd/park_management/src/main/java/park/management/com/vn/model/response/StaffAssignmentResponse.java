@@ -14,6 +14,7 @@ import jakarta.persistence.Column;
 @Data
 public class StaffAssignmentResponse {
     private Long id;
+    private String staffId;
     private String shiftId;
     private String staffName;    
     private LocalDate assignedDate;
