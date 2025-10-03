@@ -13,6 +13,7 @@ export type RootStackParamList = {
     TicketList: { branchId: number }; // ✅ thêm dòng này
     OrderConfirm: { branchId: number; cart: any[] };
     OrderDetail: { orderId: number }; 
+    OrderList: undefined;
   Profile: undefined;
   Promotion: undefined;
   ChatBox: undefined;
@@ -27,7 +28,7 @@ export type RootStackParamList = {
 
 export type BottomTabParamList = {
   Home: undefined;
-  TicketList: undefined;
+  OrderList: undefined;
   Wallet: undefined;
   Profile: undefined;
 };

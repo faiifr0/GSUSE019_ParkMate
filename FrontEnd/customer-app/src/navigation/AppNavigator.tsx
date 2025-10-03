@@ -28,6 +28,8 @@ import TicketListScreen from "../screens/Ticket/TicketListScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
 import WalletTopupSuccessScreen from "../screens/Wallet/WalletTopupSuccessScreen";
 import WalletTopupCancelScreen from "../screens/Wallet/WalletTopupCancelScreen";
+import OrderConfirmScreen from "../screens/Order/OrderConfirmScreen";
+import OrderDetailScreen from "../screens/Order/OrderDetailScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -61,6 +63,8 @@ function MainAppStack() {
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="WalletTopupSuccessScreen" component={WalletTopupSuccessScreen} />
       <Stack.Screen name="WalletTopupCancelScreen" component={WalletTopupCancelScreen} />
+      <Stack.Screen name="OrderConfirm" component={OrderConfirmScreen} />
+      <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
     </Stack.Navigator>
   );
 }

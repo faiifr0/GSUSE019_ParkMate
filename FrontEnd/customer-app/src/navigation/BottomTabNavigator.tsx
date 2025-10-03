@@ -17,6 +17,7 @@ import ChatBoxScreen from "../screens/ChatBox/ChatBox";
 import ContactScreen from "../screens/Contact/ContactScreen";
 
 import type { RootStackParamList, BottomTabParamList } from "./types";
+import OrderListScreen from "../screens/Order/OrderListScreen";
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -65,7 +66,7 @@ export default function BottomTabNavigator() {
         tabBarIcon: ({ color }) => {
           let iconName: keyof typeof Ionicons.glyphMap = "home";
           if (route.name === "Home") iconName = "home";
-          else if (route.name === "TicketList") iconName = "ticket";
+          else if (route.name === "OrderList") iconName = "receipt-outline";
           else if (route.name === "Wallet") iconName = "wallet";
           else if (route.name === "Profile") iconName = "person";
           return <Ionicons name={iconName} size={24} color={color} />;
@@ -78,8 +79,8 @@ export default function BottomTabNavigator() {
         options={{ title: "Trang chủ" }}
       />
       <Tab.Screen
-        name="TicketList"
-        component={TicketListScreen}
+        name="OrderList"
+        component={OrderListScreen} // 👈 đổi từ TicketListScreen thành OrderListScreen
         options={{ title: "Đơn/Vé" }} // 👈 gộp Orders + Tickets
       />
       <Tab.Screen
