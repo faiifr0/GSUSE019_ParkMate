@@ -43,10 +43,14 @@ export default function TopUpConfirmScreen() {
       </TouchableOpacity>
       )}
 
-      {/* Nút trở về ví */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("WalletTopupSuccessScreen")}>
-        <Text style={styles.buttonText}>Hoàn tất nạp tiền</Text>
-      </TouchableOpacity>
+      {Platform.OS !== "web" && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("WalletTopupSuccessScreen")}
+        >
+          <Text style={styles.buttonText}>Hoàn tất nạp tiền</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Nút trở về ví */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>

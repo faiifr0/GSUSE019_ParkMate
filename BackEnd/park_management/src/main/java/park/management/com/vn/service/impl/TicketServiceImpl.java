@@ -247,6 +247,7 @@ public class TicketServiceImpl implements TicketService {
             TransactionRecord tr = new TransactionRecord();
             tr.setWallet(wallet);
             tr.setAmount(net.negate().doubleValue());
+            tr.setType("Trả tiền đơn mua vé ngày " + ticketDate + " của chi nhánh " + branch.getName());
             transactionRecordRepository.save(tr);
 
             savedOrder.setStatus(TicketStatus.PAID);

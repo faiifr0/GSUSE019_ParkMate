@@ -82,9 +82,9 @@ export default function AppNavigatorInnerBase() {
     const handleDeepLink = (event: { url: string }) => {
       const data = Linking.parse(event.url);
       // Example: navigate based on the path
-      if (data.path === "app/wallet/success") {
+      if (data.path === "wallet/success") {
         navigationRef.current?.navigate("WalletTopupSuccessScreen");
-      } else if (data.path === "app/wallet/cancel") {
+      } else if (data.path === "wallet/cancel") {
         navigationRef.current?.navigate("WalletTopupCancelScreen");
       }
     };
@@ -221,15 +221,15 @@ export default function AppNavigatorInnerBase() {
             BranchDetail: "branch/:id",
             Promotion: "promotion",
             ChatBox: "chat",
-            Contact: "contact",
-            WalletTopupSuccessScreen: "wallet/success",
-            WalletTopupCancelScreen: "wallet/cancel",
+            Contact: "contact",            
           },
         },
         Notifications: "notifications",
         NotificationDetail: "notification/:id",
         Wallet: "wallet",
         TopUp: "topup",
+        WalletTopupSuccessScreen: "wallet/success",
+        WalletTopupCancelScreen: "wallet/cancel",
       },
     },
     getInitialURL: async () => {

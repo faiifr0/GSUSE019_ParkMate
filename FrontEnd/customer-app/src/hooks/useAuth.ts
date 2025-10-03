@@ -7,8 +7,6 @@ import { walletService } from "../services/walletService";
 import { Wallet } from "../types/Wallet";
 import { useDispatch } from "react-redux";
 import { setCredentials, logout as logoutRedux } from "../redux/userSlice";
-import { Platform } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const useAuth = () => {
   const [user, setUserState] = useState<UserResponse | null>(null);
@@ -23,11 +21,13 @@ export const useAuth = () => {
     const userData = res.data;
     setUserState(userData);
     await setUser(userData);
+    console.log("[useAuth] Fetched User: ", userData);
 
     let walletData: Wallet | null = null;
     if (userData.walletId) {
       await setWalletId(userData.walletId);
       walletData = await walletService.getWalletById(userData.walletId);
+      console.log("[useAuth] Fetched Wallet: ", walletData);
       setWalletState(walletData);
     }
     return { userData, walletData };

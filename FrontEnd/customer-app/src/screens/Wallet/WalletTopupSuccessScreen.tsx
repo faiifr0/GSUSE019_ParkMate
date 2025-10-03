@@ -4,34 +4,57 @@ import { View, Text, Platform, ActivityIndicator } from "react-native";
 import { RootStackParamList } from "../../navigation/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import topupService from "../../services/topupService";
+
 type WalletTopupSuccessProps = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
 
 export default function WalletTopupSuccessScreen({ navigation }: WalletTopupSuccessProps) {
-  var orderCode = "";
+  const [orderCode, setOrderCode] = useState("");
   const [countdown, setCountdown] = useState(5);
 
-  if (Platform.OS === "web") localStorage.getItem("orderCode");
-  else AsyncStorage.getItem("orderCode");
-
-  console.log("Nạp tiền thành công, orderCode:", orderCode);
-  // run some success logic here, e.g., refresh wallet balance
-
   useEffect(() => {
-    try {
-      const res = topupService.settleOrderCode(parseInt(orderCode));
-      console.log("Settle orderCode result:", res);
-      // Xoá orderCode đã dùng
-      if (Platform.OS === "web") localStorage.removeItem("orderCode");
-      else AsyncStorage.removeItem("orderCode");
-      setTimeout(() => {
-        navigation.navigate("Profile");
-      }, 5000);
-    } catch (error) {
-      console.error("Lỗi khi xử lý nạp tiền:", error);
+    (async () => {
+      let code = "";
+      if (Platform.OS === "web") {
+        code = localStorage.getItem("orderCode") || "None";
+      } else {
+        code = await AsyncStorage.getItem("orderCode") || "None";
+      }
+
+      setOrderCode(code);
+      console.log("Retrieved orderCode:", code);
+    })();
+  }, [])
+
+  useEffect(() => {    
+    if (orderCode && orderCode != "None") {
+      console.log("Nạp tiền thành công, orderCode:", orderCode);
     }
-  }, [navigation]);
+  }, [orderCode]);
+  
+  // run some success logic here, e.g., refresh wallet balance
+  useEffect(() => {
+    if (!orderCode || orderCode === "None") {
+      console.log("Không tìm thấy orderCode, bỏ qua xử lý nạp tiền.");      
+      return;
+    }
+
+    (async () => {
+      try {
+        const res = await topupService.settleOrderCode(parseInt(orderCode));
+        console.log("Settle orderCode result:", res);
+        // Xoá orderCode đã dùng
+        if (Platform.OS === "web") localStorage.removeItem("orderCode");
+        else await AsyncStorage.removeItem("orderCode");        
+        setTimeout(() => {
+          navigation.navigate("Profile");
+        }, 5000);
+      } catch (error) {
+        console.error("Lỗi khi xử lý nạp tiền:", error);
+      }
+    })();
+  }, [orderCode]);
 
   useEffect(() => {
     const interval = setInterval(() => {

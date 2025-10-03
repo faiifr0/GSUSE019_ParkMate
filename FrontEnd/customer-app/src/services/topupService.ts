@@ -30,7 +30,7 @@ export const topupService = {
 
   settleOrderCode: async (orderCode: number): Promise<SettleResponse> => {
     const response = await axiosClient.post(
-      `/api/payment/payos/webhook/dev-complete/${orderCode}`
+      `/payment/payos/webhook/dev-complete/${orderCode}`
     );
     return response.data;
   },

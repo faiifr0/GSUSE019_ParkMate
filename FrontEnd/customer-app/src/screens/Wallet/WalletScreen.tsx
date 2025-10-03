@@ -37,11 +37,11 @@ export default function WalletScreen() {
   const fetchWalletData = async () => {
     try {
       setLoading(true);
-      //const t = await transactionService.getOfUser();
-      //setTransactions();
-      const walletId = await getWalletId();
+      const t = await transactionService.getOfUser();
+      setTransactions(t);
+      const walletId = await getWalletId();      
       setWalletId(walletId!);
-      //console.log("Fetched transactions:", t);
+      console.log("Fetched transactions:", t);
       console.log("Fetched walletId:", walletId);
     } catch (err) {
       console.error(err);
@@ -65,10 +65,10 @@ export default function WalletScreen() {
       console.log("Initiating top-up for walletId:", walletId, "amount:", amount);
 
       const returnUrl = Platform.OS === "web"
-      ? "http://localhost:8081/app/wallet/success" // ### still local here
-      : "parkmate://app/wallet/success";
+      ? "http://localhost:8081/wallet/success" // ### still local here
+      : "parkmate://wallet/success";
 
-      const { checkoutUrl, paymentLinkId, orderCode } = await topupService.topUp(walletId, amount, returnUrl, "parkmate://app/wallet/cancel");
+      const { checkoutUrl, paymentLinkId, orderCode } = await topupService.topUp(walletId, amount, returnUrl, "parkmate://wallet/cancel");
 
       console.log("Top-up initiated, checkoutUrl:", checkoutUrl, "orderCode:", orderCode);
 
@@ -133,7 +133,7 @@ export default function WalletScreen() {
         Lịch sử giao dịch
       </Text>
       <FlatList
-        data={transactions}
+        data={[...transactions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())}
         keyExtractor={(item) => item.id.toString()}
         style={{ marginTop: 12 }}
         renderItem={({ item }) => (

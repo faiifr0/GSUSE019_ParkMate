@@ -7,10 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import park.management.com.vn.constant.TopupStatus;
+import park.management.com.vn.entity.TransactionRecord;
 import park.management.com.vn.entity.Wallet;
 import park.management.com.vn.entity.WalletTopup;
+import park.management.com.vn.repository.TransactionRecordRepository;
 import park.management.com.vn.repository.WalletRepository;
 import park.management.com.vn.repository.WalletTopupRepository;
+import park.management.com.vn.service.TransactionRecordService;
 import park.management.com.vn.service.WalletTopupService;
 import vn.payos.PayOS;
 import vn.payos.type.Webhook;
@@ -62,6 +65,7 @@ public class PayOSWebhookController {
     private final ObjectMapper mapper;
     private final WalletTopupRepository topupRepo;
     private final WalletRepository walletRepo;
+    private final TransactionRecordRepository transRepo;
 
     @PostMapping("/webhook/dev-complete/{orderCode}")
     public ResponseEntity<ObjectNode> devComplete(@PathVariable long orderCode) {
@@ -83,6 +87,12 @@ public class PayOSWebhookController {
         topup.setStatus(TopupStatus.SUCCEEDED);
         topupRepo.save(topup);
         walletRepo.save(w);
+
+        TransactionRecord tr = new TransactionRecord();
+        tr.setWallet(w);
+        tr.setAmount(paid.plus().doubleValue());
+        tr.setType("Nạp tiền vào ví");
+        transRepo.save(tr);
 
         log.info("[DEV] Forced success. orderCode={}, walletId={}, +{}, newBalance={}",
             orderCode, w.getId(), paid, w.getBalance());
