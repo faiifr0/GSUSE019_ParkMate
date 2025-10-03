@@ -10,11 +10,11 @@ export interface BranchReview {
   updatedAt: string;
 }
 
-// DTO khi khách tạo đánh giá
+// DTO khi tạo đánh giá mới
 export interface CreateBranchReviewDto {
   userId: number;
   branchId: number;
   rating: number;
   comment: string;
-  approved?: boolean; // mặc định true/false do backend quyết định
+  approved?: boolean; // optional, backend có thể set mặc định
 }
