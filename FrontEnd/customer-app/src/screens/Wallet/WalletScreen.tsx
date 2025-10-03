@@ -68,8 +68,8 @@ export default function WalletScreen() {
       console.log("Initiating top-up for walletId:", walletId, "amount:", amount);
 
       const returnUrl = Platform.OS === "web"
-      ? "http://localhost:8081/wallet/success" // ### still local here
-      : "parkmate://wallet/success";
+      ? "http://localhost:8081/app/wallet/success" // ### still local here
+      : "parkmate://app/wallet/success";
 
       const { checkoutUrl, paymentLinkId, orderCode } = await walletService.topUp(walletId, amount, returnUrl, "parkmate://wallet/cancel");
 

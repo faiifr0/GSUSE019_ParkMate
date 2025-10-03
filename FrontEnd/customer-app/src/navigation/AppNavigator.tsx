@@ -82,9 +82,9 @@ export default function AppNavigatorInnerBase() {
     const handleDeepLink = (event: { url: string }) => {
       const data = Linking.parse(event.url);
       // Example: navigate based on the path
-      if (data.path === "wallet/success") {
+      if (data.path === "app/wallet/success") {
         navigationRef.current?.navigate("WalletTopupSuccessScreen");
-      } else if (data.path === "wallet/cancel") {
+      } else if (data.path === "app/wallet/cancel") {
         navigationRef.current?.navigate("WalletTopupCancelScreen");
       }
     };
