@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
+import { Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { loginUser, logoutUser, registerUser, getUserById, updateUser } from "../services/userService";
 import { UserRequest, UserResponse } from "../types/User";
 import { setWalletId, decodeJWT, setToken } from "../api/axiosClient";
@@ -15,6 +17,21 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const saveToken = async (token: string | null) => {
+    if (Platform.OS === "web") {
+      if (token) localStorage.setItem("token", token);
+      else localStorage.removeItem("token");
+    } else {
+      if (token) await AsyncStorage.setItem("token", token);
+      else await AsyncStorage.removeItem("token");
+    }
+  };
+
+  const getToken = async () => {
+    if (Platform.OS === "web") return localStorage.getItem("token");
+    return await AsyncStorage.getItem("token");
+  };
+
   const fetchUser = useCallback(async (id: number) => {
     const res = await getUserById(id);
     const userData: UserResponse = res.data;
@@ -30,33 +47,32 @@ export const useAuth = () => {
     return { userData, walletData };
   }, [dispatch]);
 
-const login = useCallback(async (email: string, password: string) => {
-  setLoading(true);
-  try {
-    const res = await loginUser(email, password);
-    const token: string | null = res.data?.accessToken ?? null;
-    if (!token) throw new Error("No token");
+  const login = useCallback(async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      const res = await loginUser(email, password);
+      const token: string | null = res.data?.accessToken ?? null;
+      if (!token) throw new Error("No token");
 
-    await setToken(token);
-    const decoded: any = decodeJWT(token);
-    if (!decoded?.userId) throw new Error("No userId in token");
+      await setToken(token);
+      await saveToken(token);
 
-    // 🔹 Lưu decoded JWT vào userInfoCustomer
-    dispatch(setCredentials({ userInfoCustomer: decoded }));
+      const decoded: any = decodeJWT(token);
+      if (!decoded?.userId) throw new Error("No userId in token");
 
-    // 🔹 Fetch dữ liệu user đầy đủ từ API
-    const { userData, walletData } = await fetchUser(decoded.userId);
-    dispatch(setCredentials({ token, userInfo: userData }));
+      dispatch(setCredentials({ userInfoCustomer: decoded }));
 
-    return { success: true, token, user: userData, wallet: walletData };
-  } catch (err: any) {
-    setError(err.message ?? "Login failed");
-    return { success: false, token: null, user: null, error: err.message ?? "Login failed" };
-  } finally {
-    setLoading(false);
-  }
-}, [fetchUser, dispatch]);
+      const { userData, walletData } = await fetchUser(decoded.userId);
+      dispatch(setCredentials({ token, userInfo: userData }));
 
+      return { success: true, token, user: userData, wallet: walletData };
+    } catch (err: any) {
+      setError(err.message ?? "Login failed");
+      return { success: false, token: null, user: null, error: err.message ?? "Login failed" };
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchUser, dispatch]);
 
   const register = useCallback(async (data: UserRequest) => {
     try {
@@ -68,7 +84,10 @@ const login = useCallback(async (email: string, password: string) => {
   }, [login]);
 
   const logout = useCallback(async () => {
-    await logoutUser();
+    try {
+      await logoutUser();
+    } catch {}
+    await saveToken(null);
     setWalletState(null);
     dispatch(logoutRedux());
   }, [dispatch]);
@@ -80,10 +99,9 @@ const login = useCallback(async (email: string, password: string) => {
     return updatedUser;
   }, [dispatch]);
 
-  // 🔹 Khi app reload: lấy token từ storage → fetch full user
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem("token");
+      const token = await getToken();
       if (token) {
         await setToken(token);
         const decoded: any = decodeJWT(token);

@@ -1,3 +1,4 @@
+// src/screens/Profile/ProfileScreen.tsx
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -11,28 +12,26 @@ import { Ionicons } from "@expo/vector-icons";
 import colors from "../../constants/colors";
 import styles from "../../styles/ProfileScreenStyles";
 import { useWallet } from "../../hooks/useWallet";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, persistor } from "../../redux/store";
-import { logout } from "../../redux/userSlice";
+import { useAuth } from "../../hooks/useAuth"; // ✅ Hook logout chính thống
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 export default function ProfileScreen({ navigation }: any) {
-  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.userInfo);
+  const { logout } = useAuth(); // ✅ dùng useAuth để gọi logout
+  const { balance: walletBalance, refreshWallet } = useWallet();
   const [loading, setLoading] = useState(false);
 
-  const { balance: walletBalance, refreshWallet } = useWallet();
-
   useEffect(() => {
-    if (user?.id) {
-      refreshWallet(); // chỉ refresh wallet thôi
-    }
+    if (user?.id) refreshWallet();
   }, [user]);
 
   const handleLogout = async () => {
-    setLoading(true);
     try {
-      dispatch(logout());
-      await persistor.flush();
+      setLoading(true);
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
     } finally {
       setLoading(false);
     }
@@ -80,14 +79,18 @@ export default function ProfileScreen({ navigation }: any) {
         </Text>
       </View>
 
-      {/* Card thông tin */}
+      {/* Card thông tin ví */}
       <View
         style={{
           margin: 16,
           padding: 16,
           borderRadius: 16,
           backgroundColor: colors.surface,
-          elevation: 2,
+          shadowColor: "#000",
+          shadowOpacity: 0.1,
+          shadowOffset: { width: 0, height: 2 },
+          shadowRadius: 4,
+          elevation: 3,
         }}
       >
         <Text style={{ fontSize: 16, marginBottom: 8, color: colors.textPrimary }}>
@@ -110,10 +113,10 @@ export default function ProfileScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      {/* Card hành động */}
+      {/* Action list */}
       <View style={{ marginHorizontal: 16, borderRadius: 16, overflow: "hidden" }}>
         <TouchableOpacity
-          style={[styles.actionItem, { backgroundColor: colors.surface }]}
+          style={[styles.actionItem, { backgroundColor: colors.surface, borderBottomWidth: 0 }]}
           onPress={() => navigation.navigate("EditProfile")}
         >
           <Ionicons name="create-outline" size={20} color={colors.primary} />
@@ -122,7 +125,7 @@ export default function ProfileScreen({ navigation }: any) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.actionItem, { backgroundColor: colors.surface }]}
+          style={[styles.actionItem, { backgroundColor: colors.surface, borderBottomWidth: 0 }]}
           onPress={() => navigation.navigate("ChangePassword")}
         >
           <Ionicons name="lock-closed-outline" size={20} color={colors.primary} />

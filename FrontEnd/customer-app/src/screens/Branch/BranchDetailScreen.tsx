@@ -238,40 +238,42 @@ export default function BranchDetailScreen({ route }: Props) {
       </Text>
       {games.length > 0 ? (
         <FlatList
-          data={games}
-          numColumns={2}
-          keyExtractor={(item) => item.id.toString()}
-          scrollEnabled={false}
-          columnWrapperStyle={{ justifyContent: "space-between", paddingHorizontal: 16 }}
-          renderItem={({ item }) => (
-            <View
-              style={{
-                flex: 1,
-                marginBottom: 16,
-                backgroundColor: "#fff",
-                borderRadius: 12,
-                padding: 12,
-                alignItems: "center",
-                elevation: 2,
-              }}
-            >
-              <Image
-                source={{ uri: item.imageUrl || "https://via.placeholder.com/100" }}
-                style={{ width: 100, height: 100, borderRadius: 12 }}
-              />
-              <Text
-                style={{
-                  marginTop: 8,
-                  fontWeight: "bold",
-                  color: colors.textPrimary,
-                }}
-                numberOfLines={1}
-              >
-                {item.name}
-              </Text>
-            </View>
-          )}
-        />
+  data={games}
+  numColumns={2}
+  keyExtractor={(item) => item.id.toString()}
+  scrollEnabled={false}
+  columnWrapperStyle={{ justifyContent: "space-between", paddingHorizontal: 16 }}
+  renderItem={({ item }) => (
+    <TouchableOpacity
+      style={{
+        flex: 1,
+        marginBottom: 16,
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        padding: 12,
+        alignItems: "center",
+        elevation: 2,
+      }}
+      onPress={() => navigation.navigate("GameDetail", { gameId: item.id })} // 👈 thêm dòng này
+    >
+      <Image
+        source={{ uri: item.imageUrl || "https://via.placeholder.com/100" }}
+        style={{ width: 100, height: 100, borderRadius: 12 }}
+      />
+      <Text
+        style={{
+          marginTop: 8,
+          fontWeight: "bold",
+          color: colors.textPrimary,
+        }}
+        numberOfLines={1}
+      >
+        {item.name}
+      </Text>
+    </TouchableOpacity>
+  )}
+/>
+
       ) : (
         <Text style={{ textAlign: "center", color: colors.textSecondary }}>
           Chi nhánh này chưa có game.

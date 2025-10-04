@@ -1,8 +1,8 @@
 // AppNavigator.tsx
 import React, { useEffect, useState, useRef } from "react";
-import { NavigationContainer, DefaultTheme, useNavigation, NavigationContainerRef } from "@react-navigation/native";
-import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StatusBar, StyleSheet, View, Platform, Text} from "react-native";
+import { NavigationContainer, DefaultTheme, NavigationContainerRef } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StatusBar, StyleSheet, View, Platform, Text } from "react-native";
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import * as SystemUI from "expo-system-ui";
 import { useSelector, useDispatch } from "react-redux";
@@ -31,9 +31,9 @@ import OrderConfirmScreen from "../screens/Order/OrderConfirmScreen";
 import OrderDetailScreen from "../screens/Order/OrderDetailScreen";
 import OrderListScreen from "../screens/Order/OrderListScreen";
 import GameDetailScreen from "../screens/Game/GameDetailScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
 export const navigationRef = React.createRef<NavigationContainerRef<any>>();
 
 function AuthStack() {
@@ -67,7 +67,6 @@ function MainAppStack() {
       <Stack.Screen name="OrderConfirm" component={OrderConfirmScreen} />
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
       <Stack.Screen name="OrderList" component={OrderListScreen} />
-
     </Stack.Navigator>
   );
 }
@@ -82,29 +81,7 @@ export default function AppNavigatorInnerBase() {
 
   const expiryTimerRef = useRef<number | null>(null);
   const inactivityTimerRef = useRef<number | null>(null);
-
   const INACTIVITY_MINUTES = 30;
-
-  useEffect(() => {
-    const handleDeepLink = (event: { url: string }) => {
-      const data = Linking.parse(event.url);
-      // Example: navigate based on the path
-      if (data.path === "wallet/success") {
-        navigationRef.current?.navigate("WalletTopupSuccessScreen");
-      } else if (data.path === "wallet/cancel") {
-        navigationRef.current?.navigate("WalletTopupCancelScreen");
-      }
-    };
-
-    const subscription = Linking.addEventListener("url", handleDeepLink);
-    return () => subscription.remove();
-  }, []);
-
-  useEffect(() => {
-    if (Platform.OS !== "web") {
-      SystemUI.setBackgroundColorAsync("#FFFFFF");
-    }
-  }, []);
 
   const clearTimers = () => {
     if (expiryTimerRef.current) {
@@ -117,10 +94,30 @@ export default function AppNavigatorInnerBase() {
     }
   };
 
-  const doLogout = () => {
-    dispatch(logout()); // ✅ Dùng action logout đã xoá cả Redux & localStorage
-    clearTimers();
-    setIsValid(false);
+  const doLogout = async () => {
+    try {
+      clearTimers();
+
+      // 1️⃣ Xóa Redux persist
+      dispatch(logout());
+
+      // 2️⃣ Xóa token ở AsyncStorage / localStorage
+      if (Platform.OS === "web") {
+        localStorage.removeItem("token");
+      } else {
+        await AsyncStorage.removeItem("token");
+      }
+
+      // 3️⃣ Force navigation về Login
+      navigationRef.current?.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      });
+
+      setIsValid(false);
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
   const resetInactivityTimer = () => {
@@ -131,58 +128,66 @@ export default function AppNavigatorInnerBase() {
   };
 
   useEffect(() => {
-    let mounted = true;
+    if (Platform.OS !== "web") {
+      SystemUI.setBackgroundColorAsync("#FFFFFF");
+    }
+  }, []);
 
-    const checkToken = async () => {
-      setChecking(true);
-
-      let token = reduxToken ?? (await getToken());
-
-      if (!token) {               
-        if (mounted) {          
-          setIsValid(false);
-          setChecking(false);
-          return;
-        }         
+  useEffect(() => {
+    const handleDeepLink = (event: { url: string }) => {
+      const data = Linking.parse(event.url);
+      if (data.path === "wallet/success") {
+        navigationRef.current?.navigate("WalletTopupSuccessScreen");
+      } else if (data.path === "wallet/cancel") {
+        navigationRef.current?.navigate("WalletTopupCancelScreen");
       }
+    };
 
-const payload = decodeJWT(token!);
-const expSec = payload?.exp ?? null;
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+    return () => subscription.remove();
+  }, []);
 
-if (!expSec) {
-  // 🔹 Lưu decoded JWT vào userInfoCustomer
-  dispatch(setCredentials({ token, userInfoCustomer: payload }));
+  useEffect(() => {
+    let active = true;
 
-  if (mounted) {
-    setIsValid(true);
-    setChecking(false);
-  }
-  return;
-}
+    const verifyToken = async () => {
+      setChecking(true);
+      const token = reduxToken ?? (await getToken());
 
-      const expMs = expSec * 1000;
-      const now = Date.now();
-
-      if (expMs <= now) {
-        doLogout();
-        if (mounted) {
-          setIsValid(false);
-          setChecking(false);
-        }
+      if (!token) {
+        if (active) doLogout();
+        setChecking(false);
         return;
       }
 
-      // After all checks passed
-      if (mounted) {        
+      const payload = decodeJWT(token);
+      if (!payload?.userId) {
+        if (active) doLogout();
+        setChecking(false);
+        return;
+      }
+
+      const now = Date.now();
+      const expMs = payload.exp ? payload.exp * 1000 : null;
+
+      if (expMs && expMs <= now) {
+        if (active) doLogout();
+        setChecking(false);
+        return;
+      }
+
+      if (active) {
+        dispatch(setCredentials({ token, userInfoCustomer: payload }));
         setIsValid(true);
         setChecking(false);
-      } 
+      }
 
-      const msUntilExpiry = expMs - now;
-      if (expiryTimerRef.current) clearTimeout(expiryTimerRef.current);
-      expiryTimerRef.current = setTimeout(() => {
-        doLogout();
-      }, msUntilExpiry) as any as number;
+      if (expMs) {
+        if (expiryTimerRef.current) clearTimeout(expiryTimerRef.current);
+        expiryTimerRef.current = setTimeout(() => {
+          doLogout();
+        }, expMs - now) as any as number;
+      }
 
       if (Platform.OS === "web") {
         resetInactivityTimer();
@@ -194,13 +199,13 @@ if (!expSec) {
           clearTimers();
         };
       }
-    };    
+    };
 
-    checkToken();
+    verifyToken();
 
     return () => {
+      active = false;
       clearTimers();
-      mounted = false;
     };
   }, [reduxToken, dispatch]);
 
@@ -213,7 +218,7 @@ if (!expSec) {
   }
 
   const linking = {
-    prefixes: ["parkmate://","/"],
+    prefixes: ["parkmate://", "/"],
     config: {
       screens: {
         Login: "login",
@@ -228,7 +233,7 @@ if (!expSec) {
             BranchDetail: "branch/:id",
             Promotion: "promotion",
             ChatBox: "chat",
-            Contact: "contact",            
+            Contact: "contact",
           },
         },
         Notifications: "notifications",
