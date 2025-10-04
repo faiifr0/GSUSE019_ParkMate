@@ -21,8 +21,10 @@ import { gameCreateModel } from "@/lib/model/gameCreateModel";
 import gameService, { GameResponse } from "@/lib/services/gameService";
 import { gameUpdateModel } from "@/lib/model/gameUpdateModel";
 
-// Handle what happens when you click on the pagination
-const handlePageChange = (page: number) => {};
+type ErrorMessages = {
+  name?: string,
+  description?: string,
+};
 
 export default function GameTable() {
   const params = useParams();
@@ -34,6 +36,7 @@ export default function GameTable() {
   const [games, setGames] = useState<GameResponse[]>([]);
   const [selectedGame, setSelectedGame] = useState<GameResponse | null>(null);
   const [mode, setMode] = useState<'Tạo mới' | 'Cập Nhật'>('Tạo mới');
+  const [errors, setErrors] = useState<ErrorMessages>({});
 
   // Fetch Branch Amenities List
   const fetchGames = async () => {
@@ -51,6 +54,13 @@ export default function GameTable() {
   useEffect(() => {    
     fetchGames();      
   }, [])
+
+  // clear errors when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});      
+    }
+  }, [isOpen]);
 
   const openCreateModal = () => {
       setMode('Tạo mới');
@@ -77,7 +87,27 @@ export default function GameTable() {
     };
 
   // Handle save logic here
-  const handleSave = async () => {        
+  const handleSave = async () => {     
+    const newErrors: ErrorMessages = {};   
+
+    if (!formData?.name || formData.name.trim() === '') {
+      newErrors.name = "Tên trò chơi không được để trống.";
+    } else if (formData.name.length > 255) {
+      newErrors.name = "Tên trò chơi không được vượt quá 255 ký tự.";
+    }
+
+    if (!formData?.description || formData.description.trim() === '') {
+      newErrors.description = "Mô tả không được để trống.";
+    } else if (formData.description.length > 2000) {
+      newErrors.description = "Mô tả không được vượt quá 1000 ký tự.";
+    } 
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      return; // If there are validation errors, do not proceed
+    }
+
     try {      
       if (mode === 'Cập Nhật' && selectedGame) {
         await gameService.updateGame(selectedGame.id, formData as gameUpdateModel);
@@ -247,12 +277,18 @@ export default function GameTable() {
                   <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">   
                     <div className="col-span-2"></div>                                     
                     <div className="col-span-8">
-                      <Label>Tên trò chơi</Label>
+                      <Label>
+                        Tên trò chơi <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="text"
                         value={formData?.name !== undefined ? formData.name : ''} 
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}                        
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}  
+                        placeholder="Nhập tên trò chơi"                      
                       />
+                      {errors?.name && (
+                        <p className="mt-1 text-xs text-error-500">{errors.name}</p>
+                      )}
                     </div>                                        
                     <div className="col-span-2"></div>                    
                   </div>                  
@@ -260,13 +296,18 @@ export default function GameTable() {
                   <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">   
                     <div className="col-span-2"></div>                                     
                     <div className="col-span-8">
-                      <Label>Mô tả</Label>
+                      <Label>
+                        Mô tả <span className="text-error-500">*</span>
+                      </Label>
                       <textarea
                         value={formData?.description ?? ''}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         className="w-full h-45 text-base px-4 py-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Nhập mô tả chi tiết..."
                       />
+                      {errors?.description && (
+                        <p className="mt-1 text-xs text-error-500">{errors.description}</p>
+                      )}
                     </div>                                        
                     <div className="col-span-2"></div>                    
                   </div>                  

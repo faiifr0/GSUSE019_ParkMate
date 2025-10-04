@@ -11,7 +11,7 @@ import {
 import Image from "next/image";
 import Pagination from "./Pagination";
 import userService, { UserResponse } from "@/lib/services/userService";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
@@ -21,15 +21,31 @@ import { userCreateModel } from "@/lib/model/userCreateModel";
 import { EyeCloseIcon, EyeIcon } from "@/components/icons";
 import toast from "react-hot-toast";
 
-// Handle what happens when you click on the pagination
-const handlePageChange = (page: number) => {}; // eslint-disable-line no-unused-vars
+type ErrorMessages = {
+  email?: string;
+  password?: string;
+  username?: string;
+};
 
 export default function UserTable() {
   const { isOpen, openModal, closeModal } = useModal();
 
   const [showPassword, setShowPassword] = useState(false);
   const [users, setUsers] = useState<UserResponse[]>([]);
-  const [formData, setFormData] = useState<userCreateModel>();  
+  const [formData, setFormData] = useState<userCreateModel>({
+    email: '',
+    password: '',
+    username: ''
+  }); 
+  const [errors, setErrors] = useState<ErrorMessages>();
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10; // Number of reviews per page
+
+  // Handle what happens when you click on the pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Fetch Park Branches List
   const fetchUsers = async () => {
@@ -52,21 +68,65 @@ export default function UserTable() {
     fetchUsers();
   }, [])
 
+  // clear errors when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});
+      setFormData({
+        email: '',
+        password: '',
+        username: ''
+      });
+    }
+  }, [isOpen]);
+
   // Handle save logic here
   const handleSave = async () => {        
-    try {
-      await userService.createUser(formData);
-      fetchUsers();
-      setShowPassword(false);
-      setFormData(undefined);
-      closeModal();
-    } catch (err) {
-      console.log(err);
-      const message = 'Tạo nhân viên mới thất bại!';
-      toast.error(message, {
-        duration: 3000,
-        position: 'top-right',
-      });      
+    const newErrors: ErrorMessages = {};
+
+    if (!formData.email) {
+      newErrors.email = "Email không được để trống.";
+    } else if (formData.email.length > 255) {
+      newErrors.email = "Email không được vượt quá 255 ký tự.";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ.";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Mật khẩu không được để trống.";
+    } else if (formData.password.length < 6) {
+    newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
+    } else if (formData.password.length > 255) {
+      newErrors.password = "Mật khẩu không được vượt quá 255 ký tự.";
+    }
+
+    if (!formData.username) {
+      newErrors.username = "Tên người dùng không được để trống.";
+    } else if (formData.username.length > 50) {
+      newErrors.username = "Tên người dùng không được vượt quá 50 ký tự.";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        await userService.createUser(formData);
+        fetchUsers();
+        setShowPassword(false);
+        setFormData({
+          email: '',
+          password: '',
+          username: ''
+        }); 
+        closeModal();
+      } catch (err) {
+        console.log(err);
+        const message = 'Tạo nhân viên mới thất bại!';
+        toast.error(message, {
+          duration: 3000,
+          position: 'top-right',
+        });      
+      }  
     }
   };
   
@@ -132,6 +192,7 @@ export default function UserTable() {
                 {/* {users.map((user, index) => ( */}
                 {[...users]
                     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) // or use b.updatedBy - a.updatedBy if it's a number or date
+                    .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                     .map((user, index) => (
                   <TableRow key={user.id}>
                     <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
@@ -143,7 +204,7 @@ export default function UserTable() {
                           <Image
                             width={40}
                             height={40}
-                            src="/images/user/owner.jpg"
+                            src={"/images/user/" + (user?.roles?.[0].roleName ?? "user-04") + ".jpg"}
                             alt={user.username}
                           />
                         </div>
@@ -206,11 +267,15 @@ export default function UserTable() {
                   <div className="grid grid-cols-12 my-2">
                     <div className="col-span-2"></div>
                     <div className="col-span-8">
-                      <Label>Email</Label>
+                      <Label>
+                        Email <span className="text-error-500">*</span>{" "}
+                      </Label>
                       <Input
                         type="text"                        
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="info@gmail.com"
                       />
+                      {errors?.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                     </div>
                     <div className="col-span-2"></div>
                   </div>
@@ -218,12 +283,14 @@ export default function UserTable() {
                   <div className="grid grid-cols-12 my-2">
                     <div className="col-span-2"></div>
                     <div className="col-span-8">
-                      <Label>Mật khẩu</Label>
+                      <Label>
+                        Mật khẩu <span className="text-error-500">*</span>{" "}
+                        </Label>
                       <div className="relative">
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="Nhập mật khẩu"
-                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}                        
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}                      
                         >
                         </Input>
                         <span
@@ -236,6 +303,7 @@ export default function UserTable() {
                             <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
                           )}
                         </span>
+                        {errors?.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                       </div>                
                     </div>    
                     <div className="col-span-2"></div>                                  
@@ -244,11 +312,15 @@ export default function UserTable() {
                   <div className="grid grid-cols-12 my-2">
                     <div className="col-span-2"></div>
                     <div className="col-span-8">
-                      <Label>Tên người dùng</Label>
+                      <Label>
+                        Tên người dùng <span className="text-error-500">*</span>{" "}
+                      </Label>
                       <Input
                         type="text"                        
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                        placeholder="Nhập tên người dùng"
                       />
+                      {errors?.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
                     </div>
                     <div className="col-span-2"></div>
                   </div>
@@ -267,8 +339,8 @@ export default function UserTable() {
         </Modal>
 
         <Pagination 
-          currentPage={4}
-          totalPages={7}
+          currentPage={currentPage}
+          totalPages={Math.ceil(users.length / pageSize)}
           onPageChange={handlePageChange}
         />
       </div>

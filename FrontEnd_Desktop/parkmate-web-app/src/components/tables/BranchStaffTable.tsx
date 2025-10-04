@@ -23,8 +23,11 @@ import { branchStaffUpdateModel } from "@/lib/model/branchStaffUpdateModel";
 import toast from "react-hot-toast";
 import { parseISO, format } from 'date-fns';
 
-// Handle what happens when you click on the pagination
-const handlePageChange = (page: number) => {};
+type ErrorMessages = {
+  userId?: string;
+  role?: string;  
+  description?: string;
+};
 
 export default function BranchStaffTable() {
   const params = useParams();
@@ -38,6 +41,7 @@ export default function BranchStaffTable() {
   const [formData, setFormData] = useState<branchStaffCreateModel>();
   const [selectedStaff, setSelectedStaff] = useState<branchStaffResponse | null>(null);
   const [mode, setMode] = useState<'create' | 'edit'>('create');
+  const [errors, setErrors] = useState<ErrorMessages>();
 
   // Fetch Park Branch Staffs
   const fetchBranchStaffs = async () => {
@@ -80,31 +84,55 @@ export default function BranchStaffTable() {
     fetchBranchStaffs();
     fetchUsers();    
   }, [])
+
+  // clear errors when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});      
+    }
+  }, [isOpen]);
   
   // Handle save logic here
   const handleSave = async () => {        
-    try {
-      //console.log("Form userId: " + formData?.userId);
-      //console.log("Form parkBranchId: " + formData?.parkBranchId);
-      //console.log("Form role: " + formData?.role);
-      //console.log("Form description: " + formData?.description);
-      if (mode === 'edit' && selectedStaff) {
-        await branchStaffService.updateBranchStaff(String(selectedStaff.id), formData as branchStaffUpdateModel);
-      } else {
-        await branchStaffService.createBranchStaff(formData);
-      }      
-      fetchBranchStaffs();      
-      setFormData(undefined);
-      setSelectedStaff(null);
-      closeModal();
-    } catch (err) {
-      console.log(err);
-      const message =
-        err instanceof Error ? err.message : 'Failed to' + mode + 'branch staff!';
-      toast.error(message, {
-        duration: 3000,
-        position: 'top-right',
-      });
+    const newErrors: ErrorMessages = {};
+
+    if (!formData?.userId || formData.userId === 0) {
+      newErrors.userId = "Vui lòng chọn một nhân viên.";
+    }
+
+    if (!formData?.role || formData.role.trim() === '') {
+      newErrors.role = 'Vai trò không được để trống.';
+    } else if (formData.role.length > 255) {
+      newErrors.role = "Vai trò không được vượt quá 255 ký tự.";
+    }
+    if (!formData?.description || formData.description.trim() === '') {
+      newErrors.description = 'Mô tả vai trò không được để trống.';
+    } else if (formData.description.length > 255) {
+      newErrors.role = "Mô tả vai trò không được vượt quá 255 ký tự.";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {    
+      try {      
+        if (mode === 'edit' && selectedStaff) {
+          await branchStaffService.updateBranchStaff(String(selectedStaff.id), formData as branchStaffUpdateModel);
+        } else {
+          await branchStaffService.createBranchStaff(formData);
+        }      
+        fetchBranchStaffs();      
+        setFormData(undefined);
+        setSelectedStaff(null);
+        closeModal();
+      } catch (err) {
+        console.log(err);
+        const message =
+          err instanceof Error ? err.message : 'Failed to' + mode + 'branch staff!';
+        toast.error(message, {
+          duration: 3000,
+          position: 'top-right',
+        });
+      }
     }
   };
 
@@ -274,7 +302,9 @@ export default function BranchStaffTable() {
                        style={{ display: mode === 'edit' ? 'none' : 'block' }}>   
                     <div className="col-span-3"></div>                 
                     <div className="col-span-6">
-                      <Label>Nhân viên</Label>
+                      <Label>
+                        Nhân viên <span className="text-error-500">*</span>{" "}
+                      </Label>
                       <select            
                         value={formData?.userId !== undefined ? formData.userId : ''}            
                         className="block w-full rounded-md border border-gray-300 bg-white px-3 py-[12px] text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -292,6 +322,9 @@ export default function BranchStaffTable() {
                         </option>
                         ))}
                       </select>
+                      {errors?.userId && (
+                        <p className="mt-1 text-xs text-error-500">{errors.userId}</p>
+                      )}
                     </div>  
                     <div className="col-span-3"></div>                  
                     
@@ -309,23 +342,33 @@ export default function BranchStaffTable() {
 
                   <div className="grid grid-cols-12 my-9">                    
                     <div className="col-span-12">
-                      <Label>Vai trò</Label>
+                      <Label>
+                        Vai trò <span className="text-error-500">*</span>{" "}
+                      </Label>
                       <Input
                         type="text"                    
                         value={formData?.role ?? ''}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}                   
                       />
+                      {errors?.role && (
+                        <p className="mt-1 text-xs text-error-500">{errors.role}</p>
+                      )}
                     </div>                                        
                   </div> 
 
                   <div className="grid grid-cols-12 my-9">                    
                     <div className="col-span-12">
-                      <Label>Mô tả</Label>
+                      <Label>
+                        Mô tả vai trò <span className="text-error-500">*</span>{" "}
+                      </Label>
                       <Input
                         type="text"
                         value={formData?.description ?? ''}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}                                          
                       />
+                      {errors?.description && (
+                        <p className="mt-1 text-xs text-error-500">{errors.description}</p>
+                      )}
                     </div>                                        
                   </div> 
 

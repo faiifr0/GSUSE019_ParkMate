@@ -11,6 +11,14 @@ import { parkBranchUpdateModel } from "@/lib/model/parkBranchUpdateModel";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
+type ErrorMessages = {
+  name?: string;
+  address?: string;
+  openTime?: string;
+  closeTime?: string;
+  time?: string;
+};
+
 export default function OverviewInfoCard () {
   const { isOpen, openModal, closeModal } = useModal();
   const { currUser } = useAuth();
@@ -19,7 +27,8 @@ export default function OverviewInfoCard () {
   const id = params.id ? String(params.id) : '0';
 
   const [branchInfo, setBranchInfo] = useState<parkBranchResponse>();
-  const [formData, setFormData] = useState<parkBranchUpdateModel>();
+  const [formData, setFormData] = useState<parkBranchUpdateModel>({});
+  const [errors, setErrors] = useState<ErrorMessages>();
 
   const fetchParkBranch = async () => {
     const response = await parkBranchService.getParkBranchById(id);
@@ -48,25 +57,80 @@ export default function OverviewInfoCard () {
     } 
   }, [])
 
-  // Handle save logic here
-  const handleSave = async () => {        
+  // clear errors when the modal opens
+  useEffect(() => {
     try {
-      await parkBranchService.updateParkBranch(id, formData);         
-      fetchParkBranch();
-      closeModal();
-      const message = 'Cập nhật chi nhánh công viên thành công!';
-      toast.success(message, {
-        duration: 3000,
-        position: 'top-right',
-      }) 
+      if (isOpen) {
+        setErrors({});
+        fetchParkBranch();
+      }
     } catch (err) {
-      const message = 'Cập nhật chi nhánh công viên thất bại!' + (err instanceof Error ? err.message : '');
+      console.log(err);
+      const message = 'Fetch chi nhánh công viên id ' + id + ' thất bại!';
       toast.error(message, {
         duration: 3000,
         position: 'top-right',
-      });   
-      fetchParkBranch();         
-      closeModal();
+      });
+    }
+  }, [isOpen]);
+
+  // Handle save logic here
+  const handleSave = async () => {  
+    const newErrors: ErrorMessages = {};
+
+    const isValidTimeFormat = (time: string) => {
+      return /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(time);
+    };
+
+    const isOpenBeforeClose = (open: string, close: string) => {
+      const today = new Date().toISOString().split('T')[0];
+      const openDate = new Date(`${today}T${open}`);
+      const closeDate = new Date(`${today}T${close}`);
+      return openDate < closeDate;
+    };
+
+    if (!formData.name || formData.name.trim() === '') {
+      newErrors.name = "Tên chi nhánh không được để trống.";
+    } else if (formData.name.length > 255) {
+      newErrors.name = "Tên chi nhánh không được vượt quá 255 ký tự.";
+    }
+
+    if (!formData.address || formData.address.trim() === '') {
+      newErrors.address = "Địa chỉ không được để trống.";
+    } else if (formData.address.length > 500) {
+      newErrors.address = "Địa chỉ không được vượt quá 500 ký tự.";
+    }
+
+    // Time validation
+    if (!formData.openTime || !isValidTimeFormat(formData.openTime)) {
+      newErrors.openTime = "Giờ mở cửa phải có định dạng HH:mm:ss.";
+    } else if (!formData.closeTime || !isValidTimeFormat(formData.closeTime)) {
+      newErrors.closeTime = "Giờ đóng cửa phải có định dạng HH:mm:ss.";
+    } else if (!isOpenBeforeClose(formData.openTime, formData.closeTime)) {
+      newErrors.time = "Giờ mở cửa phải trước giờ đóng cửa.";
+    }
+
+    setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length === 0) {
+      try {
+        await parkBranchService.updateParkBranch(id, formData);         
+        fetchParkBranch();
+        closeModal();
+        const message = 'Cập nhật chi nhánh công viên thành công!';
+        toast.success(message, {
+          duration: 3000,
+          position: 'top-right',
+        }) 
+      } catch (err) {
+        const message = 'Cập nhật chi nhánh công viên thất bại!' + (err instanceof Error ? err.message : '');
+        toast.error(message, {
+          duration: 3000,
+          position: 'top-right',
+        });   
+        fetchParkBranch();         
+        closeModal();
+      }
     }
   };
 
@@ -193,6 +257,7 @@ export default function OverviewInfoCard () {
                       defaultValue={formData?.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
+                    {errors?.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                   </div>
 
                   <div>
@@ -202,6 +267,7 @@ export default function OverviewInfoCard () {
                       defaultValue={formData?.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     />
+                    {errors?.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
                   </div>
 
                   <div>
@@ -231,6 +297,7 @@ export default function OverviewInfoCard () {
                       defaultValue={formData?.openTime}                    
                       onChange={(e) => setFormData({ ...formData, openTime: e.target.value })}
                     />
+                    {errors?.openTime && <p className="text-red-500 text-sm mt-1">{errors.openTime}</p>}
                   </div>
                   <div>
                     <Label>Giờ đóng cửa</Label>
@@ -239,6 +306,10 @@ export default function OverviewInfoCard () {
                       defaultValue={formData?.closeTime}
                       onChange={(e) => setFormData({ ...formData, closeTime: e.target.value })}
                     />
+                    {errors?.closeTime && <p className="text-red-500 text-sm mt-1">{errors.closeTime}</p>}
+                  </div>
+                  <div className="col-span-2 text-center">
+                    {errors?.time && <p className="text-red-500 text-sm mt-1">{errors.time}</p>}
                   </div>
                 </div>
               </div>              

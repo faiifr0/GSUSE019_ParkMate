@@ -13,7 +13,6 @@ import userRoleService from "@/lib/services/userRoleService";
 import { notFound } from "next/navigation";
 import toast from "react-hot-toast";
 
-
 export default function UserDetailMetaCard() {
   const params = useParams();
   const id = String(params.id);
@@ -90,7 +89,7 @@ export default function UserDetailMetaCard() {
               <Image
                 width={80}
                 height={80}
-                src="/images/user/owner.jpg"
+                src={"/images/user/" + (user?.roles?.[0].roleName ?? "user-04") + ".jpg"}
                 alt="user"
               />
             </div>

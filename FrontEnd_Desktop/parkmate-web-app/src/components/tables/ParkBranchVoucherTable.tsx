@@ -21,8 +21,14 @@ import { voucherUpdateModel } from "@/lib/model/voucherUpdateModel";
 import toast from "react-hot-toast";
 import voucherService, { VoucherResponse } from "@/lib/services/voucherService";
 
-// Handle what happens when you click on the pagination
-const handlePageChange = (page: number) => {};
+type ErrorMessages = {
+  code?: string;
+  percent?: string;
+  maxDiscount?: string;
+  startAt?: string;
+  endAt?: string;
+  time?: string;
+};
 
 export default function ParkBranchVoucherTable() {
   const params = useParams();
@@ -34,6 +40,7 @@ export default function ParkBranchVoucherTable() {
   const [vouchers, setVouchers] = useState<VoucherResponse[]>([]);
   const [selectedVoucher, setSelectedVoucher] = useState<VoucherResponse | null>(null);
   const [mode, setMode] = useState<'Tạo mới' | 'Cập Nhật'>('Tạo mới');
+  const [errors, setErrors] = useState<ErrorMessages>({});
 
   // Fetch Vouchers List
   const fetchVouchers = async () => {
@@ -56,38 +63,89 @@ export default function ParkBranchVoucherTable() {
     fetchVouchers();    
   }, [])
 
+  // clear errors when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});      
+    }
+  }, [isOpen]);
+
   const openCreateModal = () => {
-      setMode('Tạo mới');
-      setFormData({
-        parkBranchId: id,
-        code: undefined,
-        percent: undefined,
-        maxDiscount: undefined,        
-        startAt: undefined,
-        endAt: undefined,
-        active: true,
-      });
-      setSelectedVoucher(null);
-      openModal();
-    };
+    setMode('Tạo mới');
+    setFormData({
+      parkBranchId: id,
+      code: undefined,
+      percent: undefined,
+      maxDiscount: undefined,        
+      startAt: undefined,
+      endAt: undefined,
+      active: true,
+    });
+    setSelectedVoucher(null);
+    openModal();
+  };
   
-    const openEditModal = (voucher: VoucherResponse) => {
-      setMode('Cập Nhật');
-      setSelectedVoucher(voucher);
-      setFormData({
-        parkBranchId: id,
-        code: voucher.code,
-        percent: voucher.percent,
-        maxDiscount: voucher.maxDiscount,
-        startAt: voucher.startAt,
-        endAt: voucher.endAt,
-        active: voucher.active,
-      });
-      openModal();
-    };
+  const openEditModal = (voucher: VoucherResponse) => {
+    setMode('Cập Nhật');
+    setSelectedVoucher(voucher);
+    setFormData({
+      parkBranchId: id,
+      code: voucher.code,
+      percent: voucher.percent,
+      maxDiscount: voucher.maxDiscount,
+      startAt: voucher.startAt,
+      endAt: voucher.endAt,
+      active: voucher.active,
+    });
+    openModal();
+  };
 
   // Handle save logic here
-  const handleSave = async () => {        
+  const handleSave = async () => {    
+    const newErrors: ErrorMessages = {};
+
+    const isValidDateFormat = (value: string) =>
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?$/.test(value);
+    
+    if (!formData?.code || formData.code.trim() === '') {
+      newErrors.code = 'Mã voucher không được để trống.';
+    } else if (formData.code.length > 64) {
+      newErrors.code = 'Mã voucher không được vượt quá 64 ký tự.';
+    }
+
+    if (formData?.percent === undefined || formData.percent === null) {
+      newErrors.percent = 'Giảm giá không được để trống.';
+    } else if (formData.percent < 0 || formData.percent > 0.5) {
+      newErrors.percent = 'Giảm giá phải từ 0 đến 0.5 (tương đương 0% - 50%).';
+    }
+
+    if (formData?.maxDiscount === undefined || formData.maxDiscount === null) {
+      newErrors.maxDiscount = 'Giảm giá tối đa không được để trống.';
+    } else if (formData.maxDiscount < 1000 || formData.maxDiscount > 500000) {
+      newErrors.maxDiscount = 'Giảm giá tối đa phải từ 1,000 VNĐ đến 500,000 VNĐ.';
+    }
+
+    if (formData?.startAt && !isValidDateFormat(formData.startAt)) {
+      newErrors.startAt = 'Thời gian bắt đầu không đúng định dạng.';
+    }
+    if (formData?.endAt && !isValidDateFormat(formData.endAt)) {
+      newErrors.endAt = 'Thời gian kết thúc không đúng định dạng.';
+    }
+
+    if (formData?.startAt && formData?.endAt) {
+      const start = new Date(formData.startAt);
+      const end = new Date(formData.endAt);
+      if (start >= end) {
+        newErrors.time = 'Thời gian bắt đầu phải trước thời gian kết thúc.';        
+      }
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {    
+      return; 
+    }
+
     try {      
       if (mode === 'Cập Nhật' && selectedVoucher) {
         await voucherService.updateVoucher(selectedVoucher.id, formData as voucherUpdateModel);
@@ -257,19 +315,26 @@ export default function ParkBranchVoucherTable() {
                   <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">   
                     <div className="col-span-2"></div>                                     
                     <div className="col-span-8">
-                      <Label>Mã voucher</Label>
+                      <Label>
+                        Mã voucher <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="text"
                         value={formData?.code !== undefined ? formData.code : ''} 
                         onChange={(e) => setFormData({ ...formData, code: e.target.value })}                        
                       />
+                      {errors?.code && (
+                        <p className="mt-1 text-xs text-error-500">{errors.code}</p>
+                      )}
                     </div>                                        
                     <div className="col-span-2"></div>                    
                   </div>
 
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Giảm giá</Label>
+                      <Label>
+                        Giảm giá (%) <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="number"
                         min={0}
@@ -278,10 +343,15 @@ export default function ParkBranchVoucherTable() {
                         value={formData?.percent !== undefined ? formData.percent : ''}
                         onChange={(e) => setFormData({ ...formData, percent: Number(e.target.value) })}                   
                       />
+                      {errors?.percent && (
+                        <p className="mt-1 text-xs text-error-500">{errors.percent}</p>
+                      )}
                     </div>  
 
                     <div className="col-span-6">
-                      <Label>Giảm giá tối đa (VNĐ)</Label>
+                      <Label>
+                        Giảm giá tối đa (VNĐ) <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="number"
                         min={1000}
@@ -290,27 +360,46 @@ export default function ParkBranchVoucherTable() {
                         value={formData?.maxDiscount !== undefined ? formData.maxDiscount : ''}
                         onChange={(e) => setFormData({ ...formData, maxDiscount: Number(e.target.value) })}                   
                       />
+                      {errors?.maxDiscount && (
+                        <p className="mt-1 text-xs text-error-500">{errors.maxDiscount}</p>
+                      )}
                     </div>                                      
                   </div> 
 
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
                       <Label>Bắt đầu từ</Label>
-                      <Input
+                      <input
                         type="datetime-local"
                         value={formData?.startAt ?? ''}                        
-                        onChange={(e) => setFormData({ ...formData, startAt: e.target.value })}                   
+                        onChange={(e) => setFormData({ ...formData, startAt: e.target.value })}  
+                        required                 
                       />
+                      {errors?.startAt && (
+                        <p className="mt-1 text-xs text-error-500">{errors.startAt}</p>
+                      )}
                     </div>  
 
                     <div className="col-span-6">
                       <Label>Kết thúc lúc</Label>
-                      <Input
+                      <input
                         type="datetime-local"
                         value={formData?.endAt ?? ''}                       
-                        onChange={(e) => setFormData({ ...formData, endAt: e.target.value })}                   
+                        onChange={(e) => setFormData({ ...formData, endAt: e.target.value })} 
+                        required                  
                       />
+                      {errors?.endAt && (
+                        <p className="mt-1 text-xs text-error-500">{errors.endAt}</p>
+                      )}
                     </div>                                                          
+                  </div>
+
+                  <div className="grid grid-cols-12 my-9 gap-x-4">
+                    <div className="col-span-12">
+                    {errors?.time && (
+                      <p className="mt-1 text-xs text-error-500 col-span-12 text-center">{errors.time}</p>
+                    )}
+                    </div>
                   </div>
 
                   { mode === 'Cập Nhật' && (

@@ -22,8 +22,11 @@ import Button from "../ui/button/Button";
 import { toast } from "react-hot-toast";
 import { branchTicketTypeUpdateModel } from "@/lib/model/branchTicketTypeUpdateModel";
 
-// Handle what happens when you click on the pagination
-const handlePageChange = (page: number) => {};
+type ErrorMessages = {
+  name?: string;
+  description?: string;
+  basePrice?: string; 
+};
 
 export default function ParkBranchTicketTable() {
   const params = useParams();
@@ -35,6 +38,7 @@ export default function ParkBranchTicketTable() {
   const [formData, setFormData] = useState<branchTicketTypeCreateModel>();
   const [selectedTicket, setSelectedTicket] = useState<branchTicketTypeResponse | null>(null);
   const [mode, setMode] = useState<'Tạo mới' | 'Cập Nhật'>('Tạo mới');
+  const [errors, setErrors] = useState<ErrorMessages>();
 
   // Fetch Park Branches List
   const fetchBranchTicketTypes = async () => {
@@ -59,9 +63,15 @@ export default function ParkBranchTicketTable() {
   }
 
   useEffect(() => {    
-    fetchBranchTicketTypes();
-    setFormData
+    fetchBranchTicketTypes();    
   }, [])
+
+  // clear errors when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});      
+    }
+  }, [isOpen]);
 
   const openCreateModal = () => {
       setMode('Tạo mới');
@@ -90,7 +100,31 @@ export default function ParkBranchTicketTable() {
     };
 
   // Handle save logic here
-  const handleSave = async () => {        
+  const handleSave = async () => {
+    const newErrors: ErrorMessages = {};
+    
+    if (!formData?.name || formData.name.trim() === '') {
+      newErrors.name = 'Tên vé không được để trống.';
+    } else if (formData.name.length > 255) {
+      newErrors.name = 'Tên vé không được vượt quá 255 ký tự.';
+    }
+      
+    if (formData?.description && formData.description.length > 500) {
+      newErrors.description = 'Mô tả vé không được vượt quá 500 ký tự.';
+    }
+
+    if (formData?.basePrice === undefined || formData.basePrice === null) {
+      newErrors.basePrice = 'Giá cơ bản không được để trống.';
+    } else if (formData.basePrice < 1000 || formData.basePrice > 5000000) {
+      newErrors.basePrice = 'Giá cơ bản phải từ 1.000 đến 5.000.000 vnđ.';
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {    
+      return; // Exit if there are validation errors
+    }
+
     try {      
       if (mode === 'Cập Nhật' && selectedTicket) {
         await branchTicketTypeService.updateTicketType(selectedTicket.id, formData as branchTicketTypeUpdateModel);
@@ -226,16 +260,23 @@ export default function ParkBranchTicketTable() {
                 <div>                
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Tên vé</Label>
+                      <Label>
+                        Tên vé <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="text"   
                         value={formData?.name !== undefined ? formData.name : ''}                                             
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}                      
                       />
+                      {errors?.name && (
+                        <p className="mt-1 text-xs text-error-500">{errors.name}</p>
+                      )}
                     </div>                    
                     
                     <div className="col-span-6">
-                      <Label>Giá cơ bản (vnđ)</Label>
+                      <Label>
+                        Giá cơ bản (vnđ) <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="number"                        
                         value={formData?.basePrice !== undefined ? formData.basePrice : 1000}
@@ -244,18 +285,26 @@ export default function ParkBranchTicketTable() {
                         step={1000}
                         onChange={(e) => setFormData({ ...formData, basePrice: Number(e.target.value) })}                      
                       />
+                      {errors?.basePrice && (
+                        <p className="mt-1 text-xs text-error-500">{errors.basePrice}</p>
+                      )}
                     </div>
                     <div className="col-span-2"></div>
                   </div>
 
                   <div className="grid grid-cols-12 my-9">                    
                     <div className="col-span-12">
-                      <Label>Mô tả</Label>
+                      <Label>
+                        Mô tả 
+                      </Label>
                       <Input
                         type="text"    
                         value={formData?.description !== undefined ? formData.description : ''}                    
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}                   
                       />
+                      {errors?.description && (
+                        <p className="mt-1 text-xs text-error-500">{errors.description}</p>
+                      )}
                     </div>                                        
                   </div>
 

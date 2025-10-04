@@ -12,7 +12,10 @@ export type TicketDetailResponse = {
 
 export type orderResponse = {
   orderId: number;
+  parkBranchId: number;
+  parkBranchName: string;
   finalAmount: number;
+  createdAt: string;
   status: string;
   details: TicketDetailResponse[];
 };

@@ -13,6 +13,14 @@ import toast from "react-hot-toast";
 import { format } from "date-fns"
 import axios, { Axios, AxiosError } from "axios";
 
+type ErrorMessages = {
+  username?: string;
+  email?: string;
+  fullName?: string;
+  dob?: string;
+  phoneNumber?: string;
+};
+
 export default function UserDetailInfoCard() {
   const params = useParams();
   const id = String(params.id);
@@ -21,7 +29,8 @@ export default function UserDetailInfoCard() {
 
   const [user, setUser] = useState<UserResponse>();
   const [parkBranches, setParkBranches] = useState<parkBranchResponse[]>([]);
-  const [formData, setFormData] = useState<userUpdateModel>();  
+  const [formData, setFormData] = useState<userUpdateModel>();
+  const [errors, setErrors] = useState<ErrorMessages>({});  
 
   // Fetch Current User
   const fetchUser = async () => {
@@ -59,6 +68,13 @@ export default function UserDetailInfoCard() {
     fetchParkBranches();
   }, [])
 
+  // clear errors when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});      
+    }
+  }, [isOpen]);
+
   const openEditModal = () => {      
       setFormData({        
         username: user?.username ?? "",
@@ -71,7 +87,39 @@ export default function UserDetailInfoCard() {
     openModal();
   };
 
-  const handleSave = async () => {    
+  const handleSave = async () => {   
+    const newErrors: ErrorMessages = {};
+    
+    if (!formData?.username || formData.username.trim() === '') {
+      newErrors.username = "Tên người dùng không được để trống.";
+    } else if (formData.username.length > 50) {
+      newErrors.username = "Tên người dùng không được vượt quá 50 ký tự.";
+    }
+
+    if (!formData?.email || formData.email.trim() === '') {
+      newErrors.email = "Email không được để trống.";
+    } else if (!/^[^\s@]+@[a-zA-Z0-9.-]+$/.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ.";
+    }
+
+    const fullName = formData!.fullName?.trim() ?? '';
+
+    if (fullName && fullName.length > 255) {
+      newErrors.fullName = "Họ và tên không được vượt quá 255 ký tự.";
+    }
+
+    const phone = formData!.phoneNumber?.trim() ?? '';
+
+    if (phone && !/^0\d{9}$/.test(phone)) {
+      newErrors.phoneNumber = "Số điện thoại phải có đúng 10 chữ số và bắt đầu bằng số 0.";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      return; // If there are validation errors, do not proceed
+    }
+
     try {
       await userService.updateUser(id, formData);
       fetchUser();
@@ -210,22 +258,32 @@ export default function UserDetailInfoCard() {
               <div>               
                 <div className="grid grid-cols-1 gap-x-12 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Tên người dùng</Label>
+                    <Label>
+                      Tên người dùng <span className="text-error-500">*</span>
+                    </Label>
                     <Input 
                       type="text" 
                       value={formData?.username !== undefined ? formData.username : ""}
                       onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     />
+                    {errors?.username && (
+                      <p className="mt-1 text-xs text-error-500">{errors.username}</p>
+                    )}
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Email</Label>
+                    <Label>
+                      Email <span className="text-error-500">*</span>
+                    </Label>
                     <Input 
                       type="text" 
                       value={formData?.email !== undefined ? formData.email : ""}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="email@gmail.com"
                     />
+                    {errors?.email && (
+                      <p className="mt-1 text-xs text-error-500">{errors.email}</p>
+                    )}
                   </div>                                    
                 </div>
 
@@ -237,6 +295,9 @@ export default function UserDetailInfoCard() {
                       value={formData?.fullName !== undefined ? formData.fullName : ""}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     />
+                    {errors?.fullName && (
+                      <p className="mt-1 text-xs text-error-500">{errors.fullName}</p>
+                    )}
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
@@ -279,6 +340,9 @@ export default function UserDetailInfoCard() {
                       onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}   
                       placeholder="0912345678"                   
                     />
+                    {errors?.phoneNumber && (
+                      <p className="mt-1 text-xs text-error-500">{errors.phoneNumber}</p>
+                    )}
                   </div>                  
                 </div>
               </div>

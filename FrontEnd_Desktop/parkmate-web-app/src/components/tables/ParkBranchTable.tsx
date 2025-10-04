@@ -23,6 +23,13 @@ import toast from "react-hot-toast";
 import { format, parseISO } from "date-fns";
 import { AxiosError } from "axios";
 
+type ErrorMessages = {
+  name?: string;
+  address?: string;
+  openTime?: string;
+  closeTime?: string;
+  time?: string;
+};
 // Handle what happens when you click on the pagination
 const handlePageChange = (page: number) => {};
 
@@ -30,7 +37,15 @@ export default function ParkBranchTable() {
   const { isOpen, openModal, closeModal } = useModal();
 
   const [branches, setBranches] = useState<parkBranchResponse[]>([]);
-  const [formData, setFormData] = useState<parkBranchCreateModel>();
+  const [formData, setFormData] = useState<parkBranchCreateModel>({
+    name: '',
+    address: '',
+    location: "106.623738 : 10.800662", // default geographical location
+    openTime: "10:00:00", // default openTime 10:00 AM
+    closeTime: "22:00:00", // default closeTime 10:00 PM
+    status: false
+  });
+  const [errors, setErrors] = useState<ErrorMessages>();
 
   // Fetch Park Branches 
   const fetchParkBranches = async () => {
@@ -51,32 +66,83 @@ export default function ParkBranchTable() {
 
   useEffect(() => {    
     fetchParkBranches();
-    
-    setFormData(form => ({ ...form, location: "106.623738 : 10.800662" })); // default geographical location
-    setFormData(form => ({ ...form, openTime: "10:00:00" })); // default openTime 10:00 AM
-    setFormData(form => ({ ...form, closeTime: "22:00:00" })); // default closeTime 10:00 PM
-    setFormData(form => ({ ...form, status: false}));
   }, [])
   
+  // clear errors when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});
+      setFormData({
+        name: '',
+        address: '',
+        location: "106.623738 : 10.800662", // default geographical location
+        openTime: "10:00:00", // default openTime 10:00 AM
+        closeTime: "22:00:00", // default closeTime 10:00 PM
+        status: false
+      });
+    }
+  }, [isOpen]);
+
   // Handle save logic here
   const handleSave = async () => {        
-    try {      
-      await parkBranchService.createParkBranch(formData);
-      fetchParkBranches();      
-      setFormData(undefined);
-      setFormData(form => ({ ...form, location: "106.623738 : 10.800662" })); // default geographical location
-      setFormData(form => ({ ...form, openTime: "10:00:00" })); // default openTime 10:00 AM
-      setFormData(form => ({ ...form, closeTime: "22:00:00" })); // default closeTime 10:00 PM
-      setFormData(form => ({ ...form, status: false}));
-      closeModal();
-    } catch (err) {      
-      const message = 'Tạo mới chi nhánh công viên thất bại! ' + (err instanceof AxiosError ? err.message : '');
-      toast.error(message, {
-        duration: 3000,
-        position: 'top-right',
-      });      
-      fetchParkBranches();
-      closeModal();
+    const newErrors: ErrorMessages = {};
+
+    const isValidTimeFormat = (time: string) => {
+      return /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(time);
+    };
+
+    const isOpenBeforeClose = (open: string, close: string) => {
+      const today = new Date().toISOString().split('T')[0];
+      const openDate = new Date(`${today}T${open}`);
+      const closeDate = new Date(`${today}T${close}`);
+      return openDate < closeDate;
+    };
+
+    if (!formData.name || formData.name.trim() === '') {
+      newErrors.name = "Tên chi nhánh không được để trống.";
+    } else if (formData.name.length > 255) {
+      newErrors.name = "Tên chi nhánh không được vượt quá 255 ký tự.";
+    }
+
+    if (!formData.address || formData.address.trim() === '') {
+      newErrors.address = "Địa chỉ không được để trống.";
+    } else if (formData.address.length > 500) {
+      newErrors.address = "Địa chỉ không được vượt quá 500 ký tự.";
+    }
+
+    // Time validation
+    if (!formData.openTime || !isValidTimeFormat(formData.openTime)) {
+      newErrors.openTime = "Giờ mở cửa phải có định dạng HH:mm:ss.";
+    } else if (!formData.closeTime || !isValidTimeFormat(formData.closeTime)) {
+      newErrors.closeTime = "Giờ đóng cửa phải có định dạng HH:mm:ss.";
+    } else if (!isOpenBeforeClose(formData.openTime, formData.closeTime)) {
+      newErrors.time = "Giờ mở cửa phải trước giờ đóng cửa.";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      try {      
+        await parkBranchService.createParkBranch(formData);
+        fetchParkBranches();            
+        setFormData({
+          name: '',
+          address: '',
+          location: "106.623738 : 10.800662", // default geographical location
+          openTime: "10:00:00", // default openTime 10:00 AM
+          closeTime: "22:00:00", // default closeTime 10:00 PM
+          status: false
+        });
+        closeModal();
+      } catch (err) {      
+        const message = 'Tạo mới chi nhánh công viên thất bại! ' + (err instanceof AxiosError ? err.message : '');
+        toast.error(message, {
+          duration: 3000,
+          position: 'top-right',
+        });      
+        fetchParkBranches();
+        closeModal();
+      }
     }
   };
 
@@ -229,42 +295,62 @@ export default function ParkBranchTable() {
                 <div>                
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Tên Chi Nhánh</Label>
+                      <Label>
+                        Tên Chi Nhánh <span className="text-error-500">*</span>{" "}
+                      </Label>
                       <Input
                         type="text"                        
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="Nhập tên chi nhánh"
                       />
+                      {errors?.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                     </div>                    
                     
                     <div className="col-span-6">
-                      <Label>Địa Chỉ</Label>
+                      <Label>
+                        Địa Chỉ <span className="text-error-500">*</span>{" "}
+                      </Label>
                       <Input
                         type="text"                        
                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        placeholder="Nhập địa chỉ chi nhánh"
                       />
+                      {errors?.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
                     </div>
                     <div className="col-span-2"></div>
                   </div>                                  
 
                   <div className="grid grid-cols-12 my-7 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Giờ Mở Cửa</Label>
+                      <Label>
+                        Giờ Mở Cửa <span className="text-error-500">*</span>{" "}
+                      </Label>
                       <Input
                         type="time"                        
                         onChange={(e) => setFormData({ ...formData, openTime: e.target.value })}                      
                         defaultValue={'10:00:00'}
                       />
+                      {errors?.openTime && <p className="text-red-500 text-sm mt-1">{errors.openTime}</p>}
                     </div>                                                        
                     
                     <div className="col-span-6">
-                      <Label>Giờ Đóng Cửa</Label>
+                      <Label>
+                        Giờ Đóng Cửa <span className="text-error-500">*</span>{" "}
+                      </Label>
                       <Input
                         type="time"                        
                         onChange={(e) => setFormData({ ...formData, closeTime: e.target.value })}                        
                         defaultValue={'22:00:00'}
                       />
+                      {errors?.closeTime && <p className="text-red-500 text-sm mt-1">{errors.closeTime}</p>}
                     </div>                                      
-                  </div>                            
+                  </div>
+
+                  <div className="grid grid-cols-12 my-7 gap-x-4">
+                    <div className="col-span-12">
+                      {errors?.time && <p className="text-red-500 text-sm mt-1">{errors.time}</p>}
+                    </div>
+                  </div>                             
                 </div>              
               </div>
               <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">

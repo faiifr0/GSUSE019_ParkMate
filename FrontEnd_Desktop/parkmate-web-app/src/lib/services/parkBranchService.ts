@@ -65,7 +65,7 @@ const parkBranchService = {
       if (axios.isAxiosError(error)) {
         var message = error.response?.data?.message;
         if (message == "UPDATE_STATUS_FAILED_NO_ACTIVE_TICKET_TYPE") message = "Chi nhánh chưa có loại vé nào đang hoạt động!";
-        if (message == "UPDATE_STATUS_FAILED_NO_ACTIVE_BRANCH_TYPE") message = "Chi nhánh chưa có nhân viên nào đang hoạt động!";
+        if (message == "UPDATE_STATUS_FAILED_NO_ACTIVE_BRANCH_STAFF") message = "Chi nhánh chưa có nhân viên nào đang hoạt động!";
         throw new Error(message || '');  
       }
       throw error;

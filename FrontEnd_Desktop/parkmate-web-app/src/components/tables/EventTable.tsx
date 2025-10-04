@@ -17,14 +17,15 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
 import toast from "react-hot-toast";
-import { gameCreateModel } from "@/lib/model/gameCreateModel";
 import eventService, { EventResponse } from "@/lib/services/eventService";
-import { gameUpdateModel } from "@/lib/model/gameUpdateModel";
 import { eventCreateModel } from "@/lib/model/eventCreateModel";
 import { eventUpdateModel } from "@/lib/model/eventUpdateModel";
 
-// Handle what happens when you click on the pagination
-const handlePageChange = (page: number) => {};
+type ErrorMessages = {
+  name?: string,
+  description?: string,
+  time?: string,
+};
 
 export default function EventTable() {
   const params = useParams();
@@ -36,6 +37,7 @@ export default function EventTable() {
   const [events, setEvents] = useState<EventResponse[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<EventResponse | null>(null);
   const [mode, setMode] = useState<'Tạo mới' | 'Cập Nhật'>('Tạo mới');
+  const [errors, setErrors] = useState<ErrorMessages>({});
 
   // Fetch Branch Amenities List
   const fetchevents = async () => {
@@ -53,6 +55,13 @@ export default function EventTable() {
   useEffect(() => {    
     fetchevents();      
   }, [])
+
+  // clear errors when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});      
+    }
+  }, [isOpen]);
 
   const openCreateModal = () => {
       setMode('Tạo mới');
@@ -83,7 +92,35 @@ export default function EventTable() {
     };
 
   // Handle save logic here
-  const handleSave = async () => {        
+  const handleSave = async () => {
+    const newErrors: ErrorMessages = {};        
+
+    if (!formData?.name || formData.name.trim() === '') {
+      newErrors.name = "Tên sự kiện không được để trống.";
+    } else if (formData.name.length > 255) {
+      newErrors.name = "Tên sự kiện không được vượt quá 255 ký tự.";
+    }
+    
+    if (!formData?.description || formData.description.trim() === '') {
+      newErrors.description = "Mô tả không được để trống.";
+    } else if (formData.description.length > 2000) {
+      newErrors.description = "Mô tả không được vượt quá 2000 ký tự.";
+    }
+    
+    if (formData?.startAt && formData?.endAt) { 
+      const start = new Date(formData.startAt);
+      const end = new Date(formData.endAt);
+      if (start >= end) {
+        newErrors.time = "Thời gian bắt đầu phải trước thời gian kết thúc.";        
+      }
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      return; // If there are validation errors, do not proceed
+    }
+
     try {      
       if (mode === 'Cập Nhật' && selectedEvent) {
         await eventService.updateEvent(selectedEvent.id, formData as eventUpdateModel);
@@ -279,12 +316,17 @@ export default function EventTable() {
                   <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">   
                     <div className="col-span-2"></div>                                     
                     <div className="col-span-8">
-                      <Label>Tên sự kiện</Label>
+                      <Label>
+                        Tên sự kiện <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="text"
                         value={formData?.name !== undefined ? formData.name : ''} 
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}                        
                       />
+                      {errors?.name && (
+                        <p className="mt-1 text-xs text-error-500">{errors.name}</p>
+                      )}
                     </div>                                        
                     <div className="col-span-2"></div>                    
                   </div>                  
@@ -292,36 +334,55 @@ export default function EventTable() {
                   <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">   
                     <div className="col-span-2"></div>                                     
                     <div className="col-span-8">
-                      <Label>Mô tả</Label>
+                      <Label>
+                        Mô tả <span className="text-error-500">*</span>
+                      </Label>
                       <textarea
                         value={formData?.description ?? ''}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         className="w-full h-45 text-base px-4 py-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Nhập mô tả chi tiết..."
                       />
+                      {errors?.description && (
+                        <p className="mt-1 text-xs text-error-500">{errors.description}</p>
+                      )}
                     </div>                                        
                     <div className="col-span-2"></div>                    
                   </div>
 
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
-                      <Label>Bắt đầu từ</Label>
+                      <Label>
+                        Bắt đầu từ <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="datetime-local"
                         value={formData?.startAt ?? ''}                        
-                        onChange={(e) => setFormData({ ...formData, startAt: e.target.value })}                   
+                        onChange={(e) => setFormData({ ...formData, startAt: e.target.value })}    
+                        required               
                       />
                     </div>  
 
                     <div className="col-span-6">
-                      <Label>Kết thúc lúc</Label>
+                      <Label>
+                        Kết thúc lúc <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="datetime-local"
                         value={formData?.endAt ?? ''}                       
-                        onChange={(e) => setFormData({ ...formData, endAt: e.target.value })}                   
+                        onChange={(e) => setFormData({ ...formData, endAt: e.target.value })}  
+                        required                 
                       />
                     </div>                                                          
-                  </div>                  
+                  </div>   
+
+                  <div className="grid grid-cols-12 my-9 gap-x-4">
+                    <div className="col-span-12">
+                    {errors?.time && (
+                      <p className="mt-1 text-xs text-error-500 col-span-12 text-center">{errors.time}</p>
+                    )}
+                    </div>
+                  </div>               
 
                   { mode === 'Cập Nhật' && (
                   <div className="grid grid-cols-12 my-9 gap-x-4">  

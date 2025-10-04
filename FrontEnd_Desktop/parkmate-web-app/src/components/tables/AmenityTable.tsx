@@ -22,8 +22,11 @@ import branchAmenityService, { branchAmenityResponse } from "@/lib/services/bran
 import { branchAmenityUpdateModel } from "@/lib/model/branchAmenityUpdateModel";
 import amenityTypeService, { amenityTypeResponse } from "@/lib/services/amenityTypeService";
 
-// Handle what happens when you click on the pagination
-const handlePageChange = (page: number) => {};
+type ErrorMessages = {
+  amenityTypeId?: string;
+  name?: string;
+  description?: string;
+};
 
 export default function AmenityTable() {
   const params = useParams();
@@ -36,6 +39,7 @@ export default function AmenityTable() {
   const [amenityTypes, setAmenityTypes] = useState<amenityTypeResponse[]>([]);
   const [selectedAmenity, setSelectedAmenity] = useState<branchAmenityResponse | null>(null);
   const [mode, setMode] = useState<'Tạo mới' | 'Cập Nhật'>('Tạo mới');
+  const [errors, setErrors] = useState<ErrorMessages>({});
 
   // Fetch Branch Amenities List
   const fetchAmenities = async () => {
@@ -72,6 +76,13 @@ export default function AmenityTable() {
     fetchAmenityTypes();  
   }, [])
 
+  // clear errors when the modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});      
+    }
+  }, [isOpen]);
+
   const openCreateModal = () => {
       setMode('Tạo mới');
       setFormData({
@@ -99,7 +110,31 @@ export default function AmenityTable() {
     };
 
   // Handle save logic here
-  const handleSave = async () => {        
+  const handleSave = async () => {  
+    const newErrors: ErrorMessages = {};
+    
+    if (!formData?.amenityTypeId || formData.amenityTypeId.trim() === '') {
+      newErrors.amenityTypeId = 'Vui lòng chọn loại tiện nghi.';
+    }
+
+    if (!formData?.name || formData.name.trim() === '') {
+      newErrors.name = 'Tên tiện nghi không được để trống.';
+    } else if (formData.name.length > 255) {
+      newErrors.name = 'Tên tiện nghi không được vượt quá 255 ký tự.';
+    }
+
+    if (!formData?.description || formData.description.trim() === '') {
+      newErrors.description = 'Mô tả không được để trống.';
+    } else if (formData.description.length > 1000) {
+      newErrors.description = 'Mô tả không được vượt quá 1000 ký tự.';
+    }
+    
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     try {      
       if (mode === 'Cập Nhật' && selectedAmenity) {
         await branchAmenityService.updateBranchAmenity(selectedAmenity.id, formData as branchAmenityUpdateModel);
@@ -278,12 +313,18 @@ export default function AmenityTable() {
                   <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">   
                     <div className="col-span-2"></div>                                     
                     <div className="col-span-8">
-                      <Label>Tên tiện nghi</Label>
+                      <Label>
+                        Tên tiện nghi <span className="text-error-500">*</span>
+                      </Label>
                       <Input
                         type="text"
                         value={formData?.name !== undefined ? formData.name : ''} 
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}                        
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="Nhập tên tiện nghi"                     
                       />
+                      {errors?.name && (
+                        <p className="mt-1 text-xs text-error-500">{errors.name}</p>
+                      )}
                     </div>                                        
                     <div className="col-span-2"></div>                    
                   </div>
@@ -291,7 +332,9 @@ export default function AmenityTable() {
                   <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">
                     <div className="col-span-3"></div>                 
                     <div className="col-span-6">
-                      <Label>Loại tiện nghi</Label>
+                      <Label>
+                        Loại tiện nghi <span className="text-error-500">*</span>
+                      </Label>
                       <select            
                         value={formData?.amenityTypeId !== undefined ? formData.amenityTypeId : ''}            
                         className="block w-full rounded-md border border-gray-300 bg-white px-3 py-[12px] text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -307,6 +350,9 @@ export default function AmenityTable() {
                         </option>
                         ))}
                       </select>
+                      {errors?.amenityTypeId && (
+                        <p className="mt-1 text-xs text-error-500">{errors.amenityTypeId}</p>
+                      )}
                     </div>  
                     <div className="col-span-3"></div>
                   </div>
@@ -314,13 +360,18 @@ export default function AmenityTable() {
                   <div className="grid grid-cols-12 mt-3 mb-9 gap-x-4">   
                     <div className="col-span-2"></div>                                     
                     <div className="col-span-8">
-                      <Label>Mô tả</Label>
+                      <Label>
+                        Mô tả <span className="text-error-500">*</span>
+                      </Label>
                       <textarea
                         value={formData?.description ?? ''}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         className="w-full h-45 text-base px-4 py-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Nhập mô tả chi tiết..."
                       />
+                      {errors?.description && (
+                        <p className="mt-1 text-xs text-error-500">{errors.description}</p>
+                      )}
                     </div>                                        
                     <div className="col-span-2"></div>                    
                   </div>                  

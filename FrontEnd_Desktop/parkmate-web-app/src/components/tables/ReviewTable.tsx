@@ -17,14 +17,19 @@ import reviewService, { ReviewResponse } from "@/lib/services/reviewService";
 import { reviewUpdateModel } from "@/lib/model/reviewUpdateModel";
 import { parseISO, format } from "date-fns";
 
-// Handle what happens when you click on the pagination
-const handlePageChange = (page: number) => {};
-
 export default function ReviewTable() {
   const params = useParams();
   const id = String(params.id);
 
   const [reviews, setReviews] = useState<ReviewResponse[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10; // Number of reviews per page
+
+  // Handle what happens when you click on the pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Fetch Branch Amenities List
   const fetchReviews = async () => {
@@ -131,10 +136,13 @@ export default function ReviewTable() {
 
             {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {reviews.map((review, index) => (
+              {reviews
+                .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+                .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                .map((review, index) => (
                 <TableRow key={review.id}>    
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {index + 1}                    
+                    {(currentPage - 1) * pageSize + index + 1}                    
                   </TableCell>               
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     {review.email}                    
@@ -185,10 +193,10 @@ export default function ReviewTable() {
         </div>
 
         <Pagination 
-            currentPage={1}
-            totalPages={1}
-            onPageChange={handlePageChange}
-        />     
+          currentPage={currentPage}
+          totalPages={Math.ceil(reviews.length / pageSize)}
+          onPageChange={handlePageChange}
+        />   
       </div>
     </div>
   );

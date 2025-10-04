@@ -36,7 +36,7 @@ export default function UserDetailMetaCard() {
               <Image
                 width={80}
                 height={80}
-                src="/images/user/owner.jpg"
+                src={"/images/user/" + (currUser?.roles?.[0] ?? "user-04") + ".jpg"}
                 alt="user"
               />
             </div>
