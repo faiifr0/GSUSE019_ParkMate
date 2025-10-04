@@ -19,6 +19,9 @@ public interface TicketMapper {
     @Mapping(target = "status", source = "ticketOrder.status")
     @Mapping(target = "details", expression = "java(toDetailResponseList(ticketDetails, ticketOrder.getTicketDate()))")    
     @Mapping(target = "finalAmount", source = "ticketOrder.finalAmount")
+    @Mapping(target = "createdAt", source = "ticketOrder.createdAt")
+    @Mapping(target = "parkBranchId", source = "ticketOrder.parkBranch.id")
+    @Mapping(target = "parkBranchName", source = "ticketOrder.parkBranch.name")
     TicketResponse toResponse(TicketOrder ticketOrder, List<TicketDetail> ticketDetails);
 
     @Named("toDetailResponseListWithDate")
