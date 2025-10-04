@@ -37,12 +37,41 @@ export default function BranchDetailScreen({ route }: Props) {
   const userInfo = useSelector((state: RootState) => state.user.userInfo);
 
   // State cho review mới
-  const [newRating, setNewRating] = useState<number>(5);
+  const [newRating, setNewRating] = useState<number>(0);
   const [newComment, setNewComment] = useState<string>("");
+
+  // State validate realtime
+  const [commentError, setCommentError] = useState<string>("");
+
+  // Check validity toàn form
+  const isFormValid = newRating >= 1 && !commentError;
 
   useEffect(() => {
     fetchBranchData();
   }, []);
+
+  // Validate realtime khi comment thay đổi
+  useEffect(() => {
+    validateComment(newComment);
+  }, [newComment]);
+
+  const validateComment = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      setCommentError("Vui lòng nhập nội dung đánh giá");
+      return false;
+    }
+    if (trimmed.length < 10) {
+      setCommentError("Nội dung đánh giá phải ít nhất 10 ký tự");
+      return false;
+    }
+    if (trimmed.length > 500) {
+      setCommentError("Nội dung đánh giá tối đa 500 ký tự");
+      return false;
+    }
+    setCommentError("");
+    return true;
+  };
 
   const fetchBranchData = async () => {
     setLoading(true);
@@ -67,28 +96,36 @@ export default function BranchDetailScreen({ route }: Props) {
       Alert.alert("Thông báo", "Bạn cần đăng nhập để đánh giá");
       return;
     }
-    if (!newComment.trim()) {
-      Alert.alert("Lỗi", "Vui lòng nhập nội dung đánh giá");
+
+    // Kiểm tra rating
+    if (newRating < 1 || newRating > 5) {
+      Alert.alert("Lỗi", "Vui lòng chọn số sao từ 1 đến 5");
+      return;
+    }
+
+    // Kiểm tra comment
+    if (!validateComment(newComment)) {
+      Alert.alert("Lỗi", commentError || "Nội dung đánh giá không hợp lệ");
       return;
     }
 
     const data: CreateBranchReviewDto = {
-      userId: userInfo.id, // ✅ lấy userId từ Redux
-      branchId,
+      userId: Number(userInfo.id),
+      branchId: Number(branchId),
       rating: newRating,
-      comment: newComment,
-      approved: false,
+      comment: newComment.trim(),
+      approved: true,
     };
 
     try {
       await branchReviewService.create(data);
       Alert.alert("Thành công", "Đánh giá của bạn đã gửi, chờ duyệt");
       setNewComment("");
-      setNewRating(5);
+      setNewRating(0);
       fetchBranchData();
     } catch (err: any) {
+      console.log("Review error:", err.response?.data || err.message);
       Alert.alert("Lỗi", "Không thể gửi đánh giá, thử lại sau");
-      console.log(err);
     }
   };
 
@@ -123,7 +160,6 @@ export default function BranchDetailScreen({ route }: Props) {
           <Text style={{ color: "#fff", marginTop: 4 }}>
             🕒 {branch.open ?? "?"} - {branch.close ?? "?"}
           </Text>
-          {/* Nút mua vé */}
           <TouchableOpacity
             onPress={() => navigation.navigate("TicketList", { branchId })}
             style={{
@@ -154,13 +190,7 @@ export default function BranchDetailScreen({ route }: Props) {
       )}
 
       {/* Thống kê */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          marginTop: 16,
-        }}
-      >
+      <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 16 }}>
         <View
           style={{
             flex: 1,
@@ -321,26 +351,34 @@ export default function BranchDetailScreen({ route }: Props) {
             </TouchableOpacity>
           ))}
         </View>
+        {newRating < 1 && (
+          <Text style={{ color: "red", marginBottom: 6 }}>Vui lòng chọn số sao</Text>
+        )}
 
         <TextInput
           placeholder="Viết đánh giá của bạn..."
           style={{
             borderWidth: 1,
-            borderColor: "#ddd",
+            borderColor: commentError ? "red" : "#ddd",
             borderRadius: 8,
             padding: 8,
-            marginBottom: 12,
+            marginBottom: 6,
             minHeight: 80,
           }}
           multiline
           value={newComment}
           onChangeText={setNewComment}
+          maxLength={500}
         />
+        <Text style={{ color: commentError ? "red" : colors.textSecondary, marginBottom: 12 }}>
+          {commentError || `${newComment.length}/500`}
+        </Text>
 
         <TouchableOpacity
           onPress={handleSubmitReview}
+          disabled={!isFormValid}
           style={{
-            backgroundColor: colors.primary,
+            backgroundColor: isFormValid ? colors.primary : "#ccc",
             padding: 12,
             borderRadius: 8,
             alignItems: "center",
