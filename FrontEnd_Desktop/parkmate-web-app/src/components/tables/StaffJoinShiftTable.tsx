@@ -46,11 +46,11 @@ export default function StaffJoinShiftTable() {
       setStaffs(response.filter(s => s.parkBranchId === Number(id)));      
     } catch (err) {
       console.log(err);
-      const message = 'Fetch nhân viên thất bại!';
-      toast.error(message, {
-        duration: 3000,
-        position: 'top-right',
-      });
+      // const message = 'Fetch nhân viên thất bại!';
+      // toast.error(message, {
+      //   duration: 3000,
+      //   position: 'top-right',
+      // });
     } finally {
       // do something
     }
@@ -60,17 +60,20 @@ export default function StaffJoinShiftTable() {
     try {
       const response = await branchStaffService.getAll();                                                                   
       const branchStaffs = response.filter(s => s.parkBranchId === Number(id));
-      const staffIds = branchStaffs.map(s => s.id);
+      const staffIds = branchStaffs.map(s => s.id);      
+      console.log("staffIds", staffIds);
 
-      const res = await staffAssignmentService.getAll();                                                                  
-      setStaffAssignments(res.filter(a => a.assignedDate === rawDate && staffIds.includes(a.staffId)));
+      const res = await staffAssignmentService.getAll();
+      console.log("response: staffassignments", res);                                                                  
+      setStaffAssignments(res.filter(a => a.assignedDate === rawDate && staffIds.includes(Number(a.staffId))));
+      console.log("response: staffassignments after filter", res.filter(a => a.assignedDate === rawDate && staffIds.includes(Number(a.staffId)))); 
     } catch (err) {
       console.log(err);
-      const message = 'Fetch phân ca thất bại!';
-      toast.error(message, {
-        duration: 3000,
-        position: 'top-right',
-      });
+      // const message = 'Fetch phân ca thất bại!';
+      // toast.error(message, {
+      //   duration: 3000,
+      //   position: 'top-right',
+      // });
     } finally {
       // do something for example setLoading
     }
