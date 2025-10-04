@@ -12,6 +12,7 @@ import park.management.com.vn.repository.BranchReviewRepository;
 import park.management.com.vn.repository.ParkBranchRepository;
 import park.management.com.vn.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import park.management.com.vn.service.BranchReviewService;
 
@@ -73,10 +74,12 @@ public class BranchReviewServiceImpl implements BranchReviewService {
         ParkBranch branch = branchRepository.findById(request.getBranchId())
                 .orElseThrow(() -> new RuntimeException("Branch not found"));
         
-        review = mapper.toEntity(request);
         review.setUserEntity(userEntity);
         review.setParkBranch(branch);
-        review.setId(id);
+        review.setApproved(request.getApproved());
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
+        review.setUpdatedAt(LocalDateTime.now());
 
         BranchReview saved = reviewRepository.save(review);
         return mapper.toResponse(saved);

@@ -146,10 +146,14 @@ export default function ReviewTable() {
                     {review.comment}
                   </TableCell>   
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {format(parseISO(review.createdAt), 'dd/MM/yyyy HH:mm:ss')}
+                    {review.createdAt
+                    ? format(parseISO(review.createdAt), 'dd/MM/yyyy HH:mm:ss')
+                    : 'N/A'}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {format(parseISO(review.updatedAt), 'dd/MM/yyyy HH:mm:ss')}
+                    {review.createdAt
+                    ? format(parseISO(review.updatedAt), 'dd/MM/yyyy HH:mm:ss')
+                    : 'N/A'}
                   </TableCell>                                                                                                        
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     <Badge                      
