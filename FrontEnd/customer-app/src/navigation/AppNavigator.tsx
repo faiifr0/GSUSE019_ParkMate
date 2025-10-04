@@ -32,6 +32,7 @@ import OrderDetailScreen from "../screens/Order/OrderDetailScreen";
 import OrderListScreen from "../screens/Order/OrderListScreen";
 import GameDetailScreen from "../screens/Game/GameDetailScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import EventScreen from "../screens/Event/EventScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 export const navigationRef = React.createRef<NavigationContainerRef<any>>();
@@ -59,6 +60,7 @@ function MainAppStack() {
       <Stack.Screen name="GameDetail" component={GameDetailScreen} />
       <Stack.Screen name="Wallet" component={WalletScreen} />
       <Stack.Screen name="TopUp" component={TopUpConfirmScreen} />
+      <Stack.Screen name="EventDetail" component={EventScreen} />
       <Stack.Screen name="Contact" component={ContactScreen} />
       <Stack.Screen name="TicketList" component={TicketListScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />

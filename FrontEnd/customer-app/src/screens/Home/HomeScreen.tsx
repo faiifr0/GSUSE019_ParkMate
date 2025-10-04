@@ -1,5 +1,5 @@
 // src/screens/Home/HomeScreen.tsx
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -19,6 +19,8 @@ import { RootState } from "../../redux/store";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/types";
 import { useHomeData } from "../../hooks/useHomeData";
+import eventService from "../../services/eventService";
+import { Event } from "../../types/Event";
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
@@ -27,7 +29,6 @@ type HomeScreenProps = {
 // Hoverable wrapper cho web
 const HoverableCard = ({ children, style }: { children: React.ReactNode; style?: any }) => {
   const [hover, setHover] = React.useState(false);
-
   if (Platform.OS === "web") {
     return (
       <div
@@ -42,7 +43,6 @@ const HoverableCard = ({ children, style }: { children: React.ReactNode; style?:
       </div>
     );
   }
-
   return <View style={style}>{children}</View>;
 };
 
@@ -50,6 +50,94 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   const user = useSelector((state: RootState) => state.user.userInfo);
   const { branches, nearestBranch, promotions, hotGames, coin, loading, refreshing, error, onRefresh } =
     useHomeData(user?.id);
+
+  // ---------------- Event state ----------------
+  const [events, setEvents] = useState<Event[]>([]);
+  const [currentEventIndex, setCurrentEventIndex] = useState(0);
+  const scrollRefWeb = useRef<ScrollView>(null);
+  const flatListRefMobile = useRef<FlatList>(null);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const data = await eventService.getAll();
+      setEvents(data);
+    } catch (err) {
+      console.log("Error fetching events:", err);
+    }
+  };
+
+// ---------------- AUTO SCROLL WEB ----------------
+useEffect(() => {
+  if (Platform.OS === "web" && events.length > 0) {
+    const interval = setInterval(() => {
+      const nextIndex = (currentEventIndex + 4) % events.length; // mỗi lần 4 event
+      setCurrentEventIndex(nextIndex);
+      scrollRefWeb.current?.scrollTo({
+        x: nextIndex * (220 + 16), // width item + marginRight
+        animated: true,
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }
+}, [currentEventIndex, events]);
+
+  const handlePrevWeb = () => {
+    const prevIndex = (currentEventIndex - 1 + events.length) % events.length;
+    setCurrentEventIndex(prevIndex);
+    scrollRefWeb.current?.scrollTo({ x: prevIndex * 240, animated: true });
+  };
+
+  const handleNextWeb = () => {
+    const nextIndex = (currentEventIndex + 1) % events.length;
+    setCurrentEventIndex(nextIndex);
+    scrollRefWeb.current?.scrollTo({ x: nextIndex * 240, animated: true });
+  };
+
+  // ---------------- Mobile auto scroll ----------------
+  useEffect(() => {
+    if (Platform.OS !== "web") {
+      const interval = setInterval(() => {
+        if (events.length === 0) return;
+        const nextIndex = (currentEventIndex + 1) % events.length;
+        setCurrentEventIndex(nextIndex);
+        flatListRefMobile.current?.scrollToIndex({ index: nextIndex, animated: true });
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [currentEventIndex, events]);
+
+// ---------------- AUTO SCROLL ----------------
+useEffect(() => {
+  if (Platform.OS !== "web" && events.length > 0) {
+    const interval = setInterval(() => {
+      // mỗi lần next 4 item
+      const nextIndex = (currentEventIndex + 4) % events.length;
+      setCurrentEventIndex(nextIndex);
+      flatListRefMobile.current?.scrollToIndex({
+        index: nextIndex,
+        animated: true,
+        viewPosition: 0, // luôn show đầu tiên của lượt
+      });
+    }, 3000); // 3 giây
+    return () => clearInterval(interval);
+  }
+}, [currentEventIndex, events]);
+
+  const handlePrevMobile = () => {
+    const prevIndex = (currentEventIndex - 1 + events.length) % events.length;
+    setCurrentEventIndex(prevIndex);
+    flatListRefMobile.current?.scrollToIndex({ index: prevIndex, animated: true });
+  };
+
+  const handleNextMobile = () => {
+    const nextIndex = (currentEventIndex + 1) % events.length;
+    setCurrentEventIndex(nextIndex);
+    flatListRefMobile.current?.scrollToIndex({ index: nextIndex, animated: true });
+  };
 
   // ---------------- WEB ----------------
   if (Platform.OS === "web") {
@@ -68,7 +156,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       );
 
     return (
-      <ScrollView style={styles.webScroll} contentContainerStyle={styles.webContainer} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.webScroll} contentContainerStyle={styles.webContainer}>
         {/* Hero */}
         <View style={styles.heroContainer}>
           <Text style={styles.heroText}>KHU VUI CHƠI ĐẦY SẮC MÀU</Text>
@@ -79,6 +167,51 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             <Text style={styles.heroButtonText}>Khám phá ngay</Text>
           </TouchableOpacity>
         </View>
+
+{/* Events */}
+<View style={styles.section}>
+  <Text style={[styles.sectionTitle, { color: "#FF6A00" }]}>🎉 Sự kiện nổi bật</Text>
+  {events.length > 0 ? (
+    <ScrollView
+      ref={scrollRefWeb}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ flexDirection: "row" }}
+      pagingEnabled={true}
+    >
+      {events.map((event, index) => (
+        <HoverableCard
+          key={event.id}
+          style={{
+            width: 220,
+            marginRight: 16,
+            borderRadius: 12,
+            overflow: "hidden",
+            backgroundColor: "#fff",
+            elevation: 3,
+          }}
+        >
+          <TouchableOpacity onPress={() => navigation.navigate("EventDetail", { eventId: event.id })}>
+            <Image
+              source={{ uri: event.imageUrl || "https://via.placeholder.com/220x140" }}
+              style={{ width: "100%", height: 140 }}
+            />
+            <View style={{ padding: 12 }}>
+              <Text style={{ fontWeight: "bold" }} numberOfLines={2}>
+                {event.name}
+              </Text>
+              <Text style={{ color: "#666", marginTop: 4 }} numberOfLines={2}>
+                {event.description}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </HoverableCard>
+      ))}
+    </ScrollView>
+  ) : (
+    <Text>Chưa có sự kiện</Text>
+  )}
+</View>
 
         {/* Hot Games */}
         <View style={styles.section}>
@@ -194,34 +327,66 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           <>
             {error && <Text style={{ color: "red" }}>{error}</Text>}
 
-            {/* Nearest Branch */}
-            {nearestBranch && (
-              <TouchableOpacity onPress={() => navigation.navigate("BranchDetail", { branchId: nearestBranch.id })}>
-                <Animatable.View animation="bounceIn" duration={900} style={styles.mobileNearestBranch}>
-                  <Text style={{ fontWeight: "bold", fontSize: 18 }}>Chi nhánh gần nhất</Text>
-                  <Text>{nearestBranch.name}</Text>
-                  <Text>{nearestBranch.address ?? "Chưa có địa chỉ"}</Text>
-                  <Text>🕒 {nearestBranch.open ?? "?"} - {nearestBranch.close ?? "?"}</Text>
-                </Animatable.View>
-              </TouchableOpacity>
-            )}
+{/* Events Mobile */}
+<Text style={styles.mobileSectionTitle}>🎉 Sự kiện nổi bật</Text>
+{events.length > 0 ? (
+  <FlatList
+    ref={flatListRefMobile}
+    horizontal
+    data={events}
+    showsHorizontalScrollIndicator={false}
+    keyExtractor={(item) => item.id.toString()}
+    pagingEnabled
+    snapToInterval={240 * 4 + 16 * 4} // mỗi item 240, margin 16, 4 item/lượt
+    decelerationRate="fast"
+    renderItem={({ item }) => (
+      <TouchableOpacity
+        onPress={() => navigation.navigate("EventDetail", { eventId: item.id })}
+        style={{
+          width: 240,
+          marginRight: 16,
+          borderRadius: 16,
+          overflow: "hidden",
+          backgroundColor: "#fff",
+          elevation: 3,
+        }}
+      >
+        <Image
+          source={{ uri: item.imageUrl || "https://via.placeholder.com/240x150" }}
+          style={{ width: "100%", height: 150 }}
+        />
+        <View style={{ padding: 12 }}>
+          <Text style={{ fontWeight: "bold", fontSize: 16 }} numberOfLines={2}>
+            {item.name}
+          </Text>
+          <Text style={{ color: "#666", marginTop: 4 }} numberOfLines={2}>
+            {item.description}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    )}
+  />
+) : (
+  <Text>Chưa có sự kiện</Text>
+)}
 
-            {/* Branches */}
+
+            {/* Hot Games Mobile */}
             <Animatable.Text animation="fadeIn" style={styles.mobileSectionTitle}>
-              Danh sách chi nhánh
+              🎡 Trò chơi hot
             </Animatable.Text>
             <FlatList
               horizontal
-              data={branches}
+              data={hotGames}
               renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => navigation.navigate("BranchDetail", { branchId: item.id })}>
+                <TouchableOpacity onPress={() => navigation.navigate("GameDetail", { gameId: item.id })}>
                   <Animatable.View animation="fadeInUp" style={styles.mobileCard}>
                     <Image source={{ uri: item.imageUrl || "https://via.placeholder.com/150" }} style={styles.mobileCardImage} />
                     <Text style={{ fontWeight: "bold", marginTop: 8 }} numberOfLines={1}>
                       {item.name}
                     </Text>
                     <Text style={{ color: "#555" }} numberOfLines={1}>
-                      {item.address ?? ""}
+                      {item.description}
                     </Text>
                   </Animatable.View>
                 </TouchableOpacity>
@@ -230,7 +395,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               showsHorizontalScrollIndicator={false}
             />
 
-            {/* Promotions */}
+            {/* Promotions Mobile */}
             <Animatable.Text animation="fadeIn" style={styles.mobileSectionTitle}>
               Khuyến mãi nổi bật
             </Animatable.Text>
@@ -249,6 +414,38 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               keyExtractor={(item) => item.id.toString()}
               showsHorizontalScrollIndicator={false}
             />
+
+            {/* Nearest Branch Mobile */}
+            {nearestBranch && (
+              <TouchableOpacity onPress={() => navigation.navigate("BranchDetail", { branchId: nearestBranch.id })}>
+                <Animatable.View animation="bounceIn" duration={900} style={styles.mobileNearestBranch}>
+                  <Text style={{ fontWeight: "bold", fontSize: 18 }}>Chi nhánh gần nhất</Text>
+                  <Text>{nearestBranch.name}</Text>
+                  <Text>{nearestBranch.address ?? "Chưa có địa chỉ"}</Text>
+                  <Text>🕒 {nearestBranch.open ?? "?"} - {nearestBranch.close ?? "?"}</Text>
+                </Animatable.View>
+              </TouchableOpacity>
+            )}
+
+            {/* Branches Mobile */}
+            <Animatable.Text animation="fadeIn"   style={styles.mobileSectionTitle}>
+              Danh sách chi nhánh
+            </Animatable.Text>
+            <FlatList
+              horizontal
+              data={branches}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => navigation.navigate("BranchDetail", { branchId: item.id })}>
+                  <Animatable.View animation="fadeInUp" style={styles.mobileCard}>
+                    <Image source={{ uri: item.imageUrl || "https://via.placeholder.com/150" }} style={styles.mobileCardImage} />
+                    <Text style={{ fontWeight: "bold", marginTop: 8 }} numberOfLines={1}>{item.name}</Text>
+                    <Text style={{ color: "#555" }} numberOfLines={1}>{item.address ?? ""}</Text>
+                  </Animatable.View>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.id.toString()}
+              showsHorizontalScrollIndicator={false}
+            />
           </>
         )}
       </ScrollView>
@@ -260,24 +457,24 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: "center", alignItems: "center" },
   webScroll: { flex: 1, backgroundColor: "transparent" },
-  webContainer: { flexGrow: 1, padding: 60 },
+  webContainer: { flexGrow: 1, width: "80%", marginHorizontal: "auto" },
   heroContainer: { paddingVertical: 120, alignItems: "center", justifyContent: "center" },
   heroText: { fontSize: 52, fontWeight: "900", color: "white", textAlign: "center" },
   heroButton: { marginTop: 40, backgroundColor: colors.primary, paddingVertical: 16, paddingHorizontal: 32, borderRadius: 12 },
   heroButtonText: { color: "white", fontSize: 20, fontWeight: "700" },
   section: { marginBottom: 60 },
   sectionTitle: { fontSize: 28, fontWeight: "700", marginBottom: 20 },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 20, justifyContent: "center" },
-  card: { width: 220, backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 3 },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: 16 },
+  card: { width: 220, borderRadius: 12, overflow: "hidden", backgroundColor: "#fff", elevation: 3 },
   cardImage: { width: "100%", height: 140 },
   cardContent: { padding: 12 },
-  cardTitle: { fontSize: 16, fontWeight: "600" },
-  cardSubtitle: { fontSize: 14, color: "#666" },
-  promoCard: { backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 3 },
-  nearestBranch: { backgroundColor: "#fff", borderRadius: 20, padding: 30, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 3, marginBottom: 40 },
+  cardTitle: { fontWeight: "bold", fontSize: 16 },
+  cardSubtitle: { color: "#666", fontSize: 14, marginTop: 4 },
+  promoCard: { borderRadius: 12, overflow: "hidden", backgroundColor: "#fff", elevation: 3 },
+  nearestBranch: { marginBottom: 60 },
   mobileTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 16 },
-  mobileNearestBranch: { backgroundColor: "#f9f9f9", padding: 16, borderRadius: 12, marginBottom: 20 },
-  mobileSectionTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 16 },
-  mobileCard: { width: 150, marginRight: 12, backgroundColor: "#fff", borderRadius: 12, padding: 8, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 4 },
+  mobileSectionTitle: { fontSize: 20, fontWeight: "bold", marginVertical: 12 },
+  mobileCard: { width: 160,marginBottom:60, borderRadius: 12, backgroundColor: "#fff", marginRight: 12, overflow: "hidden", elevation: 3, padding: 8 },
   mobileCardImage: { width: "100%", height: 100, borderRadius: 8 },
+  mobileNearestBranch: { backgroundColor: "#fff", padding: 16, borderRadius: 12, elevation: 3, marginVertical: 12 },
 });

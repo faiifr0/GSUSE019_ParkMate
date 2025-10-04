@@ -24,6 +24,7 @@ export type RootStackParamList = {
   PromotionDetail: { promoId: number };
   WalletTopupSuccessScreen: undefined;
   WalletTopupCancelScreen: undefined;
+  EventDetail: { eventId: number };
 };
 
 export type BottomTabParamList = {
