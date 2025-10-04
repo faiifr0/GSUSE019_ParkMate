@@ -13,6 +13,7 @@ const orderService = {
 
   getByUserId: async (userId: number): Promise<Order[]> => {
     const { data } = await axiosClient.get(`/orders`, { params: { userId } });
+    console.log("Order data from API:", data);
     return data;
   },
 

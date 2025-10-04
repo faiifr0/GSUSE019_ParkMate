@@ -91,9 +91,6 @@ export default function ProfileScreen({ navigation }: any) {
         }}
       >
         <Text style={{ fontSize: 16, marginBottom: 8, color: colors.textPrimary }}>
-          🏢 Chi nhánh: {user?.parkBranchName || "Chưa có"}
-        </Text>
-        <Text style={{ fontSize: 16, marginBottom: 8, color: colors.textPrimary }}>
           💰 Số dư ví: {walletBalance} coin
         </Text>
 

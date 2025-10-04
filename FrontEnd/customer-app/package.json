@@ -10,7 +10,7 @@
     "clean-ios": "cd ios && pod install --repo-update && cd ..",
     "web": "npx expo start --web",
     "prebuild": "expo prebuild",
-    "build:web": "npx expo export --platform web",
+    "build" :"expo export:web",
     "deploy:web": "npx expo export --platform web && vercel --prod"
   },
   "dependencies": {

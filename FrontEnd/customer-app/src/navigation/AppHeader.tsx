@@ -127,7 +127,7 @@ export default function AppHeader(props: NativeStackHeaderProps) {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => navigation.navigate("TicketList")}
+              onPress={() => navigation.navigate("OrderList")}
               style={{
                 backgroundColor: colors.primary,
                 paddingHorizontal: 20,
@@ -136,7 +136,7 @@ export default function AppHeader(props: NativeStackHeaderProps) {
               }}
             >
               <Text style={{ color: "white", fontWeight: "600", fontSize: 16 }}>
-                ĐẶT VÉ NGAY
+                VÉ CỦA BẠN
               </Text>
             </TouchableOpacity>
           </>

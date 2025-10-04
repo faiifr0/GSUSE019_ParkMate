@@ -30,6 +30,7 @@ import WalletTopupSuccessScreen from "../screens/Wallet/WalletTopupSuccessScreen
 import WalletTopupCancelScreen from "../screens/Wallet/WalletTopupCancelScreen";
 import OrderConfirmScreen from "../screens/Order/OrderConfirmScreen";
 import OrderDetailScreen from "../screens/Order/OrderDetailScreen";
+import OrderListScreen from "../screens/Order/OrderListScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -65,6 +66,8 @@ function MainAppStack() {
       <Stack.Screen name="WalletTopupCancelScreen" component={WalletTopupCancelScreen} />
       <Stack.Screen name="OrderConfirm" component={OrderConfirmScreen} />
       <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+      <Stack.Screen name="OrderList" component={OrderListScreen} />
+
     </Stack.Navigator>
   );
 }
@@ -143,18 +146,19 @@ export default function AppNavigatorInnerBase() {
         }         
       }
 
-      const payload = decodeJWT(token!);       
+const payload = decodeJWT(token!);
+const expSec = payload?.exp ?? null;
 
-      const expSec = payload?.exp ?? null;
-      
-      if (!expSec) {        
-        dispatch(setCredentials({ token, userInfo: payload ?? null }));        
-        if (mounted) {
-          setIsValid(true);
-          setChecking(false);
-        }      
-        return;
-      }      
+if (!expSec) {
+  // 🔹 Lưu decoded JWT vào userInfoCustomer
+  dispatch(setCredentials({ token, userInfoCustomer: payload }));
+
+  if (mounted) {
+    setIsValid(true);
+    setChecking(false);
+  }
+  return;
+}
 
       const expMs = expSec * 1000;
       const now = Date.now();
@@ -170,7 +174,6 @@ export default function AppNavigatorInnerBase() {
 
       // After all checks passed
       if (mounted) {        
-        dispatch(setCredentials({ token, userInfo: payload ?? null }));     
         setIsValid(true);
         setChecking(false);
       } 

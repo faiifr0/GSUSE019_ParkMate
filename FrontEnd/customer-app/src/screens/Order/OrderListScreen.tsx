@@ -26,8 +26,12 @@ export default function OrderListScreen({ navigation }: Props) {
 
   // Load đơn hàng user
   useEffect(() => {
-    if (user?.id) fetchOrdersByUser(user.id);
-  }, [user]);
+  if (user?.id) {
+    console.log("[OrderListScreen] fetching orders for user:", user.id);
+    fetchOrdersByUser(user.id);
+  }
+}, [user]);
+
 
   // Helper map ticketTypeId -> branch
   const getBranchName = (ticketTypeId: number | undefined) => {

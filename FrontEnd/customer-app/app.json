@@ -24,7 +24,10 @@
             "scheme": "parkmate",
             "host": "app"
           },
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ],
       "adaptiveIcon": {
@@ -62,9 +65,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "d639c636-8fa0-4d0b-a225-0f7645b628c4"
+        "projectId": "aea5b07f-7e0e-49af-b593-bafa4544ab9d"
       }
     },
-    "owner": "hoanghapho123"
+    "owner": "nhat150988"
   }
 }

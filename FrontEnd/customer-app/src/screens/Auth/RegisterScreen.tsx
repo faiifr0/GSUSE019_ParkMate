@@ -1,19 +1,16 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { TextInput, Button } from "react-native-paper";
+import { TextInput } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import AuthLayout from "../../components/AuthLayout";
 import colors from "../../constants/colors";
-import { useRegister } from "../../hooks/useRegister";
-import { useDispatch } from "react-redux";
-import { setCredentials } from "../../redux/userSlice";
-import { UserRequest } from "../../types/User";
 import { LinearGradient } from "expo-linear-gradient";
+import { UserRequest } from "../../types/User";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function RegisterScreen() {
-  const { handleRegister, loading } = useRegister();
+  const { register, loading } = useAuth(); // ✅ dùng useAuth
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +23,13 @@ export default function RegisterScreen() {
   const [snackbarColor, setSnackbarColor] = useState(colors.error);
 
   const onRegisterPress = async () => {
+    if (password !== confirmPassword) {
+      setSnackbarMsg("❌ Mật khẩu không khớp");
+      setSnackbarColor(colors.error);
+      setSnackbarVisible(true);
+      return;
+    }
+
     const payload: UserRequest = {
       username: email.split("@")[0],
       email,
@@ -35,15 +39,9 @@ export default function RegisterScreen() {
       dob,
     };
 
-    const result = await handleRegister(payload, confirmPassword);
+    const result = await register(payload);
 
-    if (result.success && result.data) {
-      dispatch(
-        setCredentials({
-          token: result.data.token,
-          userInfo: result.data.userInfo,
-        })
-      );
+    if (result.success && result.user) {
       setSnackbarMsg("🎉 Đăng ký thành công!");
       setSnackbarColor(colors.success);
       setSnackbarVisible(true);
@@ -54,56 +52,50 @@ export default function RegisterScreen() {
         });
       }, 1500);
     } else {
-      setSnackbarMsg(result.errors?.join("\n") || "❌ Đăng ký thất bại");
+      setSnackbarMsg(result.error || "❌ Đăng ký thất bại");
       setSnackbarColor(colors.error);
       setSnackbarVisible(true);
     }
   };
 
-return (
-  <AuthLayout
-    snackbar={{ visible: snackbarVisible, msg: snackbarMsg, color: snackbarColor }}
-    setSnackbarVisible={setSnackbarVisible}
-  >
-    <View style={styles.form}>
-      {/* 👉 Tiêu đề */}
-      <Text style={styles.title}>Đăng ký</Text>
-      {/* 👉 Slogan */}
-    <Text style={styles.slogan}>
-      🎡 Trải nghiệm công viên giải trí dễ dàng cùng{" "}
-      <Text style={{ color: "#FF6B6B", fontWeight: "bold" }}>ParkMate</Text>!
-    </Text>
+  return (
+    <AuthLayout
+      snackbar={{ visible: snackbarVisible, msg: snackbarMsg, color: snackbarColor }}
+      setSnackbarVisible={setSnackbarVisible}
+    >
+      <View style={styles.form}>
+        <Text style={styles.title}>Đăng ký</Text>
+        <Text style={styles.slogan}>
+          🎡 Trải nghiệm công viên giải trí dễ dàng cùng{" "}
+          <Text style={{ color: "#FF6B6B", fontWeight: "bold" }}>ParkMate</Text>!
+        </Text>
 
-      {/* Các ô input */}
-      <TextInput label="Email" value={email} onChangeText={setEmail} mode="outlined" style={styles.input} keyboardType="email-address"/>
-      <TextInput label="Mật khẩu" value={password} onChangeText={setPassword} secureTextEntry mode="outlined" style={styles.input}/>
-      <TextInput label="Xác nhận mật khẩu" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry mode="outlined" style={styles.input}/>
-      <TextInput label="Họ và tên" value={fullName} onChangeText={setFullName} mode="outlined" style={styles.input}/>
-      <TextInput label="Số điện thoại" value={phone} onChangeText={setPhone} mode="outlined" style={styles.input} keyboardType="phone-pad"/>
-      <TextInput label="Ngày sinh (yyyy-mm-dd)" value={dob} onChangeText={setDob} mode="outlined" style={styles.input}/>
+        <TextInput label="Email" value={email} onChangeText={setEmail} mode="outlined" style={styles.input} keyboardType="email-address"/>
+        <TextInput label="Mật khẩu" value={password} onChangeText={setPassword} secureTextEntry mode="outlined" style={styles.input}/>
+        <TextInput label="Xác nhận mật khẩu" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry mode="outlined" style={styles.input}/>
+        <TextInput label="Họ và tên" value={fullName} onChangeText={setFullName} mode="outlined" style={styles.input}/>
+        <TextInput label="Số điện thoại" value={phone} onChangeText={setPhone} mode="outlined" style={styles.input} keyboardType="phone-pad"/>
+        <TextInput label="Ngày sinh (yyyy-mm-dd)" value={dob} onChangeText={setDob} mode="outlined" style={styles.input}/>
 
-      {/* Nút đăng ký */}
-      <TouchableOpacity onPress={onRegisterPress} style={{ borderRadius: 10, overflow: "hidden", marginTop: 12 }}>
-        <LinearGradient
-          colors={["#673AB7", "#FF6B6B"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "Đang đăng ký..." : "Đăng ký"}
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={onRegisterPress} style={{ borderRadius: 10, overflow: "hidden", marginTop: 12 }}>
+          <LinearGradient
+            colors={["#673AB7", "#FF6B6B"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.button}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Đang đăng ký..." : "Đăng ký"}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
 
-      {/* Link đăng nhập */}
-      <Text style={styles.linkText} onPress={() => navigation.navigate("Login" as never)}>
-        Đã có tài khoản? <Text style={{ color: "#673AB7" }}>Đăng nhập</Text>
-      </Text>
-    </View>
-  </AuthLayout>
-);
-
+        <Text style={styles.linkText} onPress={() => navigation.navigate("Login" as never)}>
+          Đã có tài khoản? <Text style={{ color: "#673AB7" }}>Đăng nhập</Text>
+        </Text>
+      </View>
+    </AuthLayout>
+  );
 }
 
 const styles = StyleSheet.create({

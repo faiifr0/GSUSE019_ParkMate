@@ -18,6 +18,7 @@ export interface OrderPass {
 export interface Order {
   orderId: number;
   status: string;
+  finalAmount: number;
   details: OrderDetail[];
   passes: OrderPass[];
 }

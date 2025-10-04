@@ -62,19 +62,13 @@ export default function OrderDetailScreen({ route }: Props) {
     (sum, d) => sum + d.price * d.quantity,
     0
   );
-  const totalDiscount = currentOrder.details.reduce(
-    (sum, d) => sum + d.discount,
-    0
-  );
-  const totalAmount = currentOrder.details.reduce(
-    (sum, d) => sum + d.finalPrice,
-    0
-  );
-
+  
+  const totalAmount = currentOrder.finalAmount; 
+const totalDiscount = totalOriginal - totalAmount;
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, padding: 16 }}>
       <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 16 }}>
-        Chi tiết Order #{currentOrder.orderId}
+        Chi tiết đơn hàng của bạn
       </Text>
 
       {/* Thông tin chi nhánh */}

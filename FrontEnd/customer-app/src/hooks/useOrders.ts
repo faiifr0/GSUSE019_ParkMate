@@ -9,17 +9,21 @@ export function useOrders() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchOrdersByUser = useCallback(async (userId: number) => {
-    setLoading(true);
-    try {
-      const data = await orderService.getByUserId(userId);
-      setOrders(data);
-      setError(null);
-    } catch (err: any) {
-      setError(err.message || "Lỗi tải danh sách đơn hàng");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  console.log("[useOrders] fetchOrdersByUser called with userId:", userId);
+  setLoading(true);
+  try {
+    const data = await orderService.getByUserId(userId);
+    console.log("[useOrders] fetched orders data:", data);
+    setOrders(data);
+    setError(null);
+  } catch (err: any) {
+    console.error("[useOrders] fetchOrdersByUser error:", err);
+    setError(err.message || "Lỗi tải danh sách đơn hàng");
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
   const fetchOrderById = useCallback(async (id: number) => {
     setLoading(true);

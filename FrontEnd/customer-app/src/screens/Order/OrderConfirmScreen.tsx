@@ -1,5 +1,5 @@
 // src/screens/Order/OrderConfirmScreen.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,8 @@ import colors from "../../constants/colors";
 import { useOrders } from "../../hooks/useOrders";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import voucherService from "../../services/voucherService";
+import { Voucher } from "../../types/Voucher";
 
 // Utils parse ngày từ string
 const parseDateString = (input: string): Date | null => {
@@ -49,7 +51,11 @@ export default function OrderConfirmScreen({ route, navigation }: Props) {
   const { createOrder, loading } = useOrders();
   const user = useSelector((state: RootState) => state.user.userInfo);
 
-  const [voucher, setVoucher] = useState("");
+  // Voucher
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [selectedVoucher, setSelectedVoucher] = useState<string>("");
+
+  // Ngày đặt
   const [date, setDate] = useState(() => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -58,29 +64,43 @@ export default function OrderConfirmScreen({ route, navigation }: Props) {
   const [showPicker, setShowPicker] = useState(false);
   const [dateInput, setDateInput] = useState("");
 
+  // Tính tổng và số vé
   const total = cart.reduce(
     (sum, item) => sum + item.ticket.basePrice * item.quantity,
     0
   );
   const totalTickets = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Tính tuổi từ dob
+  // Tính tuổi khách
   const customerAge = user?.dob
     ? new Date().getFullYear() - new Date(user.dob).getFullYear()
     : 25;
 
+  // Load voucher cho chi nhánh
+  useEffect(() => {
+    const fetchVouchers = async () => {
+      try {
+        const data = await voucherService.getByBranchId(branchId);
+        setVouchers(data);
+      } catch (err) {
+        console.log("Lỗi tải voucher:", err);
+      }
+    };
+    fetchVouchers();
+  }, [branchId]);
+
   const handleConfirm = async () => {
+    console.log("createOrders",selectedVoucher);
     if (!cart.length) {
       Alert.alert("Lỗi", "Giỏ hàng đang trống");
       return;
     }
-
-    if (totalTickets > 1000) {
-      Alert.alert("Lỗi", "Bạn chỉ có thể đặt tối đa 1000 vé");
+    if (totalTickets > 10) {
+      Alert.alert("Lỗi", "Bạn chỉ có thể đặt tối đa 10 vé");
       return;
     }
 
-    // Nếu có nhập tay ngày thì parse
+    // Parse ngày nhập tay nếu có
     let selectedDate = date;
     if (dateInput) {
       const parsed = parseDateString(dateInput);
@@ -92,8 +112,8 @@ export default function OrderConfirmScreen({ route, navigation }: Props) {
     }
 
     const now = new Date();
-    const minTime = new Date(now.getTime() + 3 * 60 * 60 * 1000); // 3h sau
-    const maxDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 ngày sau
+    const minTime = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+    const maxDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
     if (selectedDate < minTime || selectedDate > maxDate) {
       Alert.alert(
@@ -110,30 +130,24 @@ export default function OrderConfirmScreen({ route, navigation }: Props) {
           ticketTypeId: c.ticket.id,
           quantity: c.quantity,
         })),
-        ticketDate: selectedDate.toISOString().split("T")[0], // YYYY-MM-DD
+        ticketDate: selectedDate.toISOString().split("T")[0],
         customerName: user?.fullName ?? "Khách lẻ",
         customerAge,
         customerPhone: user?.phoneNumber ?? "0900000000",
         customerEmail: user?.email ?? "test@example.com",
-        voucherCode: voucher || undefined,
+        voucherCode: selectedVoucher || undefined,
       };
 
       console.log("Gửi payload API:", payload);
-
       const order = await createOrder(payload);
-
       console.log("Dữ liệu trả về từ API:", order);
 
       if (!order) {
         Alert.alert("Lỗi", "Không thể tạo đơn hàng");
         return;
       }
-
       if (order.status === "FAILED") {
-        Alert.alert(
-          "Lỗi",
-          "Số dư không đủ hoặc voucher không hợp lệ"
-        );
+        Alert.alert("Lỗi", "Số dư không đủ hoặc voucher không hợp lệ");
         return;
       }
 
@@ -202,6 +216,7 @@ export default function OrderConfirmScreen({ route, navigation }: Props) {
         />
       )}
 
+      {/* List giỏ hàng */}
       <FlatList
         data={cart}
         keyExtractor={(item) => item.ticket.id.toString()}
@@ -221,21 +236,42 @@ export default function OrderConfirmScreen({ route, navigation }: Props) {
             </Text>
           </View>
         )}
+        ListHeaderComponent={
+          <>
+            <Text style={{ fontWeight: "bold", marginBottom: 8 }}>
+              Chọn voucher:
+            </Text>
+            <FlatList
+              data={vouchers.filter((v) => voucherService.isValidNow(v))}
+              keyExtractor={(item) => item.code}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ marginBottom: 16 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => setSelectedVoucher(item.code)}
+                  style={{
+                    paddingVertical: 8,
+                    paddingHorizontal: 12,
+                    marginRight: 8,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor:
+                      selectedVoucher === item.code ? colors.primary : "#ddd",
+                    backgroundColor:
+                      selectedVoucher === item.code ? "#E0F0FF" : "#fff",
+                  }}
+                >
+                  <Text style={{ fontWeight: "600" }}>
+                    {item.code} - {item.percent * 100}%
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          </>
+        }
         ListFooterComponent={
           <>
-            <TextInput
-              placeholder="Nhập mã giảm giá"
-              value={voucher}
-              onChangeText={setVoucher}
-              style={{
-                borderWidth: 1,
-                borderColor: "#ddd",
-                borderRadius: 8,
-                padding: 10,
-                marginTop: 16,
-                backgroundColor: "#fff",
-              }}
-            />
             <Text style={{ fontSize: 18, fontWeight: "600", marginTop: 16 }}>
               Tổng: {total.toLocaleString()} VND
             </Text>

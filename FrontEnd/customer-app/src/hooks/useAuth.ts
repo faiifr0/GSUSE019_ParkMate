@@ -30,28 +30,33 @@ export const useAuth = () => {
     return { userData, walletData };
   }, [dispatch]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      const res = await loginUser(email, password);
-      const token: string | null = res.data?.accessToken ?? null;
-      if (!token) throw new Error("No token");
+const login = useCallback(async (email: string, password: string) => {
+  setLoading(true);
+  try {
+    const res = await loginUser(email, password);
+    const token: string | null = res.data?.accessToken ?? null;
+    if (!token) throw new Error("No token");
 
-      await setToken(token);
-      const decoded: any = decodeJWT(token);
-      if (!decoded?.userId) throw new Error("No userId in token");
+    await setToken(token);
+    const decoded: any = decodeJWT(token);
+    if (!decoded?.userId) throw new Error("No userId in token");
 
-      const { userData, walletData } = await fetchUser(decoded.userId);
-      dispatch(setCredentials({ token, userInfo: userData }));
+    // 🔹 Lưu decoded JWT vào userInfoCustomer
+    dispatch(setCredentials({ userInfoCustomer: decoded }));
 
-      return { success: true, token, user: userData, wallet: walletData };
-    } catch (err: any) {
-      setError(err.message ?? "Login failed");
-      return { success: false, token: null, user: null, error: err.message ?? "Login failed" };
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchUser, dispatch]);
+    // 🔹 Fetch dữ liệu user đầy đủ từ API
+    const { userData, walletData } = await fetchUser(decoded.userId);
+    dispatch(setCredentials({ token, userInfo: userData }));
+
+    return { success: true, token, user: userData, wallet: walletData };
+  } catch (err: any) {
+    setError(err.message ?? "Login failed");
+    return { success: false, token: null, user: null, error: err.message ?? "Login failed" };
+  } finally {
+    setLoading(false);
+  }
+}, [fetchUser, dispatch]);
+
 
   const register = useCallback(async (data: UserRequest) => {
     try {
