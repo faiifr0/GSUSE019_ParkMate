@@ -13,6 +13,8 @@ import java.util.List;
 @Data
 public class TicketResponse {
   private Long orderId;
+  private Long parkBranchId;
+  private String parkBranchName;
   private BigDecimal finalAmount;
   private String status;
   private LocalDateTime createdAt;
