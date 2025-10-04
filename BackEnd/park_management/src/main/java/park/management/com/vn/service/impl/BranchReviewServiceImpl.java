@@ -76,6 +76,7 @@ public class BranchReviewServiceImpl implements BranchReviewService {
         review = mapper.toEntity(request);
         review.setUserEntity(userEntity);
         review.setParkBranch(branch);
+        review.setId(id);
 
         BranchReview saved = reviewRepository.save(review);
         return mapper.toResponse(saved);

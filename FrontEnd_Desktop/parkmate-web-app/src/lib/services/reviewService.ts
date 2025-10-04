@@ -1,5 +1,6 @@
 import axiosClient from "../axiosClient";
 import { gameUpdateModel } from "../model/gameUpdateModel";
+import { reviewUpdateModel } from "../model/reviewUpdateModel";
 
 export type ReviewResponse = {
   id: string,
@@ -37,7 +38,7 @@ const reviewService = {
 
   updateReview: async (
     id: string, 
-    model?: gameUpdateModel
+    model?: reviewUpdateModel
   ): Promise<ReviewResponse> => {
     try {
       const res = await axiosClient.put<ReviewResponse>(`/branch-review/${id}`, model);

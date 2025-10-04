@@ -24,7 +24,6 @@ export default function ReviewTable() {
   const params = useParams();
   const id = String(params.id);
 
-  const [formData, setFormData] = useState<reviewUpdateModel>();
   const [reviews, setReviews] = useState<ReviewResponse[]>([]);
 
   // Fetch Branch Amenities List
@@ -47,14 +46,20 @@ export default function ReviewTable() {
   // Handle update logic here
   const handleUpdateStatus = async (review: ReviewResponse) => {        
     try {      
-      setFormData({      
+      const updatedData: reviewUpdateModel = {
         userId: review.userId,
-        branchId: review.branchId,        
+        branchId: review.branchId,
         approved: !review.approved,
-      });
+        rating: review.rating,
+        comment: review.comment,
+      };
+
+      console.log("Cập nhật đánh giá chi nhánh: ", updatedData);
+
+      await reviewService.updateReview(review.id, updatedData);      
 
       fetchReviews();      
-      setFormData(undefined);      
+          
       const message = "Cập nhật đánh giá chi nhánh thành công!";
       toast.success(message, {
         duration: 3000,
@@ -135,7 +140,7 @@ export default function ReviewTable() {
                     {review.email}                    
                   </TableCell>                                    
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
-                    {review.rating}
+                    {review.rating} / 5
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-sm dark:text-gray-400">
                     {review.comment}
