@@ -82,7 +82,7 @@ const BranchImageCard = () => {
     <div className="col-span-6 space-y-6">
       <div className="space-y-4">
         <img
-          src={imagePreview || branchInfo?.imageUrl ||'/images/stock/amusement-park-1.jpg'}
+          src={imagePreview || branchInfo?.imageUrl ||'/images/stock/no_image.png'}
           alt="Ảnh chi nhánh"
           className="w-full h-auto rounded shadow"
         />

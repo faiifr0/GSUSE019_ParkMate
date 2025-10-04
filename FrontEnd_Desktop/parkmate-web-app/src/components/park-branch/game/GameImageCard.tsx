@@ -86,7 +86,7 @@ const GameImageCard = () => {
       <div className="col-span-6 space-y-6">
         <div className="space-y-4">
             <img
-            src={imagePreview || gameInfo?.imageUrl || '/images/stock/amusement-park-1.jpg'}
+            src={imagePreview || gameInfo?.imageUrl || '/images/stock/no_image.png'}
             alt="Ảnh tiện nghi"
             className="w-full h-auto rounded shadow"
             />

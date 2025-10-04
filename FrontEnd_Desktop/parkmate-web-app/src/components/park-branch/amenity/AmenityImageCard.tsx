@@ -85,7 +85,7 @@ const AmenityImageCard = () => {
       <div className="col-span-6 space-y-6">
         <div className="space-y-4">
             <img
-            src={imagePreview || amenityInfo?.imageUrl || '/images/stock/amusement-park-1.jpg'}
+            src={imagePreview || amenityInfo?.imageUrl || '/images/stock/no_image.png'}
             alt="Ảnh tiện nghi"
             className="w-full h-auto rounded shadow"
             />
