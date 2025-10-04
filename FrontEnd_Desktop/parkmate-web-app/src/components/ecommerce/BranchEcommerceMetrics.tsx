@@ -1,30 +1,24 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Badge from "../ui/badge/Badge";
-import { ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon } from "@/components/icons";
-import userService, { UserResponse } from "@/lib/services/userService";
+import { ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon, ShootingStarIcon } from "@/components/icons";
+import userService from "@/lib/services/userService";
 import orderService, { orderResponse } from "@/lib/services/orderService";
+import { useAuth } from "../context/AuthContext";
+import reviewService, { ReviewResponse } from "@/lib/services/reviewService";
 
 export const BranchEcommerceMetrics = () => {
-  const [newCustomers, setNewCustomers] = useState<UserResponse[]>([]);
+  const { currUser } = useAuth();
+
+  const [reviews, setReviews] = useState<ReviewResponse[]>([]);
   const [newOrders, setNewOrders] = useState<orderResponse[]>([]);
   const [thisMonthRevenue, setthisMonthRevenue] = useState<number>(0);
 
-  const fetchNewCustomers = async () => {
+  const fetchReviews = async () => {
     try {
-      const response = await userService.getAll();
-      
-      const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
+      const response = await reviewService.getAllOfBranch(currUser?.parkBranchId.toString() || "1");            
 
-      const newCustomersThisMonth = response.filter(user =>
-        user.roles?.some(role => role.roleName === "CUSTOMER") &&
-        new Date(user.createdAt).getMonth() === currentMonth &&
-        new Date(user.createdAt).getFullYear() === currentYear
-      );
-
-      setNewCustomers(newCustomersThisMonth);
+      setReviews(response);
     } catch (err) {
       console.log(err);
     }
@@ -48,6 +42,8 @@ export const BranchEcommerceMetrics = () => {
       const currentYear = now.getFullYear();
 
       const newOrdersThisMonth = allOrders.filter(order =>
+        order.status === "PAID" &&
+        order.parkBranchId === currUser?.parkBranchId &&
         new Date(order.details[0].ticketDate).getMonth() === currentMonth &&
         new Date(order.details[0].ticketDate).getFullYear() === currentYear
       );
@@ -68,8 +64,14 @@ export const BranchEcommerceMetrics = () => {
     }
   };
 
+  const averageRating = useMemo(() => {
+    const approvedReviews = reviews.filter(review => review.approved);
+    const totalRating = approvedReviews.reduce((sum, review) => sum + review.rating, 0);
+    return approvedReviews.length > 0 ? totalRating / approvedReviews.length : 0;
+  }, [reviews]);
+
   useEffect(() => {
-    fetchNewCustomers();
+    fetchReviews();
     fetchNewOrders();
   }, []);
 
@@ -78,16 +80,16 @@ export const BranchEcommerceMetrics = () => {
       {/* <!-- Metric Item Start --> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-          <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />
+          <ShootingStarIcon className="text-gray-800 size-6 dark:text-white/90" />
         </div>
 
         <div className="flex items-end justify-between mt-5">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Khách hàng mới tháng này
+              Đánh giá chi nhánh
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              {newCustomers.length}
+              {averageRating.toFixed(2)} / 5
             </h4>
           </div>
           {/* <Badge color="success">
@@ -132,7 +134,7 @@ export const BranchEcommerceMetrics = () => {
               Doanh thu tháng này
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              {thisMonthRevenue} ₫
+              {thisMonthRevenue.toLocaleString('vi-VN')} ₫
             </h4>
           </div>
 

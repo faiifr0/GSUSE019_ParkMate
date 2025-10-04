@@ -20,7 +20,7 @@ const reviewService = {
       const res = await axiosClient.get<ReviewResponse[]>(`/branch-review/of-branch/${id}`);
       return res.data;
     } catch (error) {
-      console.error("❌ Error get all branch reviews: ", error);
+      console.error("❌ Error get all branch reviews of branch id {" + id + "} : ", error);
       throw error;
     }
   },

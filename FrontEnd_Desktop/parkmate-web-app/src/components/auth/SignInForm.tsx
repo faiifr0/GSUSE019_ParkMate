@@ -77,7 +77,7 @@ export default function SignInForm() {
                   <div className="relative">
                     <Input
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
+                      placeholder="Nhập mật khẩu của bạn"
                       onChange={(e) => setPassword(e.target.value)}                      
                     >
                     </Input>

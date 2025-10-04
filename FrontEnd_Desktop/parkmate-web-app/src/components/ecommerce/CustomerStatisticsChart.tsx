@@ -1,9 +1,10 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 // import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import ChartTab from "../common/ChartTab";
 import dynamic from "next/dynamic";
+import userService, { UserResponse } from "@/lib/services/userService";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -94,6 +95,9 @@ export default function CustomerStatisticsChart() {
       },
     },
     yaxis: {
+      min: 0,
+      max: 10,
+      tickAmount: 10,
       labels: {
         style: {
           fontSize: "12px", // Adjust font size for y-axis labels
@@ -109,16 +113,52 @@ export default function CustomerStatisticsChart() {
     },
   };
 
-  const series = [
+  const [series, setSeries] = useState([
     {
-      name: "Khách hàng",
-      data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+      name: "Khách hàng mới",
+      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     },
-    // {
-    //   name: "Revenue",
-    //   data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
-    // },
-  ];
+  ]);
+
+  const [newCustomers, setNewCustomers] = useState<UserResponse[]>([]);
+
+  const fetchNewCustomers = async () => {
+    try {
+      const customers = (await userService.getAll()).filter(user =>
+        user.roles?.some(role => role.roleName === "CUSTOMER") && 
+        new Date(user.createdAt).getFullYear() === new Date().getFullYear()
+      );
+
+      setNewCustomers(customers);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNewCustomers();
+  }, []);
+
+  useEffect(() => {
+    if (newCustomers.length === 0) return;
+
+    const customerTrends = Array(12).fill(0); // 12 months, index 0 = Jan
+
+    newCustomers.forEach(customer => {
+      const month = new Date(customer.createdAt).getMonth(); // 0 = Jan, 11 = Dec
+      customerTrends[month] += 1;
+    });
+
+    console.log("Customer Trends: ", customerTrends);
+
+    setSeries([
+      {
+        name: "Khách hàng mới",
+        data: customerTrends,
+      },
+    ]);
+  }, [newCustomers]);
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
       <div className="flex flex-col gap-5 mb-6 sm:flex-row sm:justify-between">

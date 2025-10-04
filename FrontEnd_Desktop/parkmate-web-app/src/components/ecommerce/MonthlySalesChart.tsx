@@ -3,8 +3,10 @@ import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 import { MoreDotIcon } from "@/components/icons";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
+import userService, { UserResponse } from "@/lib/services/userService";
+import orderService, { orderResponse } from "@/lib/services/orderService";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -51,7 +53,7 @@ export default function MonthlySalesChart() {
         "Sep",
         "Oct",
         "Nov",
-        "Dec",
+        "Dec",        
       ],
       axisBorder: {
         show: false,
@@ -91,12 +93,14 @@ export default function MonthlySalesChart() {
       },
     },
   };
-  const series = [
+
+  const [series, setSeries] = useState([
     {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+      name: "Doanh thu",
+      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     },
-  ];
+  ]);
+
   const [isOpen, setIsOpen] = useState(false);
 
   function toggleDropdown() {
@@ -106,6 +110,52 @@ export default function MonthlySalesChart() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
+  const [customerOrders, setCustomerOrders] = useState<orderResponse[]>([]);
+
+  const fetchCustomerOrders = async () => {
+    try {
+      const customers = (await userService.getAll()).filter(user =>
+        user.roles?.some(role => role.roleName === "CUSTOMER")
+      );
+
+      const allOrders: orderResponse[] = [];
+
+      for (const customer of customers) {
+        const orders = await orderService.getOrdersOfUser(customer.id.toString());
+        allOrders.push(...orders); 
+      }
+
+      setCustomerOrders(allOrders.filter(order => order.status === "PAID" && 
+                                         new Date(order.createdAt).getFullYear() === new Date().getFullYear()));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomerOrders();
+  }, []);
+
+  useEffect(() => {
+    if (customerOrders.length === 0) return;
+
+    const monthlySales = Array(12).fill(0); // 12 months, index 0 = Jan
+
+    customerOrders.forEach(order => {
+      const month = new Date(order.createdAt).getMonth(); // 0 = Jan, 11 = Dec
+      monthlySales[month] += order.finalAmount || 0;
+    });
+
+    console.log("Monthly Sales: ", monthlySales);
+
+    setSeries([
+      {
+        name: "Doanh thu",
+        data: monthlySales,
+      },
+    ]);
+  }, [customerOrders]);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">

@@ -133,7 +133,7 @@ export const EcommerceMetrics = () => {
               Doanh thu tháng này
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              {thisMonthRevenue} ₫
+              {thisMonthRevenue.toLocaleString('vi-VN')} ₫
             </h4>
           </div>
 
