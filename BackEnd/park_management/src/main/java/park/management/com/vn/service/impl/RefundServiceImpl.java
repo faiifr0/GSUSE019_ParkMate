@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import park.management.com.vn.constant.TicketStatus;
 import park.management.com.vn.entity.OrderRefund;
 import park.management.com.vn.entity.TicketOrder;
 import park.management.com.vn.entity.TransactionRecord;
@@ -26,7 +27,7 @@ import park.management.com.vn.service.RefundService;
 public class RefundServiceImpl implements RefundService {
 
   private final TicketRepository ticketRepository;
-  private final OrderRefundRepository refundRepository;
+  private final OrderRefundRepository refundRepository;  
   private final TicketPassRepository passRepository;
   private final WalletRepository walletRepository;
   private final TransactionRecordRepository transactionRecordRepository;
@@ -80,12 +81,17 @@ public class RefundServiceImpl implements RefundService {
 
       TransactionRecord tr = new TransactionRecord();
       tr.setWallet(wallet);
-      tr.setAmount(amount.doubleValue()); // credit
+      tr.setAmount(amount.doubleValue()); // credit      
+      tr.setType("Hoàn tiền cho order id " + order.getId());
       transactionRecordRepository.save(tr);
 
       refund.setStatus(OrderRefund.Status.COMPLETED);
       refund.setProcessedAt(LocalDateTime.now());
       refund = refundRepository.save(refund);
+
+      order.setStatus(TicketStatus.REFUNDED);
+      order.setUpdatedAt(LocalDateTime.now());
+      ticketRepository.save(order);
     } else {
       // External gateway (PayOS) case: leave PENDING, webhook should mark COMPLETED later.
     }
