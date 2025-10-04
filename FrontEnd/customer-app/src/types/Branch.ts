@@ -19,20 +19,11 @@ export interface BranchRaw {
   name: string;
   address?: string;
   location?: string; // "lat,lon"
-  openTime?: {
-    hour: number;
-    minute: number;
-    second?: number;
-    nano?: number;
-  };
-  closeTime?: {
-    hour: number;
-    minute: number;
-    second?: number;
-    nano?: number;
-  };
+  openTime?: string;  // <-- sửa từ object sang string
+  closeTime?: string; // <-- sửa từ object sang string
   status?: boolean;
   imageUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 }
+

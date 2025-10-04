@@ -1,19 +1,21 @@
+// branchService.ts
 import axiosClient from "../api/axiosClient";
 import { Branch, BranchRaw } from "../types/Branch";
 
-// Chuyển openTime/closeTime sang "HH:mm"
-const formatTime = (timeObj?: { hour?: number | null; minute?: number | null }): string | undefined => {
-  if (!timeObj || timeObj.hour == null || timeObj.minute == null) return undefined;
-  const hh = String(timeObj.hour).padStart(2, "0");
-  const mm = String(timeObj.minute).padStart(2, "0");
+// Chuyển "HH:mm:ss" -> "HH:mm"
+const formatTime = (timeStr?: string): string | undefined => {
+  if (!timeStr) return undefined;
+  const [hh, mm] = timeStr.split(":");
+  if (!hh || !mm) return undefined;
   return `${hh}:${mm}`;
 };
 
 // Chuyển BranchRaw -> Branch
 const formatBranch = (b: BranchRaw): Branch => {
   let lat = 0, lon = 0;
+
   if (b.location) {
-    const [latStr, lonStr] = b.location.split(",");
+    const [latStr, lonStr] = b.location.split(",").map(s => s.trim());
     const parsedLat = Number(latStr);
     const parsedLon = Number(lonStr);
     if (!isNaN(parsedLat)) lat = parsedLat;
@@ -26,10 +28,10 @@ const formatBranch = (b: BranchRaw): Branch => {
     address: b.address,
     lat,
     lon,
-    open: formatTime(b.openTime),
-    close: formatTime(b.closeTime),
+    open: formatTime(b.openTime as string),
+    close: formatTime(b.closeTime as string),
     status: b.status ?? false,
-    imageUrl: b.imageUrl ?? "", // dùng imageUrl từ API
+    imageUrl: b.imageUrl ?? "",
     createdAt: b.createdAt,
     updatedAt: b.updatedAt,
   };

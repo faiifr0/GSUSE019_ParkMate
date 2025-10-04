@@ -108,11 +108,6 @@ export default function AppNavigatorInnerBase() {
         await AsyncStorage.removeItem("token");
       }
 
-      // 3️⃣ Force navigation về Login
-      navigationRef.current?.reset({
-        index: 0,
-        routes: [{ name: "Login" }],
-      });
 
       setIsValid(false);
     } catch (err) {

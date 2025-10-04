@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Dimensions,
+  Platform,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/types";
@@ -13,6 +14,7 @@ import ticketTypeService from "../../services/ticketService";
 import colors from "../../constants/colors";
 import { Ticket } from "../../types/Ticket";
 import { useNavigation } from "@react-navigation/native";
+import { navigationRef } from "../../navigation/AppNavigator";
 
 type Props = NativeStackScreenProps<RootStackParamList, "TicketList">;
 
@@ -185,16 +187,20 @@ export default function TicketListScreen({ route }: Props) {
           <Text style={{ fontSize: 16, fontWeight: "600", color: colors.textPrimary }}>
             {cart.length} vé - {total.toLocaleString()} VND
           </Text>
-          <TouchableOpacity
+<TouchableOpacity
   style={{
     backgroundColor: colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12,
   }}
-  onPress={() =>
-    navigation.getParent()?.navigate("OrderConfirm", { cart, branchId })
-  }
+  onPress={() => {
+    if (Platform.OS === "web") {
+      navigation.navigate("OrderConfirm", { cart, branchId });
+    } else {
+      navigationRef.current?.navigate("OrderConfirm", { cart, branchId });
+    }
+  }}
 >
   <Text style={{ color: "#fff", fontWeight: "bold" }}>Tiếp tục</Text>
 </TouchableOpacity>

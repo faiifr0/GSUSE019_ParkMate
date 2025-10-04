@@ -7,6 +7,7 @@ import colors from "../../constants/colors";
 import { LinearGradient } from "expo-linear-gradient";
 import { UserRequest } from "../../types/User";
 import { useAuth } from "../../hooks/useAuth";
+import { CommonActions } from '@react-navigation/native';
 
 export default function RegisterScreen() {
   const { register, loading } = useAuth(); // ✅ dùng useAuth
@@ -45,12 +46,14 @@ export default function RegisterScreen() {
       setSnackbarMsg("🎉 Đăng ký thành công!");
       setSnackbarColor(colors.success);
       setSnackbarVisible(true);
-      setTimeout(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "Home" as never }],
-        });
-      }, 1500);
+setTimeout(() => {
+  navigation.dispatch(
+    CommonActions.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+    })
+  );
+}, 500);
     } else {
       setSnackbarMsg(result.error || "❌ Đăng ký thất bại");
       setSnackbarColor(colors.error);
