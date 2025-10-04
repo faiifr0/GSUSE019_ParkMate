@@ -26,8 +26,8 @@ const persistConfig = {
 const rootReducer = combineReducers({
   user: userReducer,
   aiChat: aiChatReducer, // ✅ thêm AI chat slice
-      branch: branchReducer,
-    ticket: ticketReducer,
+  branch: branchReducer,
+  ticket: ticketReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -18,7 +18,6 @@ import BottomTabNavigator from "./BottomTabNavigator";
 import NotificationScreen from "../screens/Notification/NotificationScreen";
 import NotificationDetailScreen from "../screens/Notification/NotificationDetailScreen";
 import BranchDetailScreen from "../screens/Branch/BranchDetailScreen";
-import GamesScreen from "../screens/Branch/GamesScreen";
 import WalletScreen from "../screens/Wallet/WalletScreen";
 import ContactScreen from "../screens/Contact/ContactScreen";
 import TopUpConfirmScreen from "../screens/TopUp/TopUpConfirmScreen";
@@ -31,6 +30,7 @@ import WalletTopupCancelScreen from "../screens/Wallet/WalletTopupCancelScreen";
 import OrderConfirmScreen from "../screens/Order/OrderConfirmScreen";
 import OrderDetailScreen from "../screens/Order/OrderDetailScreen";
 import OrderListScreen from "../screens/Order/OrderListScreen";
+import GameDetailScreen from "../screens/Game/GameDetailScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -56,7 +56,7 @@ function MainAppStack() {
       <Stack.Screen name="Notifications" component={NotificationScreen} />
       <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} />
       <Stack.Screen name="BranchDetail" component={BranchDetailScreen} />
-      <Stack.Screen name="GameDetail" component={GamesScreen} />
+      <Stack.Screen name="GameDetail" component={GameDetailScreen} />
       <Stack.Screen name="Wallet" component={WalletScreen} />
       <Stack.Screen name="TopUp" component={TopUpConfirmScreen} />
       <Stack.Screen name="Contact" component={ContactScreen} />
