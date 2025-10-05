@@ -44,9 +44,11 @@ export const BranchEcommerceMetrics = () => {
       const newOrdersThisMonth = allOrders.filter(order =>
         order.status === "PAID" &&
         order.parkBranchId === currUser?.parkBranchId &&
-        new Date(order.details[0].ticketDate).getMonth() === currentMonth &&
-        new Date(order.details[0].ticketDate).getFullYear() === currentYear
+        new Date(order.createdAt).getMonth() === currentMonth &&
+        new Date(order.createdAt).getFullYear() === currentYear
       );
+
+      console.log("newOrdersThisMonth", newOrdersThisMonth);
 
       setNewOrders(newOrdersThisMonth);
 
