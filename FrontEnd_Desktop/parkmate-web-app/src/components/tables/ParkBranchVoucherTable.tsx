@@ -105,7 +105,7 @@ export default function ParkBranchVoucherTable() {
     const newErrors: ErrorMessages = {};
 
     const isValidDateFormat = (value: string) =>
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?$/.test(value);
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{3})?)?$/.test(value);
     
     if (!formData?.code || formData.code.trim() === '') {
       newErrors.code = 'Mã voucher không được để trống.';
@@ -369,7 +369,7 @@ export default function ParkBranchVoucherTable() {
                   <div className="grid grid-cols-12 my-9 gap-x-4">                    
                     <div className="col-span-6">
                       <Label>Bắt đầu từ</Label>
-                      <input
+                      <Input
                         type="datetime-local"
                         value={formData?.startAt ?? ''}                        
                         onChange={(e) => setFormData({ ...formData, startAt: e.target.value })}  
@@ -382,7 +382,7 @@ export default function ParkBranchVoucherTable() {
 
                     <div className="col-span-6">
                       <Label>Kết thúc lúc</Label>
-                      <input
+                      <Input
                         type="datetime-local"
                         value={formData?.endAt ?? ''}                       
                         onChange={(e) => setFormData({ ...formData, endAt: e.target.value })} 

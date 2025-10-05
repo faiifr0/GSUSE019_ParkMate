@@ -49,8 +49,8 @@ export const EcommerceMetrics = () => {
 
       const newOrdersThisMonth = allOrders.filter(order =>
         order.status === "PAID" &&
-        new Date(order.details[0].ticketDate).getMonth() === currentMonth &&
-        new Date(order.details[0].ticketDate).getFullYear() === currentYear
+        new Date(order.createdAt).getMonth() === currentMonth &&
+        new Date(order.createdAt).getFullYear() === currentYear
       );
 
       setNewOrders(newOrdersThisMonth);
