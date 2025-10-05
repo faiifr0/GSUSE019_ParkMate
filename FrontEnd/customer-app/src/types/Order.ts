@@ -41,3 +41,15 @@ export interface UpdateOrderPayload {
   status: string; // "PENDING" | "CONFIRMED" | ...
   note?: string;
 }
+export interface RefundOrderPayload {
+  reason: string;
+}
+
+export interface RefundOrderResponse {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
+  order: Order;
+}

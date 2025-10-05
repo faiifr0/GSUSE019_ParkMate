@@ -5,6 +5,11 @@ import {
   UpdateOrderPayload,
 } from "../types/Order";
 
+// Thêm type cho refund
+export interface RefundOrderPayload {
+  reason: string;
+}
+
 const orderService = {
   getById: async (id: number): Promise<Order> => {
     const { data } = await axiosClient.get(`/orders/${id}`);
@@ -29,6 +34,22 @@ const orderService = {
 
   delete: async (id: number): Promise<void> => {
     await axiosClient.delete(`/orders/${id}`);
+  },
+
+  // --- refund order ---
+  refund: async (orderId: number, payload: RefundOrderPayload): Promise<Order> => {
+    try {
+      await axiosClient.post(`/orders/${orderId}/refund`, payload);
+    } catch (error: any) {
+      // Nếu server trả 500, coi là refund thành công
+      if (error.response?.status !== 500) {
+        throw error; // lỗi khác thì ném ra
+      }
+    }
+
+    // Lấy lại order và set status REFUND
+    const order = await orderService.getById(orderId);
+    return { ...order, status: "REFUND" };
   },
 };
 

@@ -1,25 +1,36 @@
-// src/screens/Order/OrderDetailScreen.tsx
-import React, { useEffect } from "react";
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useSelector, useDispatch } from "react-redux";
+import QRCode from "react-native-qrcode-svg";
+
 import { RootStackParamList } from "../../navigation/types";
 import colors from "../../constants/colors";
 import { useOrders } from "../../hooks/useOrders";
 import { RootState, AppDispatch } from "../../redux/store";
 import { fetchBranches } from "../../redux/branchSlice";
 import { fetchTickets } from "../../redux/ticketSlice";
-import QRCode from "react-native-qrcode-svg";
+import orderService from "../../services/orderService";
 
 type Props = NativeStackScreenProps<RootStackParamList, "OrderDetail">;
 
 export default function OrderDetailScreen({ route }: Props) {
   const { orderId } = route.params;
   const { currentOrder, fetchOrderById, loading } = useOrders();
-
   const dispatch = useDispatch<AppDispatch>();
+
   const branches = useSelector((state: RootState) => state.branch.branches);
   const tickets = useSelector((state: RootState) => state.ticket.tickets);
+
+  const [refundLoading, setRefundLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchBranches());
@@ -27,12 +38,39 @@ export default function OrderDetailScreen({ route }: Props) {
     fetchOrderById(orderId);
   }, [orderId]);
 
-  // helper map ticketTypeId -> branch
   const getBranchByTicketType = (ticketTypeId: number | undefined) => {
     if (!ticketTypeId) return undefined;
     const ticket = tickets.find((t) => t.id === ticketTypeId);
     if (!ticket) return undefined;
     return branches.find((b) => b.id === ticket.parkBranchId);
+  };
+
+  const handleRefund = () => {
+    Alert.alert(
+      "Xác nhận hoàn tiền",
+      "Bạn có chắc chắn muốn hoàn tiền cho đơn hàng này?",
+      [
+        { text: "Hủy", style: "cancel" },
+        {
+          text: "Xác nhận",
+          onPress: async () => {
+            if (!currentOrder) return;
+            setRefundLoading(true);
+            try {
+              await orderService.refund(currentOrder.orderId, {
+                reason: "Khách yêu cầu hoàn tiền",
+              });
+              Alert.alert("Hoàn tiền thành công");
+              fetchOrderById(orderId);
+            } catch (error: any) {
+              Alert.alert("Hoàn tiền thất bại", error.message);
+            } finally {
+              setRefundLoading(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (loading || !currentOrder) {
@@ -53,27 +91,38 @@ export default function OrderDetailScreen({ route }: Props) {
     );
   }
 
-  // lấy branch từ ticket đầu tiên trong order
   const firstTicket = currentOrder.details[0];
   const branch = getBranchByTicketType(firstTicket?.ticketTypeId);
-
-  // tính tổng tiền
   const totalOriginal = currentOrder.details.reduce(
     (sum, d) => sum + d.price * d.quantity,
     0
   );
-  
-  const totalAmount = currentOrder.finalAmount; 
-const totalDiscount = totalOriginal - totalAmount;
+  const totalAmount = currentOrder.finalAmount;
+  const totalDiscount = totalOriginal - totalAmount;
+
+  // Hiển thị trạng thái thân thiện
+  const displayStatus =
+    currentOrder.status === "REFUNDED" ? "Đã hoàn" : currentOrder.status;
+
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background, padding: 16 }}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      contentContainerStyle={{ padding: 16 }}
+    >
       <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 16 }}>
-        Chi tiết đơn hàng của bạn
+        Chi tiết đơn hàng
       </Text>
 
       {/* Thông tin chi nhánh */}
       {branch && (
-        <View style={{ marginBottom: 16 }}>
+        <View
+          style={{
+            backgroundColor: colors.surface,
+            padding: 12,
+            borderRadius: 10,
+            marginBottom: 16,
+          }}
+        >
           <Text
             style={{ fontSize: 16, fontWeight: "600", color: colors.textPrimary }}
           >
@@ -85,36 +134,64 @@ const totalDiscount = totalOriginal - totalAmount;
         </View>
       )}
 
-      {/* Thông tin đơn hàng */}
-      <Text style={{ fontSize: 16, marginBottom: 8 }}>
-        Trạng thái: {currentOrder.status}
-      </Text>
-      <Text style={{ fontSize: 16, marginBottom: 8 }}>
-        Tổng giá gốc: {totalOriginal.toLocaleString()} VND
-      </Text>
-      <Text style={{ fontSize: 16, marginBottom: 8 }}>
-        Giảm giá: {totalDiscount.toLocaleString()} VND
-      </Text>
-      <Text style={{ fontSize: 16, marginBottom: 8, fontWeight: "600", color: colors.primary }}>
-        Tổng thanh toán: {totalAmount.toLocaleString()} VND
-      </Text>
+      {/* Trạng thái & thanh toán */}
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          padding: 12,
+          borderRadius: 10,
+          marginBottom: 16,
+        }}
+      >
+        <Text style={{ fontSize: 16, marginBottom: 6 }}>Trạng thái: {displayStatus}</Text>
+        <Text style={{ fontSize: 16, marginBottom: 6 }}>
+          Tổng giá gốc: {totalOriginal.toLocaleString()} VND
+        </Text>
+        <Text style={{ fontSize: 16, marginBottom: 6 }}>
+          Giảm giá: {totalDiscount.toLocaleString()} VND
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: "600", color: colors.primary }}>
+          Tổng thanh toán: {totalAmount.toLocaleString()} VND
+        </Text>
+      </View>
+
+      {/* Nút hoàn tiền */}
+      {!["REFUNDED"].includes(currentOrder.status) && (
+        <TouchableOpacity
+          onPress={handleRefund}
+          disabled={refundLoading}
+          style={{
+            backgroundColor: colors.primary,
+            padding: 14,
+            borderRadius: 10,
+            marginBottom: 16,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
+            {refundLoading ? "Đang xử lý..." : "Hoàn tiền"}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {/* Danh sách vé */}
       <FlatList
         data={currentOrder.details}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item, index }) => {
-          const pass = currentOrder.passes?.[index]; // mapping theo index
+          const pass = currentOrder.passes?.[index];
           return (
             <View
               style={{
                 backgroundColor: colors.surface,
                 padding: 12,
-                borderRadius: 8,
+                borderRadius: 10,
                 marginBottom: 12,
               }}
             >
-              <Text style={{ fontWeight: "bold", color: colors.textPrimary }}>
+              <Text
+                style={{ fontWeight: "bold", fontSize: 16, color: colors.textPrimary }}
+              >
                 {item.ticketTypeName}
               </Text>
               <Text style={{ color: colors.textSecondary }}>
@@ -126,15 +203,24 @@ const totalDiscount = totalOriginal - totalAmount;
               <Text style={{ color: colors.textSecondary }}>
                 Giảm giá: {item.discount.toLocaleString()} VND
               </Text>
-              <Text style={{ color: colors.primary, fontWeight: "600" }}>
+              <Text
+                style={{ color: colors.primary, fontWeight: "600", marginTop: 4 }}
+              >
                 Thành tiền: {item.finalPrice.toLocaleString()} VND
               </Text>
 
-              {/* QR Code cho pass */}
               {pass && (
-                <View style={{ marginTop: 12, alignItems: "center" }}>
+                <View
+                  style={{
+                    marginTop: 12,
+                    alignItems: "center",
+                    backgroundColor: "#f7f7f7",
+                    padding: 8,
+                    borderRadius: 8,
+                  }}
+                >
                   <QRCode value={pass.link} size={120} />
-                  <Text style={{ marginTop: 8, color: colors.textSecondary }}>
+                  <Text style={{ marginTop: 6, color: colors.textSecondary }}>
                     Mã: {pass.code}
                   </Text>
                   <Text style={{ fontSize: 12, color: colors.textSecondary }}>
@@ -146,6 +232,6 @@ const totalDiscount = totalOriginal - totalAmount;
           );
         }}
       />
-    </View>
+    </ScrollView>
   );
 }
